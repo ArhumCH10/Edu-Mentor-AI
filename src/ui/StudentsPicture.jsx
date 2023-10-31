@@ -9,7 +9,7 @@ const StyledDesign = styled.div`
   overflow: hidden; /* Hide overflow content */
   height: 90vh;
   top: auto; /* Reset top positioning */
-  bottom: 0vh; /* Position at the bottom and hide 10% of its height */
+  bottom: -6.5vh; /* Position at the bottom and hide 10% of its height */
   right: 0; /* Adjust right positioning as needed */
   margin-bottom: 0; /* Offset the bottom margin to compensate for the hidden part */
   overflow: hidden;
@@ -22,7 +22,7 @@ const Img = styled.img`
   min-width: 100%; /* Ensure the image does not exceed the container's width */
   transform: translateX(10%);
   overflow: hidden;
-  margin-top: 150px; /* Adjust this value to move the pictures down */
+  margin-top: 200px; /* Adjust this value to move the pictures down */
 `;
 
 export default function StudentsPicture({ currentImageIndex, images }) {

@@ -1,4 +1,6 @@
+import FifthOne from '../pages/mainPage/FifthOne';
 import FirstOne from '../pages/mainPage/FirstOne'
+import FourthOne from '../pages/mainPage/FourthOne';
 import NavBar from './NavBar'
 import { useState, useEffect } from "react";
 
@@ -23,6 +25,8 @@ export default function MainLayout() {
     <>
     <NavBar currentImageIndex={currentImageIndex}/>
     <FirstOne currentImageIndex={currentImageIndex} images={images}/>
+    <FourthOne />
+    <FifthOne/>
     </>
   )
 }
