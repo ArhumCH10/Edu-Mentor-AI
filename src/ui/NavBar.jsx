@@ -1,24 +1,27 @@
-import AppBar from '@mui/material/AppBar';
-import React from 'react';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import Logo from './Logo';
-import LoginButton from './LoginButton';
-import PropTypes from 'prop-types';
+import AppBar from "@mui/material/AppBar";
+import React from "react";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import Button from "@mui/material/Button";
+import Logo from "./Logo";
+import LoginButton from "./LoginButton";
+import PropTypes from "prop-types";
+import SignUpButton from "./SignUpButton";
 
-const pages = ['Find a mentor', 'Become a Mentor'];
+const pages = ["Find a mentor", "Become a Mentor"];
 
 const gradients = [
-  ['#3661a0', '#57cbf5'],
-  ['#00ff0a', '#009e66'],
-  ['black', '#00ff0a'],
+  ["#3661a0", "#57cbf5"],
+  ["#00ff0a", "#009e66"],
+  ["black", "#00ff0a"],
 ];
 
 function ResponsiveAppBar({ currentImageIndex }) {
-  const [backgroundGradient, setBackgroundGradient] = React.useState(gradients[0]);
+  const [backgroundGradient, setBackgroundGradient] = React.useState(
+    gradients[0]
+  );
 
   React.useEffect(() => {
     setBackgroundGradient(gradients[currentImageIndex % gradients.length]);
@@ -29,7 +32,7 @@ function ResponsiveAppBar({ currentImageIndex }) {
       <Container
         maxWidth="2xl"
         sx={{
-          paddingTop: '20px',
+          paddingTop: "20px",
           background: `linear-gradient(to bottom, ${backgroundGradient[0]}, ${backgroundGradient[1]})`,
         }}
       >
@@ -41,13 +44,13 @@ function ResponsiveAppBar({ currentImageIndex }) {
             component="a"
             sx={{
               mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
+              display: { xs: "none", md: "flex" },
+              fontFamily: "monospace",
               fontWeight: 700,
-              letterSpacing: '.1rem',
-              color: 'inherit',
-              textDecoration: 'none',
-              cursor: 'pointer',
+              letterSpacing: ".1rem",
+              color: "inherit",
+              textDecoration: "none",
+              cursor: "pointer",
             }}
           >
             EDU MENTOR AI
@@ -56,19 +59,30 @@ function ResponsiveAppBar({ currentImageIndex }) {
           <Box
             sx={{
               flexGrow: 1,
-              display: { xs: 'none', md: 'flex' },
-              marginLeft: '165px',
+              display: { xs: "none", md: "flex" },
+              marginLeft: "165px",
             }}
           >
             {pages.map((page) => (
-              <Button key={page} sx={{ my: 2, color: 'white', marginLeft: '30px',   fontFamily: "Poppins", }}>
+              <Button
+                key={page}
+                sx={{
+                  my: 2,
+                  color: "white",
+                  marginLeft: "30px",
+                  fontFamily: "Poppins",
+                }}
+              >
                 {page}
               </Button>
             ))}
           </Box>
 
+          <Box style={{ marginRight: "1em" }}>
+            <LoginButton />
+          </Box>
           <Box>
-            <LoginButton/>
+            <SignUpButton />
           </Box>
         </Toolbar>
       </Container>
