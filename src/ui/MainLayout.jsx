@@ -5,6 +5,9 @@ import NavBar from "./NavBar";
 import { useState, useEffect } from "react";
 import SecondOne from "../pages/mainPage/SecondOne";
 import ThirdOne from "../pages/mainPage/ThirdOne";
+import EightOne from "../pages/mainPage/EightOne";
+import SeventhOne from "../pages/mainPage/SeventhOne";
+import SixthOne from "../pages/mainPage/SixthOne";
 
 const images = [
   "/firstpagepicturesStudents.png",
@@ -35,6 +38,10 @@ export default function MainLayout() {
       <ThirdOne />
       <FourthOne />
       <FifthOne />
+      <SixthOne />
+      <SeventhOne />
+      <EightOne />
+
     </>
   );
 }

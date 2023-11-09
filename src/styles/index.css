@@ -7,5 +7,236 @@
     padding: 0;
 }
 
+
+/* Home Page 6 CSS  */
+:root{
+    
+    --color-heading:black;
+}
+body{
+    overflow-x: hidden;
+}
+
+.logo{
+ width: 180px;
+ height: 120px;
+ margin: 5px;
+}
+
+.para{
+    font-style: italic;
+    font-weight: bold;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: large;
+}
+
+
+.top-right {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-size:130%;
+    background-image: url('./sixthPageDesign1.png');
+    right: 0;
+    margin-top: 8px;
+    z-index: 1; 
+    scale: 4;
+   
+}
+.bottom-left {
+    background-image: url('sixthPageDesign2.png');
+    margin-top: 308px;
+    z-index: 1; 
+    background-size:cover;
+    width: 200px; 
+    scale: 2.1;
+    height: 100px; 
+   
+}
+
+   .line{
+    background: linear-gradient(to top,#3661a0, #57cbf5);
+   }
+   
   
+   .sparow{
+    background-image: url('./owlpicture.png'); 
+    margin-left:120px;
+    margin-top: 60px;
+    z-index: 1;
+    position: absolute;
+    background-size:contain;
+    width: 200px; 
+    scale: 3.5;
+    height: 100px;
+   }
+   .lining{
+    font-weight: bolder;
+    text-align: center;
+    color: var(--color-heading);
+    font-size: 50px;
+
+   }
+   .color-bg{
+    color: white;
+    font-size: 25px;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: italic;
+   }
+   
+   .student{
+      width: 250px;
+      height: 150px;
+      
+   }
+   .badge{
+    background-color: rgb(25, 228, 52);
+    width: 250px;
+    border-radius: 11px;
+    box-shadow:  10px rgb(150, 228, 104);
+    color: black;
+    font-weight: bolder;
+   }
+   .green1{
+    height: 130px;
+    width: 350px;
+   }
+
+   /* Page 7 CSS */
+   .SeventhOneLayout {
+    background-color: black;
+    color: white;
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
   
+  .corner {
+    position: absolute;
+    width: 100px;
+    height: 97px;
+    background-size: cover;
+    z-index: -1;
+    scale: 4;
+  }
+  
+  .seven-top-left {
+    background-image: url('seventhPageDesign1.png');
+    top: 57px;
+    left: 37px;
+    transform: rotate(-110deg);
+    z-index: 1;
+  }
+  
+  .seven-top-right {
+    background-image: url('./seventhPageDesign2.png');
+    top: -55px;
+    right: 40px;
+    transform: rotate(11deg);
+    z-index: 1;
+  }
+  
+  .seven-bottom-left {
+    background-image: url('./seventhPageDesign3.png');
+    bottom: 115px;
+    left: -31px;
+    transform: rotate(18deg);
+    z-index: 1;
+  }
+  
+  .seven-bottom-right {
+    background-image: url('./seventhPageDesign4.png');
+    bottom: 100px;
+    right: 100px;
+    transform: rotate(80deg);
+    z-index: 1;
+  }
+  
+  .img {
+    width: 70px;
+    height: 70px;
+    margin-top: 10px;
+  }
+  
+  .img1 {
+    width: 40px;
+    height: 30px;
+    margin-top: -35px;
+  }
+
+  .checked {
+    color: orange;
+  }
+  
+  .setCard {
+    padding: 10px;
+    background-color: rgb(241, 236, 236);
+    border-radius: 35px;
+    color: rgb(0, 0, 0);
+    height: auto;
+    padding-left: 30px;
+    padding-right: 25px;
+    margin: 1px 0px 30px 63px;
+  }
+  
+   /* page 8 CSS */
+.back{
+    justify-content:center;
+    height: 390px;
+    margin: auto;
+    display: flex;
+    opacity: 0.1;  
+}
+.bg1{
+  height: 555px;
+}
+
+.owl-Pic{
+  background:radial-gradient(circle, rgba(252,252,252,0.7) 75%, rgba(128,200,244,0.9) 100%),url('/logo.png');
+  background-repeat: no-repeat;
+  background-position:32%;
+  width: 100%;
+}
+.girl{
+   height: 530px;
+   width: 850px;
+   border-radius: 60px;
+}
+
+.btn-green{
+   color: #262222;
+   font-weight: bolder;
+   background-color: greenyellow;
+   font-size: 30px;
+   margin-left: 12vh;
+   padding-right: 35px;
+   padding-left: 35px;
+   border-radius: 50px;
+}
+/* ep= eight page */
+.ep-para{ 
+   font-size: 30px;
+   font-weight: bold;
+   font-style: oblique;
+}
+.ep-heading{
+   font-size: 50px ;
+   font-weight: bolder;
+   text-align: center;
+}
+.cart{
+   height: 90px;
+   width:80px;
+}
+.bg-color{
+    background: linear-gradient(to top,#3661a0, #57cbf5);
+}
+
+.footer{
+   background-color: black;
+   color: white;
+   text-align: center;
+ 
+}

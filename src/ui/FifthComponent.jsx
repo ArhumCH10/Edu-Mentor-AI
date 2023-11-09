@@ -10,6 +10,7 @@ const StyledPage = styled.div`
   height: 50vh;
   width: 100%;
   margin-top: 15px;
+  z-index: 2;
 `;
 
 const PageWrapper = styled.div`

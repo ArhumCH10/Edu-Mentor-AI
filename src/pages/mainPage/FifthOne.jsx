@@ -10,7 +10,7 @@ const StyledPage = styled.div`
 
 export default function FifthOne() {
   return (
-    <StyledPage>
+    <StyledPage >
         <FifthOneDesign/>
         <FifthContent/>
         <FifthTwoDesign/>
