@@ -7,7 +7,7 @@ const StyledDesign = styled.div`
   align-items: start;
   left: 0;
   overflow: hidden;
-  bottom: -200vh;
+  bottom: -570vh;
   z-index: 999; /* Set a high z-index value to ensure it appears above other components */
 `;
 

@@ -16,15 +16,15 @@ function MiddleSection() {
         <div className="row mt-3">
           <div className="col-lg-4">
             <img className="student" src="searchingpicture.png" alt="" />
-            <h1>Search Students</h1>
+            <h2>Search Students</h2>
           </div>
           <div className="col-lg-4">
             <img className="student" src="businesspicture.png" alt="" />
-            <h1>Grow Business</h1>
+            <h2>Grow Business</h2>
           </div>
           <div className="col-lg-4">
             <img className="student" src="earningpicture.png" alt="" />
-            <h1>Paid Securely</h1>
+            <h2>Paid Securely</h2>
           </div>
         </div>
         <div className="row justify-content-center">

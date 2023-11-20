@@ -26,6 +26,16 @@ const useStyles = makeStyles(() => ({
   content: {
     padding: "20px",
   },
+  customButton: {
+    borderRadius: "10em",
+    marginTop: "2em",
+    background: "#00FF0A",
+    fontWeight: "bold",
+    padding: "1em 1em",
+    cursor: "pointer",
+    color: "black",
+    textAlign: 'center'
+  },
 }));
 
 const SecondOne = () => {
@@ -225,18 +235,14 @@ const SecondOne = () => {
             <Typography variant="h6" style={{ marginTop: "1em" }}>
               {tabText[tabs[value]].description}
             </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              style={{
-                borderRadius: "10em",
-                marginTop: "2em",
-                background: "#00FF0A",
-                fontWeight: "bold",
+            <div
+              className={classes.customButton}
+              onClick={() => {
+                // Handle button click
               }}
             >
               Start Your Beautiful Journey Now
-            </Button>
+            </div>
           </Grid>
           <Grid item xs={6}>
             <Grid container justifyContent="center">

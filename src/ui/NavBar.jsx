@@ -2,9 +2,9 @@ import AppBar from "@mui/material/AppBar";
 import React from "react";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+// import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
+// import Button from "@mui/material/Button";
 import Logo from "./Logo";
 import LoginButton from "./LoginButton";
 import PropTypes from "prop-types";
@@ -38,45 +38,41 @@ function ResponsiveAppBar({ currentImageIndex }) {
       >
         <Toolbar disableGutters>
           <Logo />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
+          <a
+            href="/"
+            style={{
+              marginRight: "4em",
+              marginLeft: '1rem',
               fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".1rem",
               color: "inherit",
               textDecoration: "none",
               cursor: "pointer",
+              fontSize: "1.5em",
             }}
           >
             EDU MENTOR AI
-          </Typography>
+          </a>
 
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: "none", md: "flex" },
-              marginLeft: "165px",
-            }}
-          >
+          <div style={{ flexGrow: 1, marginLeft: "100px" }}>
             {pages.map((page) => (
-              <Button
+              <button
                 key={page}
-                sx={{
-                  my: 2,
+                style={{
+                  margin: "0 15px",
+                  padding: "10px",
                   color: "white",
-                  marginLeft: "30px",
                   fontFamily: "Poppins",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  cursor: "pointer",
                 }}
               >
                 {page}
-              </Button>
+              </button>
             ))}
-          </Box>
+          </div>
 
           <Box style={{ marginRight: "1em" }}>
             <LoginButton />
