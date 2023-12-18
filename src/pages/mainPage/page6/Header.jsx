@@ -1,8 +1,8 @@
 
 function Header() {
   return (
-    <div className="row" style={{ backgroundColor: 'white', marginTop: '50px'}}>
-      <div className="col-lg-4">
+    <div className="row" style={{ backgroundColor: 'white', marginTop: '-25px'}}>
+      <div className="col-lg-4" >
         <img className="logo ms-5" src="guranteepicture.png" alt="" />
       </div>
       <div className="col-lg-5 mt-5 para">
