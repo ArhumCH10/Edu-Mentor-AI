@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { HiArrowRightOnRectangle } from 'react-icons/hi2';
-
+import { useNavigate } from 'react-router-dom';
 const LoginButton = () => {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseEnter = () => {
@@ -12,6 +13,9 @@ const LoginButton = () => {
     setIsHovered(false);
   };
 
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
   return (
     <button
       style={{
@@ -37,9 +41,7 @@ const LoginButton = () => {
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={() => {
-        // Add your login logic here
-      }}
+      onClick={handleLoginClick}
     >
       <HiArrowRightOnRectangle style={{ marginRight: '8px' }} />
       Login

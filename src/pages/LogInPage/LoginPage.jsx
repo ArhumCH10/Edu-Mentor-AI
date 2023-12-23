@@ -1,17 +1,16 @@
 import NavBar from "../../ui/NavBar";
+import { useEffect } from 'react';
 
-function SignUpPage() {
+function LoginPage() {
   const styles = {
-    body: {
-      margin: 0,
-      fontFamily: 'Arial, sans-serif',
-    },
+    
     mainContainer: {
       display: 'flex',
       flexDirection: 'row',
       backgroundColor: '#4283BB',
       minHeight: '100vh',
       alignItems: 'center',
+      
     },
     leftSection: {
       flex: 1,
@@ -31,9 +30,7 @@ function SignUpPage() {
       width: '25em',
       zIndex: 3,
       marginLeft: '8rem',
-      transform: 'scale(1.7)',
-      marginTop: '3rem',
-      marginBottom: '90px',
+      transform: 'scale(1.3)',
       position: 'relative',
     },
     rightSection: {
@@ -58,7 +55,8 @@ function SignUpPage() {
     heading: {
       fontWeight: 'bold',
       fontSize: '2.5em',
-      marginBottom: '1em',
+      marginLeft:'6rem',
+      marginBottom: '2rem',
     },
     formContent: {
       width: '100%',
@@ -73,8 +71,8 @@ function SignUpPage() {
       padding: '0.5em',
     },
     submitBtn: {
-      marginTop: '1em',
-      margin:'auto',
+      marginTop: '1rem',
+      marginLeft:'6rem',
       backgroundColor: '#4DFF00',
       color: 'black',
       fontWeight: 'bold',
@@ -87,38 +85,51 @@ function SignUpPage() {
       top: 100,
       marginLeft: '-4rem',
       marginTop: '-3rem',
-      width :'56%',
+      width :'58%',
       opacity: 0.2,
       zIndex: 1,
     },
   };
 
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflowY = 'auto';
+      document.documentElement.style.overflowY = 'auto';
+    };
+  }, []);
   return (
     <>
     <NavBar currentImageIndex={0} />
     <div style={styles.mainContainer}>
       <div style={styles.leftSection}>
-        <h2 style = {{color:'white',zIndex:2,margin:'auto',marginTop:'2rem'}}>Start Earning Money On </h2>
-        <h3 style = {{color:'white',zIndex:2,margin:'auto'}}>Your Schedule</h3>
-        <img src="d1.png" alt="design1" style={{height:'20%',width:'20%', margin:'auto',zIndex:3,marginTop:'3rem'}} />
+        <div style={{marginLeft:'10rem',marginTop:'2rem',display:'flex',flexDirection:'row'}}>
+        <img src="logo.png" alt="pic" style={{height:'20%',width:'20%', zIndex:3,marginTop:'-2rem'}} />
+        <h2 style = {{color:'white',zIndex:2}}>Edu Mentor AI</h2>
+
+        </div>
+        <img src="d1.png" alt="design1" style={{height:'20%',width:'20%', margin:'auto',zIndex:3,marginTop:'1rem'}} />
         <div style={styles.greenBox}></div>
-        <img src="Home.png" alt="Image 1" style={styles.leftImage} />
+        <img src="student.png" alt="Image 1" style={styles.leftImage} />
       </div>
       <div style={styles.rightSection}>
-        <img src="d3.png" alt="design3" style={{height:'20%',width:'20%',marginTop:'-7rem'}}/>
-        <img src="d4.png" alt="design3" style={{height:'20%',width:'20%',marginLeft:'24rem'}}/>
+        <img src="d3.png" alt="design3" style={{height:'20%',width:'20%',marginTop:'-5rem'}}/>
+        <img src="d4.png" alt="design3" style={{height:'20%',width:'20%',marginTop:'-2rem',marginLeft:'24rem'}}/>
         <div style={styles.formContainer}>
           <div style={styles.paperContainer}>
-            <h1 style={styles.heading}>Mentor Online</h1>
+            <h1 style={styles.heading}>Login</h1>
             <form style={styles.formContent}>
               <input type="text" style={styles.formInput} placeholder="Email" required />
               <input type="password" style={styles.formInput} placeholder="Password" required />
-              <button type="submit" style={styles.submitBtn}>Sign Up with Email</button>
+              <button type="submit" style={styles.submitBtn}>Login</button>
             </form>
           </div>
         </div>
         <img className="background-image" src="logo.png" alt="Background Image" style={styles.backgroundImage} />
-        <img src="d2.png" alt="design3" style={{height:'20%',width:'20%',marginTop:'5rem',marginLeft:'-2rem'}}/>
+        <img src="d2.png" alt="design3" style={{height:'20%',width:'20%',marginTop:'2rem',marginLeft:'-2rem'}}/>
         <img src="d5.png" alt="design3" style={{height:'20%',width:'25%',marginTop:'3rem',marginLeft:'15rem'}}/>
 
       </div>
@@ -128,4 +139,4 @@ function SignUpPage() {
 }
 
 
-export default SignUpPage;
+export default LoginPage;
