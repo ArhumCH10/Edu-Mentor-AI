@@ -1,6 +1,51 @@
 import NavBar from "../../ui/NavBar";
+import { useState } from 'react';
+import { useForm } from "react-hook-form";
+import {useSignup} from './useSignup';
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function SignUpPage() {
+  const { register, handleSubmit,reset, setError, clearErrors, formState: { errors } } = useForm();
+  const [isHovered, setIsHovered] = useState(false);
+  const {mutate} = useSignup();
+  const navigate = useNavigate();
+
+  // Validation functions
+  const validateEmail = (value) => {
+    if (!/\S+@\S+\.\S+/.test(value)) {
+      setError("email", { type: "manual", message: "Please provide a valid email address" });
+    } else {
+      clearErrors("email");
+    }
+  };
+
+  const validatePassword = (value) => {
+    if (value.length < 8) {
+      setError("password", { type: "manual", message: "Password needs a minimum of 8 characters" });
+    } else {
+      clearErrors("password");
+    }
+  };
+
+  // Form submission handler
+  const onSubmit = ({ email, password }) => {
+    mutate({ email, password }).then(
+      (data) => {
+        reset();
+        if (data && data.redirectUrl) {
+          toast.success("Email Verified Successfully");
+          navigate(data.redirectUrl, { replace: true });
+        }
+      },
+      (error) => {
+        console.error(error);
+      }
+    ).finally(() => {
+      reset();
+    });
+  };
+
   const styles = {
     body: {
       margin: 0,
@@ -57,8 +102,9 @@ function SignUpPage() {
     },
     heading: {
       fontWeight: 'bold',
-      fontSize: '2.5em',
+      fontSize: '2em',
       marginBottom: '1em',
+      textAlign: 'center',
     },
     formContent: {
       width: '100%',
@@ -69,18 +115,23 @@ function SignUpPage() {
       border: 'none',
       outline: 'none',
       width: '100%',
-      marginBottom: '1em',
+      marginBottom: '2em',
       padding: '0.5em',
     },
     submitBtn: {
       marginTop: '1em',
-      margin:'auto',
-      backgroundColor: '#4DFF00',
+      margin: 'auto',
+      backgroundColor: isHovered ? '#55c703' : '#4DFF00',
       color: 'black',
       fontWeight: 'bold',
       borderRadius: '1em',
       padding: '0.5em 1em',
       cursor: 'pointer',
+      textAlign: 'center', 
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center', 
+      transition: 'background-color 0.3s',
     },
     backgroundImage: {
       position: 'absolute',
@@ -93,12 +144,13 @@ function SignUpPage() {
     },
   };
 
+
   return (
     <>
     <NavBar currentImageIndex={0} />
     <div style={styles.mainContainer}>
       <div style={styles.leftSection}>
-        <h2 style = {{color:'white',zIndex:2,margin:'auto',marginTop:'2rem'}}>Start Earning Money On </h2>
+        <h3 style = {{color:'white',zIndex:2,margin:'auto',marginTop:'2rem'}}>Start Earning Money On </h3>
         <h3 style = {{color:'white',zIndex:2,margin:'auto'}}>Your Schedule</h3>
         <img src="d1.png" alt="design1" style={{height:'20%',width:'20%', margin:'auto',zIndex:3,marginTop:'3rem'}} />
         <div style={styles.greenBox}></div>
@@ -109,12 +161,39 @@ function SignUpPage() {
         <img src="d4.png" alt="design3" style={{height:'20%',width:'20%',marginLeft:'24rem'}}/>
         <div style={styles.formContainer}>
           <div style={styles.paperContainer}>
-            <h1 style={styles.heading}>Mentor Online</h1>
-            <form style={styles.formContent}>
-              <input type="text" style={styles.formInput} placeholder="Email" required />
-              <input type="password" style={styles.formInput} placeholder="Password" required />
-              <button type="submit" style={styles.submitBtn}>Sign Up with Email</button>
-            </form>
+            <h2 style={styles.heading}>Mentor Online</h2>
+            <form
+          style={styles.formContent}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <input
+            type="text"
+            style={styles.formInput}
+            placeholder="name@gmail.com"
+            {...register("email", {
+              required: "This field is required",
+            })}
+            onBlur={(e) => validateEmail(e.target.value)}
+          />
+          {errors.email && <p style={{ color: 'red' }}>{errors.email.message}</p>}
+
+          <input
+            type="password"
+            style={styles.formInput}
+            placeholder="Your Password"
+            {...register("password", {
+              required: "This field is required",
+            })}
+            onBlur={(e) => validatePassword(e.target.value)}
+          />
+          {errors.password && <p style={{ color: 'red' }}>{errors.password.message}</p>}
+
+          <button type="submit" style={styles.submitBtn}>
+            Sign Up with Email
+          </button>
+        </form>
           </div>
         </div>
         <img className="background-image" src="logo.png" alt="Background Image" style={styles.backgroundImage} />

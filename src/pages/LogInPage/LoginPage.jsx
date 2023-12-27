@@ -22,7 +22,7 @@ function LoginPage() {
     greenBox: {
       position: 'absolute',
       marginLeft: '8rem',
-      backgroundColor: '#4DFF00',
+      background: 'linear-gradient(to bottom, #00ff0a, #009e66)',
       height: '100%',
       width: '60%',
     },
@@ -71,14 +71,19 @@ function LoginPage() {
       padding: '0.5em',
     },
     submitBtn: {
-      marginTop: '1rem',
-      marginLeft:'6rem',
+      marginTop: '1em',
+      margin: 'auto',
       backgroundColor: '#4DFF00',
       color: 'black',
       fontWeight: 'bold',
       borderRadius: '1em',
       padding: '0.5em 1em',
       cursor: 'pointer',
+      textAlign: 'center', 
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center', 
+      transition: 'background-color 0.3s',
     },
     backgroundImage: {
       position: 'absolute',
@@ -107,8 +112,6 @@ function LoginPage() {
     <div style={styles.mainContainer}>
       <div style={styles.leftSection}>
         <div style={{marginLeft:'10rem',marginTop:'2rem',display:'flex',flexDirection:'row'}}>
-        <img src="logo.png" alt="pic" style={{height:'20%',width:'20%', zIndex:3,marginTop:'-2rem'}} />
-        <h2 style = {{color:'white',zIndex:2}}>Edu Mentor AI</h2>
 
         </div>
         <img src="d1.png" alt="design1" style={{height:'20%',width:'20%', margin:'auto',zIndex:3,marginTop:'1rem'}} />
