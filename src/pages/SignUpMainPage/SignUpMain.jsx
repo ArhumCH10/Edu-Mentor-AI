@@ -167,6 +167,98 @@ function SignUpMain() {
           <img src="girl.png" alt="Image 5" style={{ width: "100%" }} />
         </div>
       </div>
+      <div style={{ background: "white", padding: "80px" }}>
+        <div
+          style={{
+            background: "black",
+            color: "white",
+            display: "flex",
+            padding: "20px 80px",
+
+          }}
+        >
+          {/* Left Partitions */}
+          <div style={{ flex: 1 }}>
+            <img
+              src="teaching.png"
+              alt="Left Image 1"
+              style={{ width: "90%" }}
+            />
+          </div>
+
+          {/* Right Partition */}
+          <div style={{ flex: 1, paddingRight: "10em" }}>
+            <h1 style={{ fontSize: "60px" }}>
+              <strong>Get paid to mentor online</strong>
+            </h1>
+            <p>
+              Connect with thousands of learners around the world and mentor
+              them from your living room
+            </p>
+            <button
+              type="submit"
+              style={{
+                marginTop: "4em",
+                margin: "auto",
+                backgroundColor: "#4DFF00",
+                color: "black",
+                fontWeight: "bold",
+                borderRadius: "1em",
+                padding: "0.5em 1em",
+                cursor: "pointer",
+                textAlign: "center",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "background-color 0.3s",
+              }}
+            >
+              Why Waiting Still ?
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        style={{
+          background: "#52B9E7",
+          padding: "20px",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        {/* First Partition */}
+        <div style={{ flex: 1, padding: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img src="logo.png" alt="Image 1" style={{ width: "25%" }} />
+            <h4>
+              <strong>Edu Mentor AI</strong>
+            </h4>
+          </div>
+        </div>
+
+        {/* Second Partition */}
+        <div style={{ flex: 1, padding: "20px" }}>
+          <strong>For Students</strong>
+          <p>Find a Mentor</p>
+        </div>
+
+        {/* Third Partition */}
+        <div style={{ flex: 1, padding: "20px" }}>
+          <strong>For Mentors</strong>
+          <p>Become a Mentor</p>
+        </div>
+
+        {/* Fourth Partition */}
+        <div style={{ flex: 1, padding: "20px" }}>
+          <strong>Our Contact</strong>
+          <p>Edumentorai10@gmail.com </p>
+          <p>Lahore, Pakistan</p>
+        </div>
+      </div>
+      <div style={{ background: "black", height: "30px", textAlign: "center" }}>
+        <p style={{ color: "white" }}>
+          Copyright, Edu Mentor Ai 2030, All rights reserved.
+        </p>
+      </div>
     </>
   );
 }
