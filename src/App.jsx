@@ -4,6 +4,7 @@ import MainLayout from "./ui/MainLayout";
 import LoginPage from "./pages/LogInPage/LoginPage";
 import { Toaster } from "react-hot-toast";
 import SignUpMain from "./pages/SignUpMainPage/SignUpMain";
+import TeacherSignUpMain from "./pages/TeacherSignUpProcess/TeacherSignUpMain";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/sign-up" element={<SignUpMain />} />
 
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/tutor-signup" element={<TeacherSignUpMain />} />
         </Routes>
       </BrowserRouter>
 
