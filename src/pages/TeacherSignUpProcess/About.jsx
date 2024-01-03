@@ -1,23 +1,25 @@
 import { useState } from "react";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import { isValidPhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import PropTypes from "prop-types";
 
-const About = () => {
+// eslint-disable-next-line no-unused-vars
+const About = ({ activePage, setActivePage, setActiveComponent }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     country: "",
+    subject: "",
     languages: [{ language: "", level: "" }],
   });
+  const [isOver18, setIsOver18] = useState(false);
+  const [value, setValue] = useState();
 
-  //   const isFormValid = () => {
-  //     return (
-  //       formData.firstName &&
-  //       formData.lastName &&
-  //       formData.country &&
-  //       formData.languages.every(
-  //         (language) => language.language && language.level
-  //       )
-  //     );
-  //   };
+  const handleCheckboxChange = () => {
+    setIsOver18(!isOver18);
+  };
 
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -35,20 +37,56 @@ const About = () => {
       languages: [...formData.languages, { language: "", level: "" }],
     });
   };
-
   const handleNext = () => {
-    // Check if the form is valid before proceeding
-    // if (isFormValid()) {
-    //   // Handle form submission or navigation to the next step
-    //   console.log("Form Data:", formData);
-    // } else {
-    // }
+    for (const key in formData) {
+      if (!formData[key]) {
+        alert(
+          `Please fill in the ${key
+            .replace(/([A-Z])/g, " $1")
+            .toLowerCase()} field.`
+        );
+        return;
+      }
+    }
+    if (
+      formData.languages.some(
+        (language) => !language.language || !language.level
+      )
+    ) {
+      alert("Please fill in all the language details.");
+      return; // Stop execution if any language detail is missing
+    }
+
+    // Check if the phone number is entered
+    if (!value || !isValidPhoneNumber(value)) {
+      alert("Please enter a valid phone number.");
+      return; // Stop execution if the phone number is missing or invalid
+    }
+
+    // Check if the checkbox is checked
+    if (!isOver18) {
+      alert("Please confirm that you are over 18 years old.");
+      return; // Stop execution if the checkbox is not checked
+    }
+
+    // If all checks pass, proceed with form submission or navigation
+    setActivePage((prevPage) => prevPage + 1);
+    switch (activePage) {
+      case 1:
+        setActiveComponent("Photo");
+        break;
+      // Add cases for other pages/components as needed
+      default:
+        setActiveComponent("About");
+    }
+
+    console.log("Form Data:", formData);
   };
 
   return (
-    <div className="container">
-      <div className="bg-light text-black p-4" style={{ width: "100%" }}>
-        <h2>About me</h2>
+    <div className="container mt-4">
+      <div className="bg-light text-black p-0">
+        <h1 style={{ fontWeight: "bold" }}>About</h1>
         <p>
           Start creating your public tutor profile. Your progress will be
           automatically saved as you complete each section. You can return at
@@ -56,12 +94,13 @@ const About = () => {
         </p>
       </div>
 
-      <form
-        className="mt-0 d-flex flex-column align-items-right"
-        style={{ width: "400px", margin: "auto" }}
-      >
-        <div className="mb-3">
-          <label htmlFor="firstName" className="form-label">
+      <form className="mt-0">
+        <div className="mb-3" style={{ width: "50%" }}>
+          <label
+            htmlFor="firstName"
+            className="form-label"
+            style={{ fontWeight: "bold" }}
+          >
             First Name:
           </label>
           <input
@@ -75,8 +114,12 @@ const About = () => {
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="lastName" className="form-label">
+        <div className="mt-4" style={{ width: "50%" }}>
+          <label
+            htmlFor="lastName"
+            className="form-label"
+            style={{ fontWeight: "bold" }}
+          >
             Last Name:
           </label>
           <input
@@ -90,8 +133,12 @@ const About = () => {
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="country" className="form-label">
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
+          <label
+            htmlFor="country"
+            className="form-label"
+            style={{ fontWeight: "bold" }}
+          >
             Choose Country:
           </label>
           <select
@@ -101,17 +148,27 @@ const About = () => {
             onChange={(e) => handleChange("country", e.target.value)}
             className="form-select"
             required
+            style={{ color: "grey" }}
           >
-            <option value="">Select Country</option>
+            <option value="" disabled selected>
+              Select Country
+            </option>
             <option value="us">United States</option>
             <option value="uk">United Kingdom</option>
           </select>
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Languages Spoken:</label>
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
+          <label className="form-label" style={{ fontWeight: "bold" }}>
+            Languages Spoken:
+          </label>
           {formData.languages.map((language, index) => (
-            <div key={index} className="mb-2">
+            <div
+              key={index}
+              className="mb-2"
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <label style={{ marginRight: "8px" }}>Language</label>
               <select
                 value={language.language}
                 onChange={(e) =>
@@ -119,41 +176,114 @@ const About = () => {
                 }
                 className="form-select me-2"
                 required
+                style={{ color: "grey" }}
               >
-                <option value="">Select Language</option>
+                <option value="" disabled>
+                  Select Language
+                </option>
                 <option value="english">English</option>
                 <option value="spanish">Spanish</option>
               </select>
 
+              <label style={{ marginLeft: "16px", marginRight: "8px" }}>
+                Level
+              </label>
               <select
                 value={language.level}
                 onChange={(e) =>
                   handleLanguageChange(index, "level", e.target.value)
                 }
-                className="form-select mt-2"
+                className="form-select mt-0"
                 required
+                style={{ color: "grey" }}
               >
-                <option value="">Select Level</option>
+                <option value="" disabled>
+                  Select Level
+                </option>
                 <option value="beginner">Beginner</option>
                 <option value="intermediate">Intermediate</option>
                 <option value="advanced">Advanced</option>
               </select>
             </div>
           ))}
-          <button
-            type="button"
+          <a
+            style={{
+              cursor: "pointer",
+              textDecoration: "underline",
+              color: "grey",
+            }}
             onClick={addLanguage}
-            className="btn btn-secondary"
           >
             Add Another Language
-          </button>
+          </a>
+        </div>
+
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
+          <label
+            htmlFor="subject"
+            className="form-label"
+            style={{ fontWeight: "bold" }}
+          >
+            Subject taught:
+          </label>
+          <select
+            id="subject"
+            name="choose subject"
+            value={formData.subject}
+            onChange={(e) => handleChange("subject", e.target.value)}
+            className="form-select"
+            required
+            style={{ color: "grey" }}
+          >
+            <option value="" disabled selected>
+              Select Subject
+            </option>
+            <option value="science">Science</option>
+            <option value="maths">Maths</option>
+            <option value="arts">Arts</option>
+          </select>
+        </div>
+
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
+          <label htmlFor="phone" style={{ fontWeight: "bold" }}>
+            Phone Number:
+          </label>
+          <div
+            style={{ display: "flex", alignItems: "center" }}
+            className="my-2"
+          >
+            <PhoneInput
+              international
+              value={value}
+              onChange={setValue}
+              placeholder="Enter phone number"
+            />
+          </div>
+        </div>
+
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
+          <input
+            type="checkbox"
+            id="over18"
+            checked={isOver18}
+            onChange={handleCheckboxChange}
+          />
+          <label htmlFor="over18" style={{ fontWeight: "bold" }}>
+            I confirm that I am over 18 years old
+          </label>
         </div>
 
         <button
-          type="submit"
+          type="button"
           onClick={handleNext}
-          className="btn btn-primary mb-5"
-          //   disabled={!isFormValid()}
+          className="btn btn-primary mb-4 mt-4"
+          style={{
+            background: "#7CFC00",
+            color: "black",
+            fontWeight: "bold",
+            border: 0,
+            float: "left",
+          }}
         >
           Next
         </button>
@@ -161,5 +291,9 @@ const About = () => {
     </div>
   );
 };
-
+About.propTypes = {
+  activePage: PropTypes.number.isRequired,
+  setActivePage: PropTypes.func.isRequired,
+  setActiveComponent: PropTypes.func.isRequired,
+};
 export default About;

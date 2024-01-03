@@ -1,9 +1,45 @@
+// TeacherSignUpMain.js
+import { useState } from "react";
 import About from "./About";
+import Photo from "./Photo";
 import TeacherSignUpNavbar from "./TeacherSignUpNavbar";
 function TeacherSignUpMain() {
+  const [activePage, setActivePage] = useState(1);
+  const [activeComponent, setActiveComponent] = useState("About");
+
+  const handlePageChange = (page) => {
+    setActivePage(page);
+    setActiveComponent(getActiveComponent(page));
+  };
+
+  const getActiveComponent = (page) => {
+    switch (page) {
+      case 1:
+        return "About";
+      case 2:
+        return "Photo";
+        case 3:
+        return "Certification";
+        case 4:
+        return "Education";
+        case 5:
+        return "Description";
+        case 6:
+        return"Video";
+        case 7:
+        return "Availability";
+        case 8:
+        return "Pricing";
+      // Add cases for other pages/components as needed
+      default:
+        return "About";
+    }
+  };
+
   return (
     <>
       <TeacherSignUpNavbar currentImageIndex={0} />
+
       <div
         style={{
           display: "flex",
@@ -21,32 +57,35 @@ function TeacherSignUpMain() {
           padding: "4px",
         }}
       >
-        <div>
-          <h5>1 About</h5>
-        </div>
-        <div>
-          <h5>2 Photo</h5>
-        </div>
-        <div>
-          <h5>3 Certification</h5>
-        </div>
-        <div>
-          <h5>4 Education</h5>
-        </div>
-        <div>
-          <h5>5 Description</h5>
-        </div>
-        <div>
-          <h5>6 Video</h5>
-        </div>
-        <div>
-          <h5>7 Availability</h5>
-        </div>
-        <div>
-          <h5>8 About</h5>
-        </div>
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((page) => (
+          <div
+            key={page}
+            style={{
+              borderBottom: activePage === page ? "1px solid white" : "none",
+              cursor: "pointer",
+              color: activePage === page ? "white" : "grey",
+            }}
+            onClick={() => handlePageChange(page)}
+          >
+            <h5>{`${page} ${getActiveComponent(page)}`}</h5>
+          </div>
+        ))}
       </div>
-      <About />
+      {/* Render active component based on the state */}
+      {activeComponent === "About" && (
+        <About
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Photo" && (
+        <Photo
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
     </>
   );
 }
