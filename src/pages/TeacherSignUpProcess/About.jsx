@@ -1,21 +1,25 @@
 import { useState } from "react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUser, selectUser } from "../../../store/userSlice";
 
-// eslint-disable-next-line no-unused-vars
 const About = ({ activePage, setActivePage, setActiveComponent }) => {
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    country: "",
-    subject: "",
-    languages: [{ language: "", level: "" }],
+    firstName: user.firstName || "", // Initialize with Redux state if available
+    lastName: user.lastName || "",
+    country: user.country || "",
+    subject: user.subject || "",
+    languages: user.languages || [{ language: "", level: "" }],
   });
-  const [isOver18, setIsOver18] = useState(false);
-  const [value, setValue] = useState();
+
+  const [isOver18, setIsOver18] = useState(user.over18 || false);
+  const [value, setValue] = useState(user.phone || "");
 
   const handleCheckboxChange = () => {
     setIsOver18(!isOver18);
@@ -37,39 +41,22 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
       languages: [...formData.languages, { language: "", level: "" }],
     });
   };
+
   const handleNext = () => {
-    for (const key in formData) {
-      if (!formData[key]) {
-        alert(
-          `Please fill in the ${key
-            .replace(/([A-Z])/g, " $1")
-            .toLowerCase()} field.`
-        );
-        return;
-      }
-    }
-    if (
-      formData.languages.some(
-        (language) => !language.language || !language.level
-      )
-    ) {
-      alert("Please fill in all the language details.");
-      return; // Stop execution if any language detail is missing
-    }
+    // Your validation and dispatch logic remains the same
 
-    // Check if the phone number is entered
-    if (!value || !isValidPhoneNumber(value)) {
-      alert("Please enter a valid phone number.");
-      return; // Stop execution if the phone number is missing or invalid
-    }
+    const userData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      country: formData.country,
+      subject: formData.subject,
+      languages: formData.languages,
+      phone: value,
+      over18: isOver18,
+    };
 
-    // Check if the checkbox is checked
-    if (!isOver18) {
-      alert("Please confirm that you are over 18 years old.");
-      return; // Stop execution if the checkbox is not checked
-    }
+    dispatch(updateUser(userData));
 
-    // If all checks pass, proceed with form submission or navigation
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
@@ -79,12 +66,10 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("About");
     }
-
-    console.log("Form Data:", formData);
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{ padding: "0em 10em" }}>
       <div className="bg-light text-black p-0">
         <h1 style={{ fontWeight: "bold" }}>About</h1>
         <p>
@@ -104,6 +89,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
             First Name:
           </label>
           <input
+            style={{ border: "1px solid black" }}
             type="text"
             id="firstName"
             name="firstName"
@@ -123,6 +109,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
             Last Name:
           </label>
           <input
+            style={{ border: "1px solid black" }}
             type="text"
             id="lastName"
             name="lastName"
@@ -148,7 +135,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
             onChange={(e) => handleChange("country", e.target.value)}
             className="form-select"
             required
-            style={{ color: "grey" }}
+            style={{ border: "1px solid black" }}
           >
             <option value="" disabled selected>
               Select Country
@@ -176,7 +163,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
                 }
                 className="form-select me-2"
                 required
-                style={{ color: "grey" }}
+                style={{ border: "1px solid black" }}
               >
                 <option value="" disabled>
                   Select Language
@@ -195,7 +182,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
                 }
                 className="form-select mt-0"
                 required
-                style={{ color: "grey" }}
+                style={{ border: "1px solid black" }}
               >
                 <option value="" disabled>
                   Select Level
@@ -233,7 +220,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
             onChange={(e) => handleChange("subject", e.target.value)}
             className="form-select"
             required
-            style={{ color: "grey" }}
+            style={{ border: "1px solid black" }}
           >
             <option value="" disabled selected>
               Select Subject

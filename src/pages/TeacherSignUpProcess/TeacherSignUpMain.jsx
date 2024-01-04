@@ -3,6 +3,7 @@ import { useState } from "react";
 import About from "./About";
 import Photo from "./Photo";
 import TeacherSignUpNavbar from "./TeacherSignUpNavbar";
+import Certification from "./Certification";
 function TeacherSignUpMain() {
   const [activePage, setActivePage] = useState(1);
   const [activeComponent, setActiveComponent] = useState("About");
@@ -18,17 +19,17 @@ function TeacherSignUpMain() {
         return "About";
       case 2:
         return "Photo";
-        case 3:
+      case 3:
         return "Certification";
-        case 4:
+      case 4:
         return "Education";
-        case 5:
+      case 5:
         return "Description";
-        case 6:
-        return"Video";
-        case 7:
+      case 6:
+        return "Video";
+      case 7:
         return "Availability";
-        case 8:
+      case 8:
         return "Pricing";
       // Add cases for other pages/components as needed
       default:
@@ -52,9 +53,8 @@ function TeacherSignUpMain() {
           whiteSpace: "nowrap",
           color: "white",
           overflowX: "hidden",
-          margin: "20px",
-          borderRadius: "5px",
-          padding: "4px",
+          margin: "20px 0",
+          padding: "4px 100px",
         }}
       >
         {[1, 2, 3, 4, 5, 6, 7, 8].map((page) => (
@@ -81,6 +81,13 @@ function TeacherSignUpMain() {
       )}
       {activeComponent === "Photo" && (
         <Photo
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Certification" && (
+        <Certification
           activePage={activePage}
           setActivePage={handlePageChange}
           setActiveComponent={setActiveComponent}

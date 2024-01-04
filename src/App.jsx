@@ -1,5 +1,8 @@
+// App.js
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { Provider } from "react-redux";
+import store from "../store/store"; // Import your Redux store
 import MainLayout from "./ui/MainLayout";
 import LoginPage from "./pages/LogInPage/LoginPage";
 import { Toaster } from "react-hot-toast";
@@ -18,15 +21,16 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route index element={<MainLayout />} />
-          <Route path="/sign-up" element={<SignUpMain />} />
-
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/tutor-signup" element={<TeacherSignUpMain />} />
-        </Routes>
-      </BrowserRouter>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route index element={<MainLayout />} />
+            <Route path="/sign-up" element={<SignUpMain />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/tutor-signup" element={<TeacherSignUpMain />} />
+          </Routes>
+        </BrowserRouter>
+      </Provider>
 
       <Toaster
         position="top-center"
