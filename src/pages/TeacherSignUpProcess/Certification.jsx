@@ -34,8 +34,33 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
   };
-
   const handleNext = () => {
+    // Check if the user object is already filled
+    if (
+      user.firstName &&
+      user.lastName &&
+      user.country &&
+      user.subject &&
+      user.certificate &&
+      user.description &&
+      user.issuer &&
+      user.yearsOfStudy &&
+      user.file
+    ) {
+      // The user object is already filled, so just update the active page and component
+      setActivePage((prevPage) => prevPage + 1);
+      switch (activePage) {
+        case 1:
+          setActiveComponent("Photo");
+          break;
+        // Add cases for other pages/components as needed
+        default:
+          setActiveComponent("Certification");
+      }
+      return; // Exit the function early
+    }
+
+    // Your validation and dispatch logic remains the same
     if (
       !formData.subject ||
       !formData.certificate ||
@@ -44,11 +69,15 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
       !formData.yearsOfStudy ||
       !file
     ) {
-      alert("Please fill in all required fields and upload a file.");
+      alert(
+        "Please fill in all required fields and upload a Certificate picture."
+      );
       return; // Stop execution if validation fails
     }
+
     // Add the file data to userData
     const userData = {
+      ...user, // Spread the existing user object
       certificateSubject: formData.subject,
       certificate: formData.certificate,
       certificateDescription: formData.description,
@@ -61,13 +90,29 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
 
     dispatch(updateUser(userData));
 
+    // Log the updated user object after dispatching
+    console.log("Updated User Object:", userData);
+
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
         setActiveComponent("Photo");
         break;
+      // Add cases for other pages/components as needed
       default:
         setActiveComponent("Certification");
+    }
+  };
+
+  const backHandler = () => {
+    setActivePage((prevPage) => prevPage - 1);
+    switch (activePage) {
+      case 1:
+        setActiveComponent("Photo");
+        break;
+      // Add cases for other pages/components as needed
+      default:
+        setActiveComponent("Photo");
     }
   };
 
@@ -231,23 +276,37 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
               onChange={handleFileChange}
             />
           </div>
-          <div className="mb-3 mt-5" style={{ width: "50%" }}></div>
-          <button
-            type="button"
-            onClick={handleNext}
-            className="btn btn-primary mb-4 mt-4"
-            style={{
-              background: "#7CFC00",
-              color: "black",
-              fontWeight: "bold",
-              border: 0,
-              float: "left",
-            }}
-          >
-            Next
-          </button>
         </form>
       )}
+      <div className="mb-3 mt-5" style={{ width: "50%" }}>
+        <button
+          type="button"
+          onClick={handleNext}
+          className="btn btn-primary mb-4 mt-4"
+          style={{
+            background: "#7CFC00",
+            color: "black",
+            fontWeight: "bold",
+            border: 0,
+            float: "right",
+          }}
+        >
+          Next
+        </button>
+        <button
+          className="btn btn-primary mb-4 mt-4"
+          style={{
+            background: "grey",
+            color: "black",
+            fontWeight: "bold",
+            border: 0,
+            marginRight: "1em",
+          }}
+          onClick={backHandler}
+        >
+          Back
+        </button>
+      </div>
     </div>
   );
 };

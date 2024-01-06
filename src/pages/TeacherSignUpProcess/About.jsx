@@ -43,7 +43,35 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
   };
 
   const handleNext = () => {
+    // Check if the user object is already filled
+    if (user.firstName && user.lastName && user.country && user.subject) {
+      // The user object is already filled, so just update the active page and component
+      setActivePage((prevPage) => prevPage + 1);
+      switch (activePage) {
+        case 1:
+          setActiveComponent("Photo");
+          break;
+        // Add cases for other pages/components as needed
+        default:
+          setActiveComponent("About");
+      }
+      return; // Exit the function early
+    }
+
     // Your validation and dispatch logic remains the same
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.country ||
+      !formData.subject
+    ) {
+      return alert("Please fill in all required fields");
+    }
+
+    // Validate checkbox
+    if (!isOver18) {
+      return alert("Please check the checkbox to confirm you are over 18");
+    }
 
     const userData = {
       firstName: formData.firstName,
@@ -57,6 +85,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
 
     dispatch(updateUser(userData));
 
+    console.log(userData);
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
