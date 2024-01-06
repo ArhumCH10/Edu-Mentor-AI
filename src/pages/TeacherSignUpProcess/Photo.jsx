@@ -13,17 +13,19 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const [image, setImage] = useState(null);
   const [zoom, setZoom] = useState(1);
   const [rotate, setRotate] = useState(0);
-  const [, setPreviewImage] = useState(null); // New state for preview image
 
   useEffect(() => {
-    const storedPreviewImage = sessionStorage.getItem("previewImage");
-    if (storedPreviewImage) {
-      setPreviewImage(storedPreviewImage);
-    }
+    // Set the image from user.photo
 
     if (user.photo) {
-      setPreviewImage(user.photo);
-      sessionStorage.setItem("previewImage", user.photo);
+      setImage(user.photo);
+    } else {
+      // If user.photo is not available, you can use the stored previewImage in sessionStorage
+      //   const storedPreviewImage = sessionStorage.getItem("previewImage");
+      //   if (storedPreviewImage) {
+      //     setImage(storedPreviewImage);
+      //   }
+      return;
     }
   }, [user.photo]);
 
@@ -39,14 +41,13 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       dispatch(updateUser({ ...user, photo: imageUrl }));
 
       console.log(user);
-      // Update the preview image state
-      setPreviewImage(imageUrl);
+      // Update the preview image in sessionStorage
+      sessionStorage.setItem("previewImage", imageUrl);
 
       setZoom(1);
       setRotate(0);
     }
   };
-
   const handleZoomIn = () => {
     setZoom((prevZoom) => prevZoom + 0.1);
   };
@@ -106,23 +107,24 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
           Mentors who look friendly and professional get the most students
           during registration.
         </p>
-
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <button
-            className="btn btn-primary mb-4 mt-4"
-            style={{
-              background: "#7CFC00",
-              color: "black",
-              fontWeight: "bold",
-              border: 0,
-              marginRight: "1em",
-            }}
-            onClick={handleButtonClick}
-          >
-            Upload Photo
-          </button>
-          <p className="mt-3">JPG or PNG format, maximum 5 MB</p>
-        </div>
+        {!image && (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <button
+              className="btn btn-primary mb-4 mt-4"
+              style={{
+                background: "#7CFC00",
+                color: "black",
+                fontWeight: "bold",
+                border: 0,
+                marginRight: "1em",
+              }}
+              onClick={handleButtonClick}
+            >
+              Upload Photo
+            </button>
+            <p className="mt-3">JPG or PNG format, maximum 5 MB</p>
+          </div>
+        )}
 
         <input
           type="file"
