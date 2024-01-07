@@ -10,25 +10,32 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
 
   const user = useSelector(selectUser);
 
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState(user.photo || null);
   const [zoom, setZoom] = useState(1);
   const [rotate, setRotate] = useState(0);
-  const [, setPreviewImage] = useState(null); // New state for preview image
 
   useEffect(() => {
-    const storedPreviewImage = sessionStorage.getItem("previewImage");
-    if (storedPreviewImage) {
-      setPreviewImage(storedPreviewImage);
-    }
-
+    console.log(user.photo)
+    // Set the image from user.photo
     if (user.photo) {
-      setPreviewImage(user.photo);
-      sessionStorage.setItem("previewImage", user.photo);
+      setImage(user.photo);
+    } else {
+      // If user.photo is not available, you can use the stored previewImage in sessionStorage
+      // const storedPreviewImage = sessionStorage.getItem("previewImage");
+      // if (storedPreviewImage) {
+      //   setImage(storedPreviewImage);
+      // }
+      return;
     }
   }, [user.photo]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
+
+    if (!user.firstName) {
+      return alert("Fill about me section first");
+    }
+
     if (file) {
       const imageUrl = URL.createObjectURL(file);
 
@@ -36,11 +43,16 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       setImage(imageUrl);
 
       // Update the user object in Redux state with the new photo URL
-      dispatch(updateUser({ ...user, photo: imageUrl }));
+      const updatedUser = {
+        ...user,
+        photo: imageUrl,
+      };
 
-      console.log(user);
-      // Update the preview image state
-      setPreviewImage(imageUrl);
+      dispatch(updateUser(updatedUser));
+      console.log(updatedUser); // Log the updated user object
+
+      // Update the preview image in sessionStorage
+      sessionStorage.setItem("previewImage", imageUrl);
 
       setZoom(1);
       setRotate(0);
@@ -86,6 +98,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   };
 
   const backHandler = () => {
+    console.log(user.photo);
     setActivePage((prevPage) => prevPage - 1);
     switch (activePage) {
       case 1:
@@ -95,6 +108,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("About");
     }
+    console.log(user.photo);
   };
   return (
     <div style={{ display: "flex", padding: "0 120px", margin: "0 30px" }}>
@@ -106,23 +120,24 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
           Mentors who look friendly and professional get the most students
           during registration.
         </p>
-
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <button
-            className="btn btn-primary mb-4 mt-4"
-            style={{
-              background: "#7CFC00",
-              color: "black",
-              fontWeight: "bold",
-              border: 0,
-              marginRight: "1em",
-            }}
-            onClick={handleButtonClick}
-          >
-            Upload Photo
-          </button>
-          <p className="mt-3">JPG or PNG format, maximum 5 MB</p>
-        </div>
+        {!image && (
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <button
+              className="btn btn-primary mb-4 mt-4"
+              style={{
+                background: "#7CFC00",
+                color: "black",
+                fontWeight: "bold",
+                border: 0,
+                marginRight: "1em",
+              }}
+              onClick={handleButtonClick}
+            >
+              Upload Photo
+            </button>
+            <p className="mt-3">JPG or PNG format, maximum 5 MB</p>
+          </div>
+        )}
 
         <input
           type="file"
