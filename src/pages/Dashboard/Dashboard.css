@@ -1,0 +1,130 @@
+/* DashboardLink & sidebar page css */
+
+.dashboard-container{
+    display: -webkit-box;
+    background-color: whitesmoke;
+}
+
+.content{
+    width: 82vw;
+    box-sizing: border-box;
+}
+
+.sidebar{
+    background: linear-gradient(to top,#3661a0, #57cbf5);
+    color: #fff;
+    height: 100vh;
+    width: 200px;
+    transition: all 0.5s;
+}
+.top_section{
+    display: flex;
+    padding:20px 15px;
+}
+.link{
+    display: flex;
+    color: #fff;
+    padding: 10px 15px;
+    gap: 15px;
+    transition: all 0.5s;
+    text-decoration: none;
+    margin: 3px 10px;
+}
+.link:hover{
+    background:rgb(34, 245, 80);
+    color: #000;
+    transition: all 0.5s;
+    border-radius: 120px;
+}
+.active{
+    background:rgb(34, 245, 80);
+    border-radius: 120px;
+    color: #000;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+.icon, .link_text{
+    font-size: 20px;
+    text-decoration: none;
+}
+
+/* Dashboard page css */
+
+.borderBox{
+    border: 2px solid black;
+
+}
+
+.Upcoming-classes-today{
+    height:30vh; 
+    margin:10px; 
+    border-radius:30px; 
+    padding:1rem;
+    background: linear-gradient(to top,#3661a0, #57cbf5);
+    color: white;
+}
+
+.overview{
+    height: 30vh;
+    margin: 10px;
+    border-radius: 30px;
+    background-color: white;
+    padding: 1rem;
+  }
+
+.Earnings{
+    height: 30vh;
+    margin: 10px;
+    border-radius: 30px;
+    background-color: white;
+    padding: 1rem;
+  }
+
+
+  .Messages{
+    height: 44vh;
+    margin: 10px;
+    border-radius: 30px;
+    background-color: white;
+    padding: 1rem;
+  }
+
+  .Graph{
+    height: 44vh;
+    margin: 10px;
+    border-radius: 30px;
+    background-color: white;
+    padding: 1rem;
+  }
+
+  .graph-msg-row{
+    width: 82vw;
+    height: 84vh;
+    margin-left: 20px;
+    padding: 1rem;
+  }
+
+  .earn-btn{
+    background-color: rgb(34, 245, 80);
+    padding: 5px 8px;
+    width: 50%;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .level-btn{
+    background-color: rgb(34, 245, 80);
+    padding: 5px 8px;
+    width: 32%;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .header{
+    display: flex;
+    justify-content: space-between;
+  }
