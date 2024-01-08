@@ -4,6 +4,7 @@ import About from "./About";
 import Photo from "./Photo";
 import TeacherSignUpNavbar from "./TeacherSignUpNavbar";
 import Certification from "./Certification";
+import Education from "./Education";
 function TeacherSignUpMain() {
   const [activePage, setActivePage] = useState(1);
   const [activeComponent, setActiveComponent] = useState("About");
@@ -88,6 +89,13 @@ function TeacherSignUpMain() {
       )}
       {activeComponent === "Certification" && (
         <Certification
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Education" && (
+        <Education
           activePage={activePage}
           setActivePage={handlePageChange}
           setActiveComponent={setActiveComponent}
