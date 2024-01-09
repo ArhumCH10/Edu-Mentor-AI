@@ -5,6 +5,11 @@ import Photo from "./Photo";
 import TeacherSignUpNavbar from "./TeacherSignUpNavbar";
 import Certification from "./Certification";
 import Education from "./Education";
+import Description from "./Description";
+import Video from "./Video";
+import Availability from "./Availability";
+import Pricing from "./Pricing";
+import Completion from "./Completion";
 function TeacherSignUpMain() {
   const [activePage, setActivePage] = useState(1);
   const [activeComponent, setActiveComponent] = useState("About");
@@ -32,6 +37,8 @@ function TeacherSignUpMain() {
         return "Availability";
       case 8:
         return "Pricing";
+      case 9:
+        return "Completion";
       // Add cases for other pages/components as needed
       default:
         return "About";
@@ -96,6 +103,41 @@ function TeacherSignUpMain() {
       )}
       {activeComponent === "Education" && (
         <Education
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Description" && (
+        <Description
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Video" && (
+        <Video
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Availability" && (
+        <Availability
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Pricing" && (
+        <Pricing
+          activePage={activePage}
+          setActivePage={handlePageChange}
+          setActiveComponent={setActiveComponent}
+        />
+      )}
+      {activeComponent === "Completion" && (
+        <Completion
           activePage={activePage}
           setActivePage={handlePageChange}
           setActiveComponent={setActiveComponent}

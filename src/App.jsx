@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import SignUpMain from "./pages/SignUpMainPage/SignUpMain";
 import TeacherSignUpMain from "./pages/TeacherSignUpProcess/TeacherSignUpMain";
 import DashboardLinks from "./pages/Dashboard/DashboardLinks";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {

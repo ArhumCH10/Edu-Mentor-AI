@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import "react-phone-number-input/style.css";
@@ -9,6 +9,22 @@ import { updateUser, selectUser } from "../../../store/userSlice";
 const About = ({ activePage, setActivePage, setActiveComponent }) => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
+
+  useEffect(() => {
+    console.log("User updated:", user);
+  }, [user]);
+
+  useEffect(() => {
+    setFormData({
+      firstName: user.user.firstName || "",
+      lastName: user.user.lastName || "",
+      country: user.user.country || "",
+      subject: user.user.subject || "",
+      languages: user.user.languages || [{ language: "", level: "" }],
+    });
+    setIsOver18(user.user.over18 || false);
+    setValue(user.user.phone || "");
+  }, [user]);
 
   const [formData, setFormData] = useState({
     firstName: user.firstName || "", // Initialize with Redux state if available

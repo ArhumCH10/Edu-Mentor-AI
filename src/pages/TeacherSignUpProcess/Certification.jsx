@@ -9,6 +9,9 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
   const user = useSelector(selectUser);
   useEffect(() => {
     console.log("User updated:", user);
+    if (user.certificates ) {
+      console.log("yes")
+    }
   }, [user]);
   const [certificates, setCertificates] = useState([
     {
@@ -21,12 +24,22 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
     },
   ]);
 
+  useEffect(() => {
+    if (user.certificates && user.certificates.length > 0) {
+      setCertificates(user.certificates);
+      setTeachingCertificates(true);
+    }
+  }, [user]);
   const [teachingCertificates, setTeachingCertificates] = useState(
     user.teachingCertificates || false
   );
 
   const handleCheckboxChange = () => {
-    setTeachingCertificates(!teachingCertificates);
+    if (user.user.photo) {
+      setTeachingCertificates(!teachingCertificates);
+    } else {
+      alert("Please fill previous sections first.");
+    }
   };
 
   const handleChange = (index, field, value) => {
@@ -103,13 +116,13 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("Education");
     } // Add cases for other pages/components as needed
-    return
+    return;
   };
 
   const backHandler = () => {
     setActivePage((prevPage) => prevPage - 1);
     // Add cases for other pages/components as needed
-    setActiveComponent("PreviousComponent");
+    setActiveComponent("Photo");
   };
   const addCertificate = () => {
     // Check if the current certificate is incomplete before adding a new one
@@ -149,6 +162,7 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
           your profile credibility and get more students.
         </p>
       </div>
+
       <div className="mb-3 mt-5" style={{ width: "50%" }}>
         <input
           type="checkbox"

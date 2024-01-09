@@ -97,18 +97,18 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
-        setActiveComponent("NextComponent"); // Replace with the appropriate component
+        setActiveComponent("Description"); // Replace with the appropriate component
         break;
       // Add cases for other pages/components as needed
       default:
-        setActiveComponent("NextComponent"); // Replace with the appropriate component
+        setActiveComponent("Description"); // Replace with the appropriate component
     }
   };
 
   const backHandler = () => {
     setActivePage((prevPage) => prevPage - 1);
     // Add cases for other pages/components as needed
-    setActiveComponent("PreviousComponent"); // Replace with the appropriate component
+    setActiveComponent("Certification"); // Replace with the appropriate component
   };
 
   const addDegree = () => {
