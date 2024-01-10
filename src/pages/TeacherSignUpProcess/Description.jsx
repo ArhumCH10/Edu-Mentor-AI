@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUser, selectUser } from "../../../store/userSlice";
 
 const Description = ({ setActivePage, setActiveComponent }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-
   const [textAreas, setTextAreas] = useState({
     introduction: "",
     teachingExperience: "",
@@ -15,24 +10,28 @@ const Description = ({ setActivePage, setActiveComponent }) => {
   });
 
   useEffect(() => {
-    console.log("User updated:", user);
-  }, [user]);
+    // Load data from local storage when the component mounts
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    const { introduction, teachingExperience, motivation, headline } = userData;
 
-  const handleNext = async () => {
-    // Check if any of the textareas is empty
-    if (Object.values(textAreas).some((text) => !text.trim())) {
-      alert("Please fill in all fields.");
-      return;
-    }
+    setTextAreas({
+      introduction: introduction || "",
+      teachingExperience: teachingExperience || "",
+      motivation: motivation || "",
+      headline: headline || "",
+    });
+  }, []);
 
-    // Save textAreas in the user object
-    const updatedUser = { ...user, ...textAreas };
-    await dispatch(updateUser(updatedUser));
+  const handleNext = () => {
+    // Save textAreas in the userData object in local storage
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    const updatedUserData = { ...userData, ...textAreas };
+
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
     // Continue with 'Next' logic
     setActivePage((prevPage) => prevPage + 1);
     setActiveComponent("Video"); // Replace with the appropriate component
-
     // Add necessary logic for other pages/components
   };
 
@@ -93,6 +92,7 @@ const Description = ({ setActivePage, setActiveComponent }) => {
               <textarea
                 className="form-control"
                 rows="4"
+                placeholder="Minimum 300 Words"
                 value={textAreas.introduction}
                 onChange={(e) =>
                   handleTextAreaChange("introduction", e.target.value)
@@ -136,6 +136,7 @@ const Description = ({ setActivePage, setActiveComponent }) => {
               <textarea
                 className="form-control"
                 rows="4"
+                placeholder="Minimum 300 Words"
                 value={textAreas.teachingExperience}
                 onChange={(e) =>
                   handleTextAreaChange("teachingExperience", e.target.value)
@@ -178,6 +179,7 @@ const Description = ({ setActivePage, setActiveComponent }) => {
               <textarea
                 className="form-control"
                 rows="4"
+                placeholder="Minimum 300 Words"
                 value={textAreas.motivation}
                 onChange={(e) =>
                   handleTextAreaChange("motivation", e.target.value)
@@ -221,6 +223,7 @@ const Description = ({ setActivePage, setActiveComponent }) => {
               <textarea
                 className="form-control"
                 rows="4"
+                placeholder="Minimum 5 Words"
                 value={textAreas.headline}
                 onChange={(e) =>
                   handleTextAreaChange("headline", e.target.value)

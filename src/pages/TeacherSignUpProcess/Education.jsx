@@ -1,29 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUser, selectUser } from "../../../store/userSlice";
 
 const Education = ({ activePage, setActivePage, setActiveComponent }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-  useEffect(() => {
-    console.log("User updated:", user);
-  }, [user]);
+  const [noHigherDegree, setNoHigherDegree] = useState(false);
 
-  const [noHigherDegree, setNoHigherDegree] = useState(
-    user.noHigherDegree || false
+  const userData = useMemo(
+    () => JSON.parse(localStorage.getItem("userData")) || {},
+    []
   );
 
-  const [degrees, setDegrees] = useState([
-    {
-      universityName: user.universityName || "",
-      degreeName: user.degreeName || "",
-      degreeType: user.degreeType || "",
-      specialization: user.specialization || "",
-      yearsOfStudy: user.yearsOfStudy || "",
-      file: user.file || null,
-    },
-  ]);
+  const initialDegrees = useMemo(() => {
+    if (userData.noHigherDegree) {
+      return [];
+    }
+    return userData.degrees ? [...userData.degrees] : [];
+  }, [userData]);
+
+  const [degrees, setDegrees] = useState(initialDegrees);
+
+  useEffect(() => {
+    setNoHigherDegree(userData.noHigherDegree || false);
+  }, [userData]);
 
   const handleCheckboxChange = () => {
     setNoHigherDegree(!noHigherDegree);
@@ -77,22 +74,16 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
         : null,
     }));
 
-    // Save the degrees to the user object
-    let userData = { ...user };
+    // Save the education data to the user object in local storage
+    const updatedUserData = {
+      ...userData,
+      noHigherDegree,
+      degrees: userData.degrees
+        ? [...userData.degrees, ...degreesPayload]
+        : degreesPayload,
+    };
 
-    if (user.degrees) {
-      userData = {
-        ...user,
-        degrees: [...user.degrees, ...degreesPayload],
-      };
-    } else {
-      userData = {
-        ...user,
-        degrees: degreesPayload,
-      };
-    }
-
-    await dispatch(updateUser(userData));
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
@@ -145,21 +136,23 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
       <div className="bg-light text-black p-0">
         <h1 style={{ fontWeight: "bold" }}>Higher Education</h1>
         <p>
-          Tell students more about the higher education that you have completed or
-          are working on
+          Tell students more about the higher education that you have completed
+          or are working on
         </p>
       </div>
-      <div className="mb-3 mt-5" style={{ width: "50%" }}>
-        <input
-          type="checkbox"
-          checked={noHigherDegree}
-          id="noHigherDegree"
-          onChange={handleCheckboxChange}
-        />
-        <label htmlFor="noHigherDegree" style={{ fontWeight: "bold" }}>
-          I dont have a higher degree
-        </label>
-      </div>
+      {userData?.degrees && userData?.degrees.length === 0 && (
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
+          <input
+            type="checkbox"
+            checked={noHigherDegree}
+            id="noHigherDegree"
+            onChange={handleCheckboxChange}
+          />
+          <label htmlFor="noHigherDegree" style={{ fontWeight: "bold" }}>
+            I dont have a higher degree
+          </label>
+        </div>
+      )}
       {!noHigherDegree && (
         <form className="mt-0">
           {degrees.map((degree, index) => (

@@ -1,41 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "react-phone-number-input/style.css";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUser, selectUser } from "../../../store/userSlice";
 
 const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-  useEffect(() => {
-    console.log("User updated:", user);
-    if (user.certificates ) {
-      console.log("yes")
-    }
-  }, [user]);
+  const userData = useMemo(
+    () => JSON.parse(localStorage.getItem("userData")) || {},
+    []
+  );
   const [certificates, setCertificates] = useState([
     {
-      certificate: user.certificate || "",
-      subject: user.certificateSubject || "",
-      description: user.certificateDescription || "",
-      issuer: user.certificateIssuer || "",
-      yearsOfStudy: user.certificateYearsOfStudy || "",
-      file: user.file || null,
+      certificate: userData.certificate || "",
+      subject: userData.certificateSubject || "",
+      description: userData.certificateDescription || "",
+      issuer: userData.certificateIssuer || "",
+      yearsOfStudy: userData.certificateYearsOfStudy || "",
+      file: userData.file || null,
     },
   ]);
 
   useEffect(() => {
-    if (user.certificates && user.certificates.length > 0) {
-      setCertificates(user.certificates);
+    if (userData.certificates && userData.certificates.length > 0) {
+      setCertificates(userData.certificates);
       setTeachingCertificates(true);
     }
-  }, [user]);
+  }, [userData]);
   const [teachingCertificates, setTeachingCertificates] = useState(
-    user.teachingCertificates || false
+    userData.teachingCertificates || false
   );
 
   const handleCheckboxChange = () => {
-    if (user.user.photo) {
+    if (userData.photo) {
       setTeachingCertificates(!teachingCertificates);
     } else {
       alert("Please fill previous sections first.");
@@ -56,6 +50,7 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
   };
 
   const handleNext = async () => {
+    // ... (rest of the function remains unchanged)
     if (!teachingCertificates) {
       // Handle the case when there are no teaching certificates
       setActivePage((prevPage) => prevPage + 1);
@@ -77,8 +72,6 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
       alert("Please fill in all required fields for the current certificate.");
       return;
     }
-
-    // Extract file information and create a serializable payload
     const certificatesPayload = certificates.map((cert) => ({
       ...cert,
       file: cert.file
@@ -89,33 +82,24 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
           }
         : null,
     }));
+    // Save the certificates to the user object in local storage
+    const updatedUserData = {
+      ...userData,
+      certificates: userData.certificates
+        ? [...userData.certificates, ...certificatesPayload]
+        : certificatesPayload,
+    };
 
-    // Save the certificates to the user object
-    let userData = { ...user };
-
-    if (user.certificates) {
-      userData = {
-        ...user,
-        certificates: [...user.certificates, ...certificatesPayload],
-      };
-    } else {
-      userData = {
-        ...user,
-        certificates: certificatesPayload,
-      };
-    }
-
-    await dispatch(updateUser(userData));
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
         setActiveComponent("Education");
         break;
-      // Add cases for other pages/components as needed
       default:
         setActiveComponent("Education");
-    } // Add cases for other pages/components as needed
+    }
     return;
   };
 
@@ -163,17 +147,19 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
         </p>
       </div>
 
-      <div className="mb-3 mt-5" style={{ width: "50%" }}>
-        <input
-          type="checkbox"
-          checked={!teachingCertificates}
-          id="over18"
-          onChange={handleCheckboxChange}
-        />
-        <label htmlFor="over18" style={{ fontWeight: "bold" }}>
-          I dont have any teaching certificates yet.
-        </label>
-      </div>
+      {userData?.certificates && userData?.certificates.length === 0 && (
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
+          <input
+            type="checkbox"
+            checked={!teachingCertificates}
+            id="over18"
+            onChange={handleCheckboxChange}
+          />
+          <label htmlFor="over18" style={{ fontWeight: "bold" }}>
+            I dont have any teaching certificates yet.
+          </label>
+        </div>
+      )}
       {teachingCertificates && (
         <form className="mt-0">
           {certificates.map((certificate, index) => (

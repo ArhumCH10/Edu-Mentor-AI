@@ -1,41 +1,32 @@
 import { useEffect, useState } from "react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import "react-phone-number-input/style.css";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUser, selectUser } from "../../../store/userSlice";
 
 const About = ({ activePage, setActivePage, setActiveComponent }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-
-  useEffect(() => {
-    console.log("User updated:", user);
-  }, [user]);
-
-  useEffect(() => {
-    setFormData({
-      firstName: user.user.firstName || "",
-      lastName: user.user.lastName || "",
-      country: user.user.country || "",
-      subject: user.user.subject || "",
-      languages: user.user.languages || [{ language: "", level: "" }],
-    });
-    setIsOver18(user.user.over18 || false);
-    setValue(user.user.phone || "");
-  }, [user]);
-
   const [formData, setFormData] = useState({
-    firstName: user.firstName || "", // Initialize with Redux state if available
-    lastName: user.lastName || "",
-    country: user.country || "",
-    subject: user.subject || "",
-    languages: user.languages || [{ language: "", level: "" }],
+    firstName: "",
+    lastName: "",
+    country: "",
+    subject: "",
+    languages: [{ language: "", level: "" }],
   });
+  const [isOver18, setIsOver18] = useState(false);
+  const [value, setValue] = useState("");
 
-  const [isOver18, setIsOver18] = useState(user.over18 || false);
-  const [value, setValue] = useState(user.phone || "");
+  useEffect(() => {
+    // Load user data from local storage
+    const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
+    setFormData({
+      firstName: storedUserData.firstName || "",
+      lastName: storedUserData.lastName || "",
+      country: storedUserData.country || "",
+      subject: storedUserData.subject || "",
+      languages: storedUserData.languages || [{ language: "", level: "" }],
+    });
+    setIsOver18(storedUserData.over18 || false);
+    setValue(storedUserData.phone || "");
+  }, []);
 
   const handleCheckboxChange = () => {
     setIsOver18(!isOver18);
@@ -59,22 +50,6 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
   };
 
   const handleNext = () => {
-    // Check if the user object is already filled
-    if (user.firstName && user.lastName && user.country && user.subject) {
-      // The user object is already filled, so just update the active page and component
-      setActivePage((prevPage) => prevPage + 1);
-      switch (activePage) {
-        case 1:
-          setActiveComponent("Photo");
-          break;
-        // Add cases for other pages/components as needed
-        default:
-          setActiveComponent("About");
-      }
-      return; // Exit the function early
-    }
-
-    // Your validation and dispatch logic remains the same
     if (
       !formData.firstName ||
       !formData.lastName ||
@@ -84,7 +59,6 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
       return alert("Please fill in all required fields");
     }
 
-    // Validate checkbox
     if (!isOver18) {
       return alert("Please check the checkbox to confirm you are over 18");
     }
@@ -99,15 +73,14 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
       over18: isOver18,
     };
 
-    dispatch(updateUser(userData));
+    // Save user data to local storage
+    localStorage.setItem("userData", JSON.stringify(userData));
 
-    console.log(userData);
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
         setActiveComponent("Photo");
         break;
-      // Add cases for other pages/components as needed
       default:
         setActiveComponent("About");
     }

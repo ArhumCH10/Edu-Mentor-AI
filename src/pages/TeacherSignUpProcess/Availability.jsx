@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUser, selectUser } from "../../../store/userSlice";
 
 const Availability = ({ setActivePage, setActiveComponent }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-  useEffect(() => {
-    console.log("User updated:", user);
-  }, [user]);
   const [timezone, setTimezone] = useState("");
   const [availability, setAvailability] = useState([
     {
@@ -18,37 +11,35 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
     },
   ]);
 
-  const handleNext = async () => {
-    // Validate input here if needed
-    if (!timezone) {
-      alert("Please choose your timezone.");
-      return;
-    }
+  useEffect(() => {
+    // Load data from local storage when the component mounts
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    const { timezone, availability: savedAvailability } = userData;
 
-    // Check if any availability slot is not filled
-    if (availability.some((day) => !day.from || !day.to)) {
-      alert("Please fill in all availability slots.");
-      return;
+    setTimezone(timezone || "");
+
+    if (savedAvailability) {
+      setAvailability(savedAvailability);
     }
+  }, []);
+
+  const handleNext = () => {
+    // Save availability in the userData object in local storage
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    const updatedUserData = { ...userData, timezone, availability };
+
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
     // Continue with 'Next' logic
-    const updatedUser = {
-      ...user,
-      timezone: timezone,
-      availability: availability,
-    };
-
-    await dispatch(updateUser(updatedUser));
-
-    console.log("User entered data:", { timezone, availability });
     setActivePage((prevPage) => prevPage + 1);
     setActiveComponent("Pricing"); // Replace with the appropriate component
+    // Add necessary logic for other pages/components
   };
 
   const backHandler = () => {
     // Add logic for handling 'Back' button click
     setActivePage((prevPage) => prevPage - 1);
-    setActiveComponent("Video"); // Replace with the appropriate component
+    setActiveComponent("Description"); // Replace with the appropriate component
   };
 
   const addDay = () => {

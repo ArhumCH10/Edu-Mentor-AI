@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { updateUser, selectUser } from "../../../store/userSlice";
@@ -8,31 +8,26 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const imgRef = useRef(null);
   const dispatch = useDispatch();
 
+  // Retrieve user object from local storage
+  const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
+
   const user = useSelector(selectUser);
 
-  const [image, setImage] = useState(user.photo || null);
+  const [image, setImage] = useState(
+    user.photo || storedUserData.photo || null
+  );
   const [zoom, setZoom] = useState(1);
   const [rotate, setRotate] = useState(0);
 
   useEffect(() => {
-    console.log(user.photo)
-    // Set the image from user.photo
-    if (user.photo) {
-      setImage(user.photo);
-    } else {
-      // If user.photo is not available, you can use the stored previewImage in sessionStorage
-      // const storedPreviewImage = sessionStorage.getItem("previewImage");
-      // if (storedPreviewImage) {
-      //   setImage(storedPreviewImage);
-      // }
-      return;
-    }
-  }, [user.photo]);
+    // Set the image from user.photo or storedUserData.photo when the component mounts
+    setImage(user.photo || storedUserData.photo || null);
+  }, [user.photo, storedUserData.photo]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
 
-    if (!user.user.firstName) {
+    if (!storedUserData.firstName) {
       return alert("Fill about me section first");
     }
 
@@ -42,17 +37,17 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       // Update the local state with the new image URL
       setImage(imageUrl);
 
-      // Update the user object in Redux state with the new photo URL
-      const updatedUser = {
-        ...user,
+      // Update the stored user data in local storage with the new photo URL
+      const updatedStoredUserData = {
+        ...storedUserData,
         photo: imageUrl,
       };
 
-      dispatch(updateUser(updatedUser));
-      console.log(updatedUser); // Log the updated user object
+      // Update the Redux state with the new photo URL
+      dispatch(updateUser(updatedStoredUserData));
 
-      // Update the preview image in sessionStorage
-      sessionStorage.setItem("previewImage", imageUrl);
+      // Save updatedStoredUserData to local storage
+      localStorage.setItem("userData", JSON.stringify(updatedStoredUserData));
 
       setZoom(1);
       setRotate(0);

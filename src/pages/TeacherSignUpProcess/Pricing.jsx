@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUser, selectUser } from "../../../store/userSlice";
 
 const Pricing = ({ setActivePage, setActiveComponent }) => {
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
-  useEffect(() => {
-    console.log("User updated:", user);
-  }, [user]);
-
   const [hourlyRate, setHourlyRate] = useState("");
 
-  const handleNext = async () => {
+  useEffect(() => {
+    // Load pricing data from local storage when the component mounts
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    const { pricing } = userData;
+
+    if (pricing) {
+      setHourlyRate(pricing.hourlyRate || "");
+    }
+  }, []);
+
+  const handleNext = () => {
     // Validate input here if needed
     if (!hourlyRate) {
       alert("Please enter your hourly rate.");
@@ -20,12 +22,16 @@ const Pricing = ({ setActivePage, setActiveComponent }) => {
     }
 
     // Continue with 'Next' logic
-    const updatedUser = {
-      ...user,
-      hourlyRate: hourlyRate,
+    const userData = JSON.parse(localStorage.getItem("userData")) || {};
+    const updatedUserData = {
+      ...userData,
+      pricing: {
+        hourlyRate: hourlyRate,
+      },
     };
 
-    await dispatch(updateUser(updatedUser));
+    // Save pricing data in local storage
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
     console.log("User entered data:", { hourlyRate });
     setActivePage((prevPage) => prevPage + 1);
@@ -38,7 +44,6 @@ const Pricing = ({ setActivePage, setActiveComponent }) => {
     setActivePage((prevPage) => prevPage - 1);
     setActiveComponent("Availability"); // Replace with the appropriate component
   };
-
   return (
     <div className="container mt-4" style={{ padding: "0em 10em" }}>
       <div className="mb-3">
