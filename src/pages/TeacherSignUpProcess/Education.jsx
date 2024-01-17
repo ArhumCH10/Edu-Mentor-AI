@@ -140,22 +140,22 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
           or are working on
         </p>
       </div>
-      {userData?.degrees && userData?.degrees.length === 0 && (
-        <div className="mb-3 mt-5" style={{ width: "50%" }}>
-          <input
-            type="checkbox"
-            checked={noHigherDegree}
-            id="noHigherDegree"
-            onChange={handleCheckboxChange}
-          />
-          <label htmlFor="noHigherDegree" style={{ fontWeight: "bold" }}>
-            I dont have a higher degree
-          </label>
-        </div>
-      )}
+      {/* {userData?.degrees && userData?.degrees.length === 0 && ( */}
+      <div className="mb-3 mt-5" style={{ width: "50%" }}>
+        <input
+          type="checkbox"
+          checked={noHigherDegree}
+          id="noHigherDegree"
+          onChange={handleCheckboxChange}
+        />
+        <label htmlFor="noHigherDegree" style={{ fontWeight: "bold" }}>
+          I dont have a higher degree
+        </label>
+      </div>
+      {/* )} */}
       {!noHigherDegree && (
         <form className="mt-0">
-          {degrees.map((degree, index) => (
+          {degrees?.map((degree, index) => (
             <div key={index}>
               {/* Render form fields for each degree */}
               <div className="mb-3 mt-5" style={{ width: "50%" }}>
