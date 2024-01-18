@@ -1,32 +1,41 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
 const Education = ({ activePage, setActivePage, setActiveComponent }) => {
-  const [noHigherDegree, setNoHigherDegree] = useState(false);
+  // Load user data from local storage
+  const userData = JSON.parse(localStorage.getItem("userData")) || {};
 
-  const userData = useMemo(
-    () => JSON.parse(localStorage.getItem("userData")) || {},
-    []
+  const [noHigherDegree, setNoHigherDegree] = useState(
+    userData.noHigherDegree || false
   );
 
-  const initialDegrees = useMemo(() => {
-    if (userData.noHigherDegree) {
-      return [];
-    }
-    return userData.degrees ? [...userData.degrees] : [];
-  }, [userData]);
-
-  const [degrees, setDegrees] = useState(initialDegrees);
-
-  useEffect(() => {
-    setNoHigherDegree(userData.noHigherDegree || false);
-  }, [userData]);
+  const [degrees, setDegrees] = useState(
+    userData.degrees
+      ? userData.degrees.map((degree) => ({
+          ...degree,
+          file: degree.file || {},
+        }))
+      : [
+          {
+            universityName: "",
+            degreeName: "",
+            degreeType: "",
+            specialization: "",
+            yearsOfStudy: "",
+            file: {},
+          },
+        ]
+  );
 
   const handleCheckboxChange = () => {
     setNoHigherDegree(!noHigherDegree);
   };
 
   const handleChange = (index, field, value) => {
+    console.log(
+      `handleChange - Index: ${index}, Field: ${field}, Value: ${value}`
+    );
+
     const updatedDegrees = [...degrees];
     updatedDegrees[index][field] = value;
     setDegrees(updatedDegrees);
@@ -42,7 +51,7 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
   const handleNext = async () => {
     if (noHigherDegree) {
       // Handle the case when there is no higher degree
-      setActivePage((prevPage) => prevPage + 1);
+      alert("Enter Data");
       // Add necessary logic for other pages/components
       return;
     }
@@ -74,10 +83,9 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
         : null,
     }));
 
-    // Save the education data to the user object in local storage
+    // Save the degrees to local storage
     const updatedUserData = {
       ...userData,
-      noHigherDegree,
       degrees: userData.degrees
         ? [...userData.degrees, ...degreesPayload]
         : degreesPayload,
@@ -121,15 +129,38 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
     setDegrees([
       ...degrees,
       {
-        universityName: "",
-        degreeName: "",
-        degreeType: "",
-        specialization: "",
-        yearsOfStudy: "",
+        universityName: null,
+        degreeName: null,
+        degreeType: null,
+        specialization: null,
+        yearsOfStudy: null,
         file: null,
       },
     ]);
   };
+
+  useEffect(() => {
+    // Load user data from local storage when the page renders
+    setNoHigherDegree(userData.noHigherDegree || false);
+
+    setDegrees(
+      userData.degrees
+        ? userData.degrees.map((degree) => ({
+            ...degree,
+            file: degree.file || null,
+          }))
+        : [
+            {
+              universityName: "",
+              degreeName: "",
+              degreeType: "",
+              specialization: "",
+              yearsOfStudy: "",
+              file: null,
+            },
+          ]
+    );
+  }, [userData.noHigherDegree, userData.degrees]);
 
   return (
     <div className="container mt-4" style={{ padding: "0em 10em" }}>
@@ -140,7 +171,6 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
           or are working on
         </p>
       </div>
-      {/* {userData?.degrees && userData?.degrees.length === 0 && ( */}
       <div className="mb-3 mt-5" style={{ width: "50%" }}>
         <input
           type="checkbox"
@@ -152,12 +182,10 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
           I dont have a higher degree
         </label>
       </div>
-      {/* )} */}
       {!noHigherDegree && (
         <form className="mt-0">
-          {degrees?.map((degree, index) => (
+          {degrees.map((degree, index) => (
             <div key={index}>
-              {/* Render form fields for each degree */}
               <div className="mb-3 mt-5" style={{ width: "50%" }}>
                 <label
                   htmlFor={`universityName-${index}`}
@@ -171,7 +199,7 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
                   type="text"
                   id={`universityName-${index}`}
                   name={`universityName ${index}`}
-                  value={degree.universityName}
+                  value={degree.universityName || ""}
                   onChange={(e) =>
                     handleChange(index, "universityName", e.target.value)
                   }
@@ -193,7 +221,7 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
                   type="text"
                   id={`degreeName-${index}`}
                   name={`degreeName ${index}`}
-                  value={degree.degreeName}
+                  value={degree.degreeName || ""}
                   onChange={(e) =>
                     handleChange(index, "degreeName", e.target.value)
                   }
@@ -215,7 +243,7 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
                   type="text"
                   id={`degreeType-${index}`}
                   name={`degreeType ${index}`}
-                  value={degree.degreeType}
+                  value={degree.degreeType || ""}
                   onChange={(e) =>
                     handleChange(index, "degreeType", e.target.value)
                   }
@@ -237,7 +265,7 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
                   type="text"
                   id={`specialization-${index}`}
                   name={`specialization ${index}`}
-                  value={degree.specialization}
+                  value={degree.specialization || ""}
                   onChange={(e) =>
                     handleChange(index, "specialization", e.target.value)
                   }
@@ -259,7 +287,7 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
                   type="number"
                   id={`yearsOfStudy-${index}`}
                   name={`yearsOfStudy ${index}`}
-                  value={degree.yearsOfStudy}
+                  value={degree.yearsOfStudy || ""}
                   onChange={(e) =>
                     handleChange(index, "yearsOfStudy", e.target.value)
                   }

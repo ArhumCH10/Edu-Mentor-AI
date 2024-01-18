@@ -1,4 +1,3 @@
-// TeacherSignUpMain.js
 import { useState } from "react";
 import About from "./About";
 import Photo from "./Photo";
@@ -10,6 +9,7 @@ import Video from "./Video";
 import Availability from "./Availability";
 import Pricing from "./Pricing";
 import Completion from "./Completion";
+
 function TeacherSignUpMain() {
   const [activePage, setActivePage] = useState(1);
   const [activeComponent, setActiveComponent] = useState("About");
@@ -39,7 +39,6 @@ function TeacherSignUpMain() {
         return "Pricing";
       case 9:
         return "Completion";
-      // Add cases for other pages/components as needed
       default:
         return "About";
     }
@@ -47,39 +46,42 @@ function TeacherSignUpMain() {
 
   return (
     <>
-      <TeacherSignUpNavbar currentImageIndex={0} />
+        <TeacherSignUpNavbar currentImageIndex={0} />
+      
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          height: "40px",
-          background: "black",
-          marginTop: "20px",
-          whiteSpace: "nowrap",
-          color: "white",
-          overflowX: "hidden",
-          margin: "20px 0",
-          padding: "4px 100px",
-        }}
-      >
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((page) => (
-          <div
-            key={page}
-            style={{
-              borderBottom: activePage === page ? "1px solid white" : "none",
-              cursor: "pointer",
-              color: activePage === page ? "white" : "grey",
-            }}
-            onClick={() => handlePageChange(page)}
-          >
-            <h5>{`${page} ${getActiveComponent(page)}`}</h5>
-          </div>
-        ))}
-      </div>
-      {/* Render active component based on the state */}
+      {activeComponent !== "Completion" && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            height: "40px",
+            background: "black",
+            marginTop: "20px",
+            whiteSpace: "nowrap",
+            color: "white",
+            overflowX: "hidden",
+            margin: "20px 0",
+            padding: "4px 100px",
+          }}
+        >
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((page) => (
+            <div
+              key={page}
+              style={{
+                borderBottom: activePage === page ? "1px solid white" : "none",
+                cursor: "pointer",
+                color: activePage === page ? "white" : "grey",
+              }}
+              onClick={() => handlePageChange(page)}
+            >
+              <h5>{`${page} ${getActiveComponent(page)}`}</h5>
+            </div>
+          ))}
+        </div>
+      )}
+
       {activeComponent === "About" && (
         <About
           activePage={activePage}
