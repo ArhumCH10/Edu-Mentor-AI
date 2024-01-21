@@ -24,6 +24,7 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
       setTeachingCertificates(true);
     }
   }, [userData]);
+  
   const [teachingCertificates, setTeachingCertificates] = useState(
     userData.teachingCertificates || false
   );
@@ -147,7 +148,7 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
         </p>
       </div>
 
-      {userData?.certificates && userData?.certificates.length === 0 && (
+      {/* {userData?.certificates && userData?.certificates.length === 0 && ( */}
         <div className="mb-3 mt-5" style={{ width: "50%" }}>
           <input
             type="checkbox"
@@ -159,7 +160,7 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
             I dont have any teaching certificates yet.
           </label>
         </div>
-      )}
+      {/* )} */}
       {teachingCertificates && (
         <form className="mt-0">
           {certificates.map((certificate, index) => (

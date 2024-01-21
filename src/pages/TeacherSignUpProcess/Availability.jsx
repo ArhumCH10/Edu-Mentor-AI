@@ -6,8 +6,12 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
   const [availability, setAvailability] = useState([
     {
       day: "Monday",
-      from: "",
-      to: "",
+      slots: [
+        {
+          from: "",
+          to: "",
+        },
+      ],
     },
   ]);
 
@@ -72,7 +76,11 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
       },
     ]);
   };
-
+  const addTimeSlot = (index) => {
+    const updatedAvailability = [...availability];
+    updatedAvailability[index].slots.push({ from: "", to: "" });
+    setAvailability(updatedAvailability);
+  };
   const generateTimeOptions = () => {
     const options = [];
     for (let hour = 8; hour <= 20; hour++) {
@@ -138,51 +146,76 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
       <h4 style={{ marginTop: "70px", fontWeight: "bold" }}>
         Set Your Availability
       </h4>
-      {availability.map((day, index) => (
-        <div key={index} className="mb-3">
+
+      {availability.map((day, dayIndex) => (
+        <div key={dayIndex} className="mb-3">
           <p style={{ fontWeight: "bold" }}>{day.day}</p>
-          <div className="row">
-            <div className="col">
-              <label htmlFor={`from-${index}`} className="form-label">
-                From
-              </label>
-              <select
-                className="form-select"
-                id={`from-${index}`}
-                value={day.from}
-                onChange={(e) => {
-                  const updatedAvailability = [...availability];
-                  updatedAvailability[index].from = e.target.value;
-                  setAvailability(updatedAvailability);
-                }}
-              >
-                <option value="" disabled>
-                  Select Time
-                </option>
-                {generateTimeOptions()}
-              </select>
+          {day.slots.map((slot, slotIndex) => (
+            <div key={slotIndex} className="row">
+              <div className="col">
+                <label
+                  htmlFor={`from-${dayIndex}-${slotIndex}`}
+                  className="form-label"
+                >
+                  From
+                </label>
+                <select
+                  className="form-select"
+                  id={`from-${dayIndex}-${slotIndex}`}
+                  value={slot.from}
+                  onChange={(e) => {
+                    const updatedAvailability = [...availability];
+                    updatedAvailability[dayIndex].slots[slotIndex].from =
+                      e.target.value;
+                    setAvailability(updatedAvailability);
+                  }}
+                >
+                  <option value="" disabled>
+                    Select Time
+                  </option>
+                  {generateTimeOptions()}
+                </select>
+              </div>
+              <div className="col">
+                <label
+                  htmlFor={`to-${dayIndex}-${slotIndex}`}
+                  className="form-label"
+                >
+                  To
+                </label>
+                <select
+                  className="form-select"
+                  id={`to-${dayIndex}-${slotIndex}`}
+                  value={slot.to}
+                  onChange={(e) => {
+                    const updatedAvailability = [...availability];
+                    updatedAvailability[dayIndex].slots[slotIndex].to =
+                      e.target.value;
+                    setAvailability(updatedAvailability);
+                  }}
+                >
+                  <option value="" disabled>
+                    Select Time
+                  </option>
+                  {generateTimeOptions()}
+                </select>
+              </div>
             </div>
-            <div className="col">
-              <label htmlFor={`to-${index}`} className="form-label">
-                To
-              </label>
-              <select
-                className="form-select"
-                id={`to-${index}`}
-                value={day.to}
-                onChange={(e) => {
-                  const updatedAvailability = [...availability];
-                  updatedAvailability[index].to = e.target.value;
-                  setAvailability(updatedAvailability);
-                }}
-              >
-                <option value="" disabled>
-                  Select Time
-                </option>
-                {generateTimeOptions()}
-              </select>
-            </div>
-          </div>
+          ))}
+          <button
+            type="button"
+            style={{
+              background: "transparent",
+              border: 0,
+              color: "grey",
+              fontWeight: "bold",
+              textDecoration: "underline",
+            }}
+            className="btn btn-primary mb-2 mt-2"
+            onClick={() => addTimeSlot(dayIndex)}
+          >
+            Add Time Slot
+          </button>
         </div>
       ))}
 
