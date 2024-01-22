@@ -7,6 +7,11 @@ import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import toast from "react-hot-toast";
+import { useLogout } from "./useLogout";
+import SpinnerMini from "../../ui/SpinnerMini";
+import { useAuth } from '../../AuthContext';
+import { Navigate } from 'react-router-dom';
 
 const gradients = [
   ["#3661a0", "#57cbf5"],
@@ -15,11 +20,26 @@ const gradients = [
 ];
 
 function TeacherSignUpNavbar({ currentImageIndex }) {
+
   const [backgroundGradient, setBackgroundGradient] = React.useState(
     gradients[0]
   );
 
   const [anchorEl, setAnchorEl] = React.useState(null);
+
+  React.useEffect(() => {
+    setBackgroundGradient(gradients[currentImageIndex % gradients.length]);
+  }, [currentImageIndex]);
+
+  const { isAuthenticated} = useAuth();
+  const {mutate: logoutMutate , isLoading} = useLogout();
+  const {logoutFrontend } = useAuth();
+
+  // If the user is not authenticated, redirect them to the login page
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -29,9 +49,16 @@ function TeacherSignUpNavbar({ currentImageIndex }) {
     setAnchorEl(null);
   };
 
-  React.useEffect(() => {
-    setBackgroundGradient(gradients[currentImageIndex % gradients.length]);
-  }, [currentImageIndex]);
+
+  const handleLogout = async () => {
+      try {
+        // Trigger the logout mutation
+        await logoutMutate();
+       logoutFrontend();
+      } catch (error) {
+        toast.error("Logout failed. Please try again.");
+      }
+    };
 
   return (
     <AppBar position="sticky">
@@ -96,7 +123,9 @@ function TeacherSignUpNavbar({ currentImageIndex }) {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}>Log Out</MenuItem>
+          <MenuItem disabled={isLoading} onClick={handleLogout}>
+          {!isLoading ? "Log Out": <SpinnerMini/>}
+          </MenuItem>
         </Menu>
       </Container>
     </AppBar>

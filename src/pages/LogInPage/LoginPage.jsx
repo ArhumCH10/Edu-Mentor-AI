@@ -1,7 +1,55 @@
 import NavBar from "../../ui/NavBar";
 import { useEffect } from 'react';
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useSignin } from "./useSignin";
 
 function LoginPage() {
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm();
+  const [isHovered, setIsHovered] = useState(false);
+  const { mutate } = useSignin();
+
+   // Validation functions
+   const validateEmail = (value) => {
+    if (!/\S+@\S+\.\S+/.test(value)) {
+      setError("email", {
+        type: "manual",
+        message: "Please provide a valid email address",
+      });
+    } else {
+      clearErrors("email");
+    }
+  };
+
+  const validatePassword = (value) => {
+    if (value.length < 8) {
+      setError("password", {
+        type: "manual",
+        message: "Password needs a minimum of 8 characters",
+      });
+    } else {
+      clearErrors("password");
+    }
+  };
+
+  const onSubmit = ({ email, password }) => {
+    mutate({ email, password })
+      .then(() => {
+        reset();
+      })
+      .catch((error) => {
+        console.error('Mutation failed:', error);
+      });
+  };
+  
   const styles = {
     
     mainContainer: {
@@ -73,7 +121,7 @@ function LoginPage() {
     submitBtn: {
       marginTop: '1em',
       margin: 'auto',
-      backgroundColor: '#4DFF00',
+      backgroundColor: isHovered ? "#55c703" : "#4DFF00",
       color: 'black',
       fontWeight: 'bold',
       borderRadius: '1em',
@@ -124,9 +172,31 @@ function LoginPage() {
         <div style={styles.formContainer}>
           <div style={styles.paperContainer}>
             <h1 style={styles.heading}>Login</h1>
-            <form style={styles.formContent}>
-              <input type="text" style={styles.formInput} placeholder="Email" required />
-              <input type="password" style={styles.formInput} placeholder="Password" required />
+            <form style={styles.formContent}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onSubmit={handleSubmit(onSubmit)}
+            >
+              <input type="text" style={styles.formInput} 
+               placeholder="name@gmail.com"
+               {...register("email", {
+                 required: "This field is required",
+               })}
+               onBlur={(e) => validateEmail(e.target.value)}
+             />
+             {errors.email && (
+               <p style={{ color: "red" }}>{errors.email.message}</p>
+             )}
+              <input type="password" style={styles.formInput} 
+              placeholder="Your Password"
+              {...register("password", {
+                required: "This field is required",
+              })}
+              onBlur={(e) => validatePassword(e.target.value)}
+            />
+            {errors.password && (
+              <p style={{ color: "red" }}>{errors.password.message}</p>
+            )}
               <button type="submit" style={styles.submitBtn}>Login</button>
             </form>
           </div>

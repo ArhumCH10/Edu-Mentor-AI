@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSignup } from "./useSignup";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 
 function SignUpPage() {
   const {
@@ -43,22 +42,20 @@ function SignUpPage() {
 
   // Form submission handler
   const onSubmit = ({ email, password }) => {
-    mutate({ email, password })
-      .then(
-        (data) => {
+    mutate(
+      { email, password },
+      {
+        onSuccess: (data) => {
           reset();
           if (data && data.redirectUrl) {
-            toast.success("Email Verified Successfully");
             navigate(data.redirectUrl, { replace: true });
           }
         },
-        (error) => {
+        onError: (error) => {
           console.error(error);
-        }
-      )
-      .finally(() => {
-        reset();
-      });
+        },
+      }
+    );
   };
 
   const styles = {

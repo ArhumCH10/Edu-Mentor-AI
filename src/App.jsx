@@ -20,6 +20,7 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
@@ -28,8 +29,10 @@ export default function App() {
             <Route index element={<MainLayout />} />
             <Route path="/sign-up" element={<SignUpMain />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/tutor-signup" element={<TeacherSignUpMain />} />
             <Route path="/dashboardlinks/*" element={<DashboardLinks />} />
+            <Route
+              path="/tutor-signup"
+              element={<TeacherSignUpMain />} />
           </Routes>
         </Router>
 

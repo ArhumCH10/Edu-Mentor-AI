@@ -23,3 +23,42 @@ export async function signup({ email, password }) {
       throw error; // Re-throw the error for React Query to handle
     }
   }
+
+export async function login({ email, password }) {
+    try {
+      const response = await axios.post("http://localhost:8080/login", {
+        email,
+        password,
+      });
+  
+      // Assuming your server returns a token in the response
+      const token = response.data.token;
+  
+      // Store the token in local storage or in your preferred state management
+      localStorage.setItem('token', token);
+      document.cookie = `token=${token}; path=/; samesite=strict; secure`;
+
+      if(response.status === 200)
+      {
+        console.log(response.data);
+        return response.data;
+      }
+      else {
+        console.log(response.data);
+        return response.data;
+      }
+    } catch (error) {
+      // Handle different error scenarios
+      if (error.response && error.response.status === 400) {
+        toast.error("Invalid email or password.");
+      } else if (error.response && error.response.status === 401) {
+        toast.error("User not Registered");
+      }
+      else if(error.response && error.response.status === 402)
+      {
+        toast.error("User not Verified");
+      }
+  
+      throw error; // Re-throw the error for React Query to handle
+    }
+}
