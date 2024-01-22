@@ -37,7 +37,6 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
    // if (!storedUserData.userData.firstName) {
      // return alert("Fill about me section first");
     //}
-    
     formData.append('photo', file);
 
     if (file) {
