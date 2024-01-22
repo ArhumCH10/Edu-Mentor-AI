@@ -1,130 +1,404 @@
 /* DashboardLink & sidebar page css */
 
-.dashboard-container{
-    display: -webkit-box;
-    background-color: whitesmoke;
+.dashboard-container {
+  display: -webkit-box;
+  background-color: whitesmoke;
 }
 
-.content{
-    width: 82vw;
-    box-sizing: border-box;
+.content {
+  width: 82vw;
+  box-sizing: border-box;
 }
 
-.sidebar{
-    background: linear-gradient(to top,#3661a0, #57cbf5);
-    color: #fff;
-    height: 100vh;
-    width: 200px;
-    transition: all 0.5s;
+.sidebar {
+  background: linear-gradient(to top, #3661a0, #57cbf5);
+  color: #fff;
+  height: auto;
+  width: 200px;
+  transition: all 0.5s;
 }
-.top_section{
-    display: flex;
-    padding:20px 15px;
+
+.top_section {
+  display: flex;
+  padding: 20px 15px;
 }
-.link{
-    display: flex;
-    color: #fff;
-    padding: 10px 15px;
-    gap: 15px;
-    transition: all 0.5s;
-    text-decoration: none;
-    margin: 3px 10px;
+
+.link {
+  display: flex;
+  color: #fff;
+  padding: 10px 15px;
+  gap: 15px;
+  transition: all 0.5s;
+  text-decoration: none;
+  margin: 3px 10px;
 }
-.link:hover{
-    background:rgb(34, 245, 80);
-    color: #000;
-    transition: all 0.5s;
-    border-radius: 120px;
+
+.link:hover {
+  background: rgb(34, 245, 80);
+  color: #000;
+  transition: all 0.5s;
+  border-radius: 120px;
 }
-.active{
-    background:rgb(34, 245, 80);
-    border-radius: 120px;
-    color: #000;
-    margin-right: 10px;
-    margin-left: 10px;
+
+.active {
+  background: rgb(34, 245, 80);
+  border-radius: 120px;
+  color: #000;
+  margin-right: 10px;
+  margin-left: 10px;
 }
-.icon, .link_text{
-    font-size: 20px;
-    text-decoration: none;
+
+.icon,
+.link_text {
+  font-size: 20px;
+  text-decoration: none;
 }
 
 /* Dashboard page css */
 
-.borderBox{
-    border: 2px solid black;
+/* .borderBox {
+  border: 2px solid black;
+
+} */
+
+.Upcoming-classes-today {
+  height: 30vh;
+  margin: 10px;
+  border-radius: 30px;
+  padding: 1rem;
+  background: linear-gradient(to top, #3661a0, #57cbf5);
+  color: white;
+}
+
+.overview {
+  height: 30vh;
+  margin: 10px;
+  border-radius: 30px;
+  background-color: white;
+  padding: 1rem;
+}
+
+.Earnings {
+  height: 30vh;
+  margin: 10px;
+  border-radius: 30px;
+  background-color: white;
+  padding: 1rem;
+}
+
+
+.Messages {
+  height: 44vh;
+  margin: 10px;
+  border-radius: 30px;
+  background-color: white;
+  padding: 1rem;
+}
+
+.Graph {
+  height: 44vh;
+  margin: 10px;
+  border-radius: 30px;
+  background-color: white;
+  padding: 1rem;
+}
+
+.graph-msg-row {
+  width: 82vw;
+  height: auto;
+  margin-left: 20px;
+  padding: 1rem;
+}
+
+.earn-btn {
+  background-color: rgb(34, 245, 80);
+  padding: 5px 8px;
+  width: 50%;
+  border-radius: 20px;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+.level-btn {
+  background-color: rgb(34, 245, 80);
+  padding: 5px 8px;
+  width: 32%;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* profile page css */
+.Profile-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1.3fr 0.3fr 1.2fr;
+  gap: 20px 20px;
+  grid-auto-flow: row;
+  height: auto;
+  padding: 20px;
+  margin-right: -10px;
+  grid-template-areas:
+    "Profile About About"
+    "Profile Resume Resume"
+    "Profile Resume Resume"
+    "Portfolio-video Resume Resume"
+    "Feedback Feedback Feedback";
+
 
 }
 
-.Upcoming-classes-today{
-    height:30vh; 
-    margin:10px; 
-    border-radius:30px; 
-    padding:1rem;
-    background: linear-gradient(to top,#3661a0, #57cbf5);
-    color: white;
+.Profile {
+  grid-area: Profile;
+  height: 70vh;
+  border-radius: 30px;
+  background-color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  margin-bottom: 20px;
+
+
 }
 
-.overview{
-    height: 30vh;
-    margin: 10px;
-    border-radius: 30px;
-    background-color: white;
-    padding: 1rem;
+.Portfolio-video {
+  grid-area: Portfolio-video;
+  border-radius: 30px;
+  background-color: white;
+  overflow: hidden;
+  height: 41vh;
+  margin-top: -23px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.video-thumbnail {
+  position: relative;
+}
+
+.play-button-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2em;
+  color: white;
+  cursor: pointer;
+}
+
+.Portfolio-video:hover {
+  cursor: pointer;
+}
+
+.About {
+  grid-area: About;
+  border-radius: 30px 0 0 30px;
+  background-color: white;
+  padding: 10px;
+  overflow: auto;
+  height: 30vh;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+
+}
+
+.About::-webkit-scrollbar {
+  width: 5px;
+}
+
+.About::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+.About::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+.Resume {
+  grid-area: Resume;
+  border-radius: 30px;
+  background-color: white;
+
+  padding: 10px;
+  margin-top: -13px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.Resume-navbar {
+  display: flex;
+  box-shadow: 2px 10px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0px;
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.Resume-nav-item {
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #ffffff;
+  margin-bottom: 0px;
+  margin-left: 10px;
+}
+
+.Resume-nav-item:hover {
+  cursor: pointer;
+}
+
+.Resume-nav-item.Resume-active {
+  font-weight: 500;
+  text-decoration: underline;
+
+}
+
+.Resume-content {
+  padding: 10px;
+  overflow-y: auto;
+  height: 28vh;
+
+}
+
+.Resume-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.Resume-content::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+.Resume-content::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+.Feedback {
+  grid-area: Feedback;
+  border-radius: 0px 10px 20px 30px;
+  background-color: white;
+  height: 60vh;
+  padding: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+
+}
+
+.Review-btn {
+  border-radius: 0px 20px;
+  background-color: white;
+  height: auto;
+  padding: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 0 100%;
+
+}
+
+.bg-custom {
+
+  background-color: #b7dd29 !important;
+}
+
+/* Media queries for responsiveness */
+
+@media (min-width: 0px) and (max-width: 900px) {
+  .Profile-container {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1.3fr 1fr 1fr;
+    grid-template-areas:
+      "Profile"
+      "About"
+      "Portfolio-video"
+      "Resume"
+      "Feedback"
+    ;
   }
 
-.Earnings{
-    height: 30vh;
-    margin: 10px;
-    border-radius: 30px;
-    background-color: white;
-    padding: 1rem;
+  .Portfolio-video,
+  .About {
+    margin-top: 0;
   }
+}
+
+@media (min-width: 1024px) {
+  .Profile-container {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1.3fr 0.3fr 1.2fr;
+    grid-template-areas:
+      "Profile About About"
+      "Profile Resume Resume"
+      "Profile Resume Resume"
+      "Portfolio-video Resume Resume"
+      "Feedback Feedback Feedback"
+    ;
+  }
+}
+
+/* Availability page css */
+.Availability-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1.3fr 0.5fr 1.2fr 1fr;
+  gap: 7px 14px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "Availability Availability Availability"
+    "Availability Availability Availability"
+    "Availability Availability Availability"
+    "Availability Availability Availability"
+  ;
+}
+
+.Availability {
+  grid-area: Availability;
+  background-color: white;
+  height: 85vh;
+  padding: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  border-radius: 0px 10px 20px 30px;
+}
+
+#loader {
+  color: #008cff;
+  height: 40px;
+  left: 45%;
+  position: absolute;
+  top: 45%;
+  width: 30%;
+}
+
+.e-past-app {
+  background-color: chocolate !important;
+}
+
+.custom-class.e-schedule .e-vertical-view .e-all-day-appointment-wrapper .e-appointment,
+.custom-class.e-schedule .e-vertical-view .e-day-wrapper .e-appointment,
+.custom-class.e-schedule .e-month-view .e-appointment {
+  background: green;
+}
 
 
-  .Messages{
-    height: 44vh;
-    margin: 10px;
-    border-radius: 30px;
-    background-color: white;
-    padding: 1rem;
-  }
 
-  .Graph{
-    height: 44vh;
-    margin: 10px;
-    border-radius: 30px;
-    background-color: white;
-    padding: 1rem;
-  }
+.icons-container {
+  margin-top: 0.5rem;
+}
 
-  .graph-msg-row{
-    width: 82vw;
-    height: 84vh;
-    margin-left: 20px;
-    padding: 1rem;
-  }
-
-  .earn-btn{
-    background-color: rgb(34, 245, 80);
-    padding: 5px 8px;
-    width: 50%;
-    border-radius: 20px;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-  }
-
-  .level-btn{
-    background-color: rgb(34, 245, 80);
-    padding: 5px 8px;
-    width: 32%;
-    border-radius: 10px;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-  }
-
-  .header{
-    display: flex;
-    justify-content: space-between;
-  }
