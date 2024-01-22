@@ -56,3 +56,30 @@ export async function getUserData() {
     throw error;
   }
 }
+
+export async function photo({ fileStore }) {
+  try {
+    console.log(fileStore);
+      const token = localStorage.getItem("token"); // Retrieve the token from local storage
+      const response = await axios.post("http://localhost:8080/photo",  fileStore,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+        },
+        });
+
+      if (response.status === 200) {
+          return true; // Indicate success to the calling code
+      } else {
+          return false; // Indicate failure to the calling code
+      }
+  } catch (error) {
+      if (error.response && error.response.status === 400) {
+          toast.error("Photo not inserted");
+      } else if (error.response && error.response.status === 500) {
+          toast.error("Error Occurred");
+      }
+
+      throw error;
+  }
+}

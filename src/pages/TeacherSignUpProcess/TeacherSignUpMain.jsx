@@ -72,9 +72,9 @@ function TeacherSignUpMain() {
               style={{
                 borderBottom: activePage === page ? "1px solid white" : "none",
                 cursor: "pointer",
-                color: activePage === page ? "white" : "grey",
+                color: activePage === page || activePage === page + 1 ? "white" : "grey",
               }}
-              onClick={() => handlePageChange(page)}
+             // onClick={() => handlePageChange(page)}
             >
               <h5>{`${page} ${getActiveComponent(page)}`}</h5>
             </div>

@@ -2,12 +2,16 @@ import  { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { updateUser, selectUser } from "../../../store/userSlice";
+//import {useUser} from '../../UserContext';
+import { usePhoto } from "./usePhoto";
 
 const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const fileInputRef = useRef(null);
   const imgRef = useRef(null);
   const dispatch = useDispatch();
-
+  const { mutate } = usePhoto();
+  const formData = new FormData();
+ 
   // Retrieve user object from local storage
   const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
 
@@ -18,6 +22,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   );
   const [zoom, setZoom] = useState(1);
   const [rotate, setRotate] = useState(0);
+  const [fileStore, setfileStore] = useState([]);
 
   useEffect(() => {
     // Set the image from user.photo or storedUserData.photo when the component mounts
@@ -27,9 +32,13 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
 
-    if (!storedUserData.firstName) {
-      return alert("Fill about me section first");
-    }
+    setfileStore(file);
+
+   // if (!storedUserData.userData.firstName) {
+     // return alert("Fill about me section first");
+    //}
+    
+    formData.append('photo', file);
 
     if (file) {
       const imageUrl = URL.createObjectURL(file);
@@ -53,6 +62,22 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       setRotate(0);
     }
   };
+
+  const handleDelete = () => {
+    // Retrieve the existing user data from local storage
+    const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
+  
+    // Remove the photo property from the user data
+    const updatedUserData = { ...storedUserData, photo: null };
+  
+    // Update the Redux state and local state to remove the photo property
+    dispatch(updateUser(updatedUserData));
+    setImage(null);
+  
+    // Save the updated user data to local storage
+    localStorage.setItem("userData", JSON.stringify(updatedUserData));
+  };
+  
 
   const handleZoomIn = () => {
     setZoom((prevZoom) => prevZoom + 0.1);
@@ -80,6 +105,11 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       alert("Please upload a photo before proceeding to the next page");
       return;
     }
+  
+    try {
+        mutate({
+          fileStore: fileStore
+         });
 
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
@@ -90,6 +120,10 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("Certification");
     }
+  }
+  catch (error) {
+    console.error("Mutation failed:", error);
+  }
   };
 
   const backHandler = () => {
@@ -322,6 +356,19 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
                   </g>
                 </svg>
               </div>
+
+              <button
+            className="btn btn-primary mb-4 mt-4"
+            style={{
+              background: "red",
+              color: "white",
+              fontWeight: "bold",
+              border: 0,
+            }}
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
             </div>
           </div>
         )}
