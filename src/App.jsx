@@ -8,8 +8,9 @@ import { Toaster } from "react-hot-toast";
 import SignUpMain from "./pages/SignUpMainPage/SignUpMain";
 import TeacherSignUpMain from "./pages/TeacherSignUpProcess/TeacherSignUpMain";
 import DashboardLinks from "./pages/Dashboard/DashboardLinks";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import AdminLogin from "../src/pages/Admin/AdminLogin";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -20,7 +21,6 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
-
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
@@ -30,9 +30,10 @@ export default function App() {
             <Route path="/sign-up" element={<SignUpMain />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/dashboardlinks/*" element={<DashboardLinks />} />
-            <Route
-              path="/tutor-signup"
-              element={<TeacherSignUpMain />} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+            <Route path="/tutor-signup" element={<TeacherSignUpMain />} />
           </Routes>
         </Router>
 
