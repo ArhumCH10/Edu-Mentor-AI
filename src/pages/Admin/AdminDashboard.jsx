@@ -21,7 +21,9 @@ import {
 } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
+import { useNavigate } from "react-router-dom";
 const AdminDashboard = () => {
   const [open, setOpen] = useState(false);
 
@@ -44,23 +46,51 @@ const AdminDashboard = () => {
   }, [open]);
 
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Define your backend endpoint to fetch all users
-    const backendEndpoint = "http://localhost:8080/admin/get-all-users";
+    const adminLoggedIn = localStorage.getItem("adminLoggedIn");
 
-    // Make a GET request to fetch all users
-    axios
-      .get(backendEndpoint)
-      .then((response) => {
-        // Update the state with the fetched users
-        setUsers(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching users:", error);
-        // Handle errors if needed
-      });
-  }, []);
+    // Check if admin is logged in
+    if (adminLoggedIn === "true") {
+      const backendEndpoint = "http://localhost:8080/admin/get-all-users";
+
+      // Make a GET request to fetch all users
+      axios
+        .get(backendEndpoint)
+        .then((response) => {
+          console.log(response.data);
+          // Update the state with the fetched users
+          setUsers(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching users:", error);
+          // Handle errors if needed
+        });
+    } else {
+      // Admin not logged in, navigate to "/admin"
+      navigate("/admin");
+    }
+  }, [navigate]);
+
+  const handleVerifyUser = async (userId) => {
+    try {
+      // Send a POST request to the backend endpoint with the user ID
+      await axios.post(`http://localhost:8080/admin/verify-teacher/${userId}`);
+
+      // Optionally, you can update the state or perform any other actions upon successful verification
+      console.log(`User with ID ${userId} verified successfully`);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error verifying user:", error);
+      // Handle errors if needed
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminLoggedIn");
+    navigate("/admin");
+  };
 
   return (
     <div style={{ display: "flex" }}>
@@ -74,7 +104,6 @@ const AdminDashboard = () => {
           style={{ background: "#4798CC", fontFamily: "Monsterat, sans-serif" }}
           position="fixed"
         >
-          {" "}
           <Toolbar>
             <IconButton
               color="inherit"
@@ -97,11 +126,36 @@ const AdminDashboard = () => {
               variant="h6"
               noWrap
             >
-              {/* {selectedMenuItem === "Dashboard"
-                ? "Dashboard"
-                : selectedMenuItem} */}
               Dashboard
             </Typography>
+
+            {/* Add the button here */}
+            <div style={{ marginLeft: "auto" }}>
+              <svg
+                width="36px"
+                height="36px"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{
+                  cursor: "pointer",
+                  background: "#00A65F",
+                  borderRadius: "50%",
+                  padding: "0.4em",
+                }}
+                onClick={() => {
+                  handleLogout();
+                }}
+              >
+                <path
+                  d="M12 15L15 12M15 12L12 9M15 12H4M9 7.24859V7.2002C9 6.08009 9 5.51962 9.21799 5.0918C9.40973 4.71547 9.71547 4.40973 10.0918 4.21799C10.5196 4 11.0801 4 12.2002 4H16.8002C17.9203 4 18.4796 4 18.9074 4.21799C19.2837 4.40973 19.5905 4.71547 19.7822 5.0918C20 5.5192 20 6.07899 20 7.19691V16.8036C20 17.9215 20 18.4805 19.7822 18.9079C19.5905 19.2842 19.2837 19.5905 18.9074 19.7822C18.48 20 17.921 20 16.8031 20H12.1969C11.079 20 10.5192 20 10.0918 19.7822C9.71547 19.5905 9.40973 19.2839 9.21799 18.9076C9 18.4798 9 17.9201 9 16.8V16.75"
+                  stroke="#FFFFFF"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
           </Toolbar>
         </AppBar>
       </div>
@@ -182,9 +236,12 @@ const AdminDashboard = () => {
               style={{
                 padding: "1em",
                 marginTop: "4em",
+                width: "1420px",
               }}
             >
-              <Typography variant="h5">Your Products</Typography>
+              <Typography style={{ padding: "1em 0.5em" }} variant="h5">
+                All Users ({users.length})
+              </Typography>
               <TableContainer
                 style={{ background: "#F2F3F3", marginTop: "1em" }}
                 component={Paper}
@@ -193,47 +250,75 @@ const AdminDashboard = () => {
                   <ToastContainer />
                   <TableHead>
                     <TableRow>
-                      <TableCell style={{ fontSize: "1em" }}>Name</TableCell>
-                      <TableCell style={{ fontSize: "1em" }}>Price</TableCell>
-                      <TableCell style={{ fontSize: "1em" }}>
-                        Description
-                      </TableCell>
-                      <TableCell style={{ fontSize: "1em" }}>Images</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>First Name</TableCell>
+                      <TableCell>Last Name</TableCell>
+                      <TableCell>Country Origin</TableCell>
+                      <TableCell>Language Spoken</TableCell>
+                      <TableCell>Subjects Taught</TableCell>
+                      <TableCell>Phone Number</TableCell>
+                      <TableCell>Hourly Price USD</TableCell>
+                      <TableCell>Certifications</TableCell>
+                      <TableCell>Educations</TableCell>
+                      <TableCell>Availability</TableCell>
+                      <TableCell>Actions</TableCell>
+
+                      {/* Add other fields based on your user data */}
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {users.map((product) => (
-                      <TableRow key={product._id}>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>{product.price}</TableCell>
-                        <TableCell>{product.description}</TableCell>
+                    {users.map((user) => (
+                      <TableRow key={user._id}>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.firstName}</TableCell>
+                        <TableCell>{user.lastName}</TableCell>
+                        <TableCell>{user.countryOrigin}</TableCell>
                         <TableCell>
-                          {product.images.map((image, imageIndex) => (
-                            <div
-                              key={imageIndex}
-                              style={{
-                                flex: "0 0 calc(35% - 5px)",
-                                marginBottom: "10px",
-                                border: "2px solid lightgrey",
-                                justifyContent: "center",
-                                textAlign: "center",
-                                padding: "5px",
-                                borderRadius: "5px",
-                                margin: "3px",
-                              }}
-                            >
-                              <img
-                                src={`http://localhost:5555${product.images[0]}`}
-                                alt={`Preview ${imageIndex + 1}`}
-                                style={{
-                                  width: "80%",
-                                  maxHeight: "300px",
-                                }}
-                              />
-                            </div>
-                          ))}
+                          {user.LanguageSpoken &&
+                            user.LanguageSpoken.join(", ")}
                         </TableCell>
-                        {/* Add actions if needed */}
+                        <TableCell>{user.subjectsTaught}</TableCell>
+                        <TableCell>{user.phoneNumber}</TableCell>
+                        <TableCell>{user.hourlyPriceUSD}</TableCell>
+                        <TableCell>
+                          {user.certifications &&
+                            user.certifications.join(", ")}
+                        </TableCell>
+                        <TableCell>
+                          {user.educations && user.educations.join(", ")}
+                        </TableCell>
+                        <TableCell>
+                          {user.availability && user.availability.join(", ")}
+                        </TableCell>
+                        {/* Add other fields based on your user data */}
+                        {user.isVerified ? (
+                          <button
+                            style={{
+                              background: "#4798CC",
+                              borderRadius: "2em",
+                              padding: "0.4em",
+                              border: "0",
+                              color: "yellow",
+                              margin: "12px 5px",
+                            }}
+                            disabled
+                          >
+                            Verified
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleVerifyUser(user._id)}
+                            style={{
+                              background: "#00A65F",
+                              borderRadius: "2em",
+                              padding: "0.4em",
+                              border: "0",
+                              margin: "12px 5px",
+                            }}
+                          >
+                            Verify
+                          </button>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>
