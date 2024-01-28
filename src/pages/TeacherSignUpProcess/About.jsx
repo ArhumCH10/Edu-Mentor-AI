@@ -177,7 +177,6 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
-        console.log(activePage);
         setActiveComponent("Photo");
         break;
       default:

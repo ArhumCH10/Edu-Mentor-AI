@@ -1,22 +1,36 @@
 import { useEffect, useMemo, useState } from "react";
 import "react-phone-number-input/style.css";
 import PropTypes from "prop-types";
+import { useCertificate } from "./useCertificate";
 
 const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
   const userData = useMemo(
     () => JSON.parse(localStorage.getItem("userData")) || {},
     []
   );
-  const [certificates, setCertificates] = useState([
-    {
-      certificate: userData.certificate || "",
-      subject: userData.certificateSubject || "",
-      description: userData.certificateDescription || "",
-      issuer: userData.certificateIssuer || "",
-      yearsOfStudy: userData.certificateYearsOfStudy || "",
-      file: userData.file || null,
-    },
-  ]);
+  const { mutate } = useCertificate();
+
+  const [certificates, setCertificates] = useState(
+    userData.userData.certifications && userData.userData.certifications.length > 0
+      ? userData.userData.certifications.map(cert => ({
+          certificate: cert.certificate || "",
+          subject: cert.subject || "",
+          description: cert.description || "",
+          issuer: cert.issuedBy || "",
+          yearsOfStudy: cert.yearsOfStudyFrom || "",
+          file: cert.certificationPhoto || null, // Store the file path as a string
+        }))
+      : [
+          {
+            certificate: "",
+            subject: "",
+            description: "",
+            issuer: "",
+            yearsOfStudy: "",
+            file: null,
+          },
+        ]
+  );  
 
   useEffect(() => {
     if (userData.certificates && userData.certificates.length > 0) {
@@ -30,7 +44,7 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
   );
 
   const handleCheckboxChange = () => {
-    if (userData.photo) {
+    if (userData.userData.profilePhoto) {
       setTeachingCertificates(!teachingCertificates);
     } else {
       alert("Please fill previous sections first.");
@@ -50,12 +64,10 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
     setCertificates(updatedCertificates);
   };
 
-  const handleNext = async () => {
-    // ... (rest of the function remains unchanged)
+  const handleNext = () => {
     if (!teachingCertificates) {
-      // Handle the case when there are no teaching certificates
       setActivePage((prevPage) => prevPage + 1);
-      // Add the necessary logic for other pages/components
+      setActiveComponent("Education");
       return;
     }
 
@@ -93,6 +105,19 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
 
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
+    try {
+      certificates.forEach(cert => {
+
+        mutate({
+          subject: cert.subject,
+          certificate: cert.certificate,
+          description: cert.description,
+          issuedBy: cert.issuer,
+          yearsOfStudyFrom: cert.yearsOfStudy,
+          certificationPhoto: cert.file,
+        });
+      });
+
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
@@ -101,9 +126,18 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("Education");
     }
+  } catch (error) {
+    console.error("Mutation failed:", error);
+  }
     return;
   };
 
+  const deleteCertificate = (index) => {
+    if (window.confirm("Are you sure you want to delete this certificate?")) {
+      setCertificates(certificates.filter((_, idx) => idx !== index));
+    }
+  };
+  
   const backHandler = () => {
     setActivePage((prevPage) => prevPage - 1);
     // Add cases for other pages/components as needed
@@ -308,7 +342,22 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
                   onChange={(event) => handleFileChange(index, event)}
                 />
               </div>
+              <div>
+              <button
+      type="button"
+      className="btn btn-danger mb-4 mt-4"
+      onClick={() => deleteCertificate(index)}
+      style={{
+        fontWeight: "bold",
+        border: "1px solid black",
+        marginRight: "1em",
+      }}
+    >
+      Delete Certificate
+    </button>
+  </div>
             </div>
+            
           ))}
           <button
             type="button"

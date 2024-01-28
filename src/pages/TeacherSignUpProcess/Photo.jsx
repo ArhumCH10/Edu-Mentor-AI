@@ -4,17 +4,19 @@ import PropTypes from "prop-types";
 import { updateUser, selectUser } from "../../../store/userSlice";
 //import {useUser} from '../../UserContext';
 import { usePhoto } from "./usePhoto";
+import { useGetPhoto } from "./useGetphoto";
+import toast from "react-hot-toast";
 
 const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const fileInputRef = useRef(null);
   const imgRef = useRef(null);
   const dispatch = useDispatch();
   const { mutate } = usePhoto();
+  const photoUrl = useGetPhoto();
   const formData = new FormData();
  
   // Retrieve user object from local storage
   const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
-
   const user = useSelector(selectUser);
 
   const [image, setImage] = useState(
@@ -26,8 +28,8 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
 
   useEffect(() => {
     // Set the image from user.photo or storedUserData.photo when the component mounts
-    setImage(user.photo || storedUserData.photo || null);
-  }, [user.photo, storedUserData.photo]);
+    setImage(user.photo || photoUrl || null);
+  }, [user.photo, photoUrl]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -104,13 +106,20 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       alert("Please upload a photo before proceeding to the next page");
       return;
     }
-  
+    else if(!photoUrl || !image)
+    {
     try {
         mutate({
           fileStore: fileStore
          });
-
-    setActivePage((prevPage) => prevPage + 1);
+        }
+  catch (error) {
+    console.error("Mutation failed:", error);
+  }
+}
+else {
+  toast.success("Data Saved Successfully");
+  setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
         setActiveComponent("Certification");
@@ -119,14 +128,10 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("Certification");
     }
-  }
-  catch (error) {
-    console.error("Mutation failed:", error);
-  }
+}
   };
 
   const backHandler = () => {
-    console.log(user.photo);
     setActivePage((prevPage) => prevPage - 1);
     switch (activePage) {
       case 1:
@@ -136,7 +141,6 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("About");
     }
-    console.log(user.photo);
   };
   return (
     <div style={{ display: "flex", padding: "0 120px", margin: "0 30px" }}>

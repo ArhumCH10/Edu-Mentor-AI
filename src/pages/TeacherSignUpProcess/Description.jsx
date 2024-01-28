@@ -1,26 +1,54 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { useDescription } from "./useDescription";
+import {useUser} from '../../UserContext';
 
 const Description = ({ setActivePage, setActiveComponent }) => {
-  const [textAreas, setTextAreas] = useState({
-    introduction: "",
-    teachingExperience: "",
-    motivation: "",
-    headline: "",
-  });
+  const userInfo = useUser();
+  const [textAreas, setTextAreas] = useState(
+    userInfo.userData.userData.profileDescription && userInfo.userData.userData.profileDescription.length > 0
+    ? userInfo.userData.userData.profileDescription.map(cert => ({
+    introduction: cert.introduceYourself || "",
+    teachingExperience: cert.teachingExperience ||"",
+    motivation: cert.motivateStudents ||"",
+    headline: cert.catchyHeadline || "",
+
+  }))
+    : [{
+      introduction: "",
+      teachingExperience: "",
+      motivation: "",
+      headline: "",
+  },
+]
+  );
+  const { mutate } = useDescription();
 
   useEffect(() => {
-    // Load data from local storage when the component mounts
-    const userData = JSON.parse(localStorage.getItem("userData")) || {};
-    const { introduction, teachingExperience, motivation, headline } = userData;
+    if (userInfo?.userData?.userData?.profileDescription) {
+      const { introduceYourself, teachingExperience, motivateStudents, catchyHeadline } = userInfo.userData.userData.profileDescription;
+      setTextAreas({
+        introduction: introduceYourself || "",
+        teachingExperience: teachingExperience || "",
+        motivation: motivateStudents || "",
+        headline: catchyHeadline || "",
+      });
+    }
+  }, [userInfo]);
 
-    setTextAreas({
-      introduction: introduction || "",
-      teachingExperience: teachingExperience || "",
-      motivation: motivation || "",
-      headline: headline || "",
-    });
-  }, []);
+
+  // useEffect(() => {
+  //   // Load data from local storage when the component mounts
+  //   const userData = JSON.parse(localStorage.getItem("userData")) || {};
+  //   const { introduction, teachingExperience, motivation, headline } = userData;
+
+  //   setTextAreas({
+  //     introduction: introduction || "",
+  //     teachingExperience: teachingExperience || "",
+  //     motivation: motivation || "",
+  //     headline: headline || "",
+  //   });
+  // }, []);
 
   const handleNext = () => {
     // Save textAreas in the userData object in local storage
@@ -29,10 +57,21 @@ const Description = ({ setActivePage, setActiveComponent }) => {
 
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
+    try {
+      mutate({
+        introduceYourself: textAreas.introduction,
+        teachingExperience: textAreas.teachingExperience,
+        motivateStudents: textAreas.motivation,
+        catchyHeadline: textAreas.headline,
+      });  
+
     // Continue with 'Next' logic
     setActivePage((prevPage) => prevPage + 1);
     setActiveComponent("Video"); // Replace with the appropriate component
     // Add necessary logic for other pages/components
+  } catch (error) {
+    console.error("Mutation failed:", error);
+  }
   };
 
   const backHandler = () => {

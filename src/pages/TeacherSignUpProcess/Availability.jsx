@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { FaTrash } from 'react-icons/fa';
+import { useAvailability} from "./useAvailability";
+import {useUser} from '../../UserContext';
 
-const Availability = ({ setActivePage, setActiveComponent }) => {
+const Availability = ({activePage, setActivePage, setActiveComponent }) => {
   const [timezone, setTimezone] = useState("");
+  const { mutate } = useAvailability();
+  const userInfo = useUser();
   const [availability, setAvailability] = useState([
     {
       day: "Monday",
@@ -16,16 +21,19 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
   ]);
 
   useEffect(() => {
-    // Load data from local storage when the component mounts
+    // Load data from local storage or user info when the component mounts
     const userData = JSON.parse(localStorage.getItem("userData")) || {};
-    const { timezone, availability: savedAvailability } = userData;
+    const localTimezone = userData.timezone;
+    const localAvailability = userData.availability;
 
-    setTimezone(timezone || "");
+    // Set timezone either from local storage or from userInfo
+    setTimezone(localTimezone || (userInfo.userData.userData.availability.length > 0 && userInfo.userData.userData.availability[0].timezone) || "");
+    
 
-    if (savedAvailability) {
-      setAvailability(savedAvailability);
-    }
-  }, []);
+    // Set availability either from local storage or from userInfo
+    setAvailability(localAvailability || userInfo.userData.userData.availability || []);
+    console.log(userInfo.userData.userData.availability);
+  }, [userInfo]);
 
   const handleNext = () => {
     // Save availability in the userData object in local storage
@@ -34,22 +42,63 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
 
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
-    // Continue with 'Next' logic
+    try {
+      mutate({ timezone, availability });
+
     setActivePage((prevPage) => prevPage + 1);
-    setActiveComponent("Pricing"); // Replace with the appropriate component
-    // Add necessary logic for other pages/components
+    switch (activePage) {
+      case 1:
+        setActiveComponent("Pricing");
+        break;
+      // Add cases for other pages/components as needed
+      default:
+        setActiveComponent("Pricing");
+    }
+  }
+    catch (error) {
+      console.error("Mutation failed:", error);
+    }
   };
 
   const backHandler = () => {
-    // Add logic for handling 'Back' button click
     setActivePage((prevPage) => prevPage - 1);
-    setActiveComponent("Description"); // Replace with the appropriate component
+    switch (activePage) {
+      case 1:
+        setActiveComponent("Video");
+        break;
+      // Add cases for other pages/components as needed
+      default:
+        setActiveComponent("Video");
+    }
   };
 
+  const removeTimeSlot = (dayIndex, slotIndex) => {
+    const updatedAvailability = availability.map((day, index) => {
+      if (index === dayIndex) {
+        return {
+          ...day,
+          slots: day.slots.filter((_, sIndex) => sIndex !== slotIndex),
+        };
+      }
+      return day;
+    });
+  
+    setAvailability(updatedAvailability);
+  };  
+
+  const removeDay = (dayIndex) => {
+    setAvailability((prevAvailability) => prevAvailability.filter((_, index) => index !== dayIndex));
+  };
+  
   const addDay = () => {
     // Check if the current day's time slots are filled
-    if (availability.some((day) => !day.from || !day.to)) {
-      alert("Please fill in the current availability slot.");
+    // if (availability.some((day) => !day.from || !day.to)) {
+    //   alert("Please fill in the current availability slot.");
+    //   return;
+    // }
+
+    if (availability.some(day => day.day === 'Sunday')) {
+      alert("The week's schedule is already complete.");
       return;
     }
 
@@ -64,15 +113,19 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
       "Saturday",
     ];
     const lastDay = availability[availability.length - 1].day;
-    const nextDayIndex = (daysOfWeek.indexOf(lastDay) + 1) % 7;
+    const nextDayIndex = (daysOfWeek.indexOf(lastDay) + 1) % daysOfWeek.length; // Make sure it wraps correctly
     const nextDay = daysOfWeek[nextDayIndex];
-
+  
     setAvailability((prevAvailability) => [
       ...prevAvailability,
       {
         day: nextDay,
-        from: "",
-        to: "",
+        slots: [ // Note the slots array here
+          {
+            from: "",
+            to: "",
+          },
+        ],
       },
     ]);
   };
@@ -149,10 +202,24 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
 
       {availability.map((day, dayIndex) => (
         <div key={dayIndex} className="mb-3">
-          <p style={{ fontWeight: "bold" }}>{day.day}</p>
+ <div className="d-flex justify-content-start align-items-center">
+ <h5 style={{ fontWeight: "bold", marginBottom: 0 }}>{day.day}</h5>
+          <button
+            type="button"
+            className="btn btn-danger btn-sm mr-2"
+            onClick={() => removeDay(dayIndex)}
+            aria-label="Delete day"
+            style={{ marginRight: '30px' }} 
+          >
+            <FaTrash />
+          </button>
+        </div>
           {day.slots.map((slot, slotIndex) => (
-            <div key={slotIndex} className="row">
-              <div className="col">
+            
+            <div key={slotIndex} className="d-flex align-items-center mb-2">
+              
+              <div className="flex-fill mr-2">
+                
                 <label
                   htmlFor={`from-${dayIndex}-${slotIndex}`}
                   className="form-label"
@@ -176,7 +243,7 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
                   {generateTimeOptions()}
                 </select>
               </div>
-              <div className="col">
+              <div className="flex-fill mx-2">
                 <label
                   htmlFor={`to-${dayIndex}-${slotIndex}`}
                   className="form-label"
@@ -193,6 +260,8 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
                       e.target.value;
                     setAvailability(updatedAvailability);
                   }}
+
+                  
                 >
                   <option value="" disabled>
                     Select Time
@@ -200,7 +269,17 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
                   {generateTimeOptions()}
                 </select>
               </div>
+              <div className="ml-6">
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => removeTimeSlot(dayIndex, slotIndex)}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
+            
           ))}
           <button
             type="button"
@@ -268,6 +347,7 @@ const Availability = ({ setActivePage, setActiveComponent }) => {
 };
 
 Availability.propTypes = {
+  activePage: PropTypes.number.isRequired,
   setActivePage: PropTypes.func.isRequired,
   setActiveComponent: PropTypes.func.isRequired,
 };

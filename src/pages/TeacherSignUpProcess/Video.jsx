@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useVideo } from "./useVideo";
 
-const Video = ({ setActivePage, setActiveComponent }) => {
+const Video = ({activePage,  setActivePage, setActiveComponent }) => {
   const [videoFile, setVideoFile] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const { mutate } = useVideo();
 
   useEffect(() => {
     // Check if videoFile and thumbnailFile exist in localStorage
@@ -45,9 +47,10 @@ const Video = ({ setActivePage, setActiveComponent }) => {
   };
 
   const handleNext = () => {
-    // Save video file and thumbnail information in local storage
-    console.log(videoFile);
-    console.log(thumbnailFile);
+
+    if (!videoFile) {
+      return alert("First Upload Video File");
+    }
 
     if (videoFile) {
       const videoData = {
@@ -86,16 +89,36 @@ const Video = ({ setActivePage, setActiveComponent }) => {
       }
     }
 
-    // Continue with 'Next' logic
-    setActivePage((prevPage) => prevPage + 1);
-    setActiveComponent("Availability"); // Replace with the appropriate component
-    // Add necessary logic for other pages/components
+    try {
+      mutate({
+        data: videoFile,
+        thumbnail: thumbnailFile
+       });
+       setActivePage((prevPage) => prevPage + 1);
+       switch (activePage) {
+         case 1:
+           setActiveComponent("Availability");
+           break;
+         // Add cases for other pages/components as needed
+         default:
+           setActiveComponent("Availability");
+       }
+  }
+  catch (error) {
+    console.error("Mutation failed:", error);
+  }
   };
 
   const backHandler = () => {
-    // Add logic for handling 'Back' button click
     setActivePage((prevPage) => prevPage - 1);
-    setActiveComponent("Description"); // Replace with the appropriate component
+    switch (activePage) {
+      case 1:
+        setActiveComponent("Description");
+        break;
+      // Add cases for other pages/components as needed
+      default:
+        setActiveComponent("Description");
+    }
   };
 
   return (
@@ -202,6 +225,7 @@ const Video = ({ setActivePage, setActiveComponent }) => {
 };
 
 Video.propTypes = {
+  activePage: PropTypes.number.isRequired,
   setActivePage: PropTypes.func.isRequired,
   setActiveComponent: PropTypes.func.isRequired,
 };
