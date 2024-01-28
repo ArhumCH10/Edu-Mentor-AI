@@ -1,4 +1,5 @@
 import Header from "./header";
+<<<<<<< HEAD
 import { useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
@@ -7,6 +8,16 @@ import { FaEdit } from 'react-icons/fa';
 import { MdDelete } from "react-icons/md";
 import PropTypes from 'prop-types';
  //import { ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, Inject } from '@syncfusion/ej2-react-schedule';
+=======
+// import { useState } from 'react';
+// import { Calendar, momentLocalizer } from 'react-big-calendar';
+// import moment from 'moment';
+// import 'react-big-calendar/lib/css/react-big-calendar.css';
+// import { FaEdit } from 'react-icons/fa';
+// import { MdDelete } from "react-icons/md";
+// import PropTypes from 'prop-types';
+//  import { ScheduleComponent, Day, Week, WorkWeek, Month, Agenda, Inject } from '@syncfusion/ej2-react-schedule';
+>>>>>>> 3726a50a011488bd94b10342ead219726ab2defd
 
 const localizer = momentLocalizer(moment);
 
@@ -22,7 +33,10 @@ const EventComponent = ({ event, onEditClick, onDeleteClick }) => (
 );
 
 export default function Availability() {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3726a50a011488bd94b10342ead219726ab2defd
   // const data = [{
   //   Id: 1,
   //   Subject: 'English',
@@ -67,6 +81,7 @@ export default function Availability() {
     }
   };
 
+<<<<<<< HEAD
  
   const handleEventDelete = (event) => {
     const confirmed = window.confirm('Are you sure you want to delete this event?');
@@ -74,6 +89,14 @@ export default function Availability() {
       setEvents((prevEvents) => prevEvents.filter((ev) => ev.id !== event.id));
     }
   };
+=======
+  // const handleEventDelete = (event) => {
+  //   const confirmed = window.confirm('Are you sure you want to delete this event?');
+  //   if (confirmed) {
+  //     setEvents((prevEvents) => prevEvents.filter((ev) => ev.id !== event.id));
+  //   }
+  // };
+>>>>>>> 3726a50a011488bd94b10342ead219726ab2defd
 
   const handleEventClick = (event) => {
     const newTitle = window.prompt('Edit Event Name', event.title);
@@ -87,15 +110,25 @@ export default function Availability() {
   return (
     <>
       <Header />
+<<<<<<< HEAD
       {/* <div className="Availability-container mx-5 my-3">
         <div className="Availability mx-2" style={{marginBottom:'3rem'}}>
+=======
+      <div className="Availability-container mx-5 my-3">
+        <div className="Availability mx-2" style={{ marginBottom: "3rem" }}>
+>>>>>>> 3726a50a011488bd94b10342ead219726ab2defd
           <h2>Availability</h2>
-          <div id="schedule" style={{margin:'1rem'}}>
-            <div id='loader'>Loading....</div>
-            <ScheduleComponent height='450px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}>
+          <div id="schedule" style={{ margin: "1rem" }}>
+            <div id="loader">Loading....</div>
+            {/* <ScheduleComponent height='450px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}>
               <Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
+<<<<<<< HEAD
             </ScheduleComponent>
           </div> */}
+=======
+            </ScheduleComponent> */}
+          </div>
+>>>>>>> 3726a50a011488bd94b10342ead219726ab2defd
 
           <div id="schedule" style={{ margin: '1rem' , marginBottom:'3rem'}}>
           <h2>Availability</h2>
@@ -127,7 +160,7 @@ export default function Availability() {
         {/* </div>
       </div> */}
     </>
-  )
+  );
 }
 
 EventComponent.propTypes = {
