@@ -57,6 +57,7 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
+      <div style={{position:'fixed',height:'100%',width:'200px' ,zIndex:100,background:'linear-gradient(to top, #3661a0, #57cbf5)'}}>
       <div className="top_section">
         <img src="logo.png" alt="logo" style={{ height: 60, width: 60, marginTop: 0 }} />
         <h1 style={{ display: "inline-block", font: "initial", margin: 'auto' }} >Edu Mentor Ai</h1>
@@ -69,6 +70,7 @@ const Sidebar = () => {
           </NavLink>
         ))
       }
+      </div>
     </div>
   );
 };
