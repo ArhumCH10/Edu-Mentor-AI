@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import About from "./About";
 import Photo from "./Photo";
 import TeacherSignUpNavbar from "./TeacherSignUpNavbar";
@@ -9,10 +9,21 @@ import Video from "./Video";
 import Availability from "./Availability";
 import Pricing from "./Pricing";
 import Completion from "./Completion";
+import {useUser} from '../../UserContext';
 
 function TeacherSignUpMain() {
   const [activePage, setActivePage] = useState(1);
   const [activeComponent, setActiveComponent] = useState("About");
+  const userInfo = useUser();
+ const registrationComplete = userInfo.userData.userData?.registrationCompleted;
+
+ useEffect(() => {
+
+  if (registrationComplete === true) {
+    console.log(registrationComplete);
+    setActiveComponent("Completion");
+  }
+}, [registrationComplete]);
 
   const handlePageChange = (page) => {
     setActivePage(page);
@@ -20,27 +31,31 @@ function TeacherSignUpMain() {
   };
 
   const getActiveComponent = (page) => {
-    switch (page) {
-      case 1:
-        return "About";
-      case 2:
-        return "Photo";
-      case 3:
-        return "Certification";
-      case 4:
-        return "Education";
-      case 5:
-        return "Description";
-      case 6:
-        return "Video";
-      case 7:
-        return "Availability";
-      case 8:
-        return "Pricing";
-      case 9:
-        return "Completion";
-      default:
-        return "About";
+    if (!registrationComplete) {
+      switch (page) {
+        case 1:
+          return "About";
+        case 2:
+          return "Photo";
+        case 3:
+          return "Certification";
+        case 4:
+          return "Education";
+        case 5:
+          return "Description";
+        case 6:
+          return "Video";
+        case 7:
+          return "Availability";
+        case 8:
+          return "Pricing";
+        case 9:
+          return "Completion";
+        default:
+          return "About";
+      }
+    } else {
+      return "Completion";
     }
   };
 
@@ -72,7 +87,7 @@ function TeacherSignUpMain() {
               style={{
                 borderBottom: activePage === page ? "1px solid white" : "none",
                 cursor: "pointer",
-                color: activePage === page || activePage === page + 1 ? "white" : "grey",
+                color: activePage >= page ? "white" : "grey",
               }}
              // onClick={() => handlePageChange(page)}
             >

@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { useEducation } from "./useEducation";
+import {useUser} from '../../UserContext';
 
 const Education = ({ activePage, setActivePage, setActiveComponent }) => {
-  // Load user data from local storage
+
   const userData = JSON.parse(localStorage.getItem("userData")) || {};
 
   const [noHigherDegree, setNoHigherDegree] = useState(
     userData.noHigherDegree || false
   );
+  const { mutate } = useEducation();
+  const userInfo = useUser();
 
   const [degrees, setDegrees] = useState(
-    userData.degrees
-      ? userData.degrees.map((degree) => ({
-          ...degree,
-          file: degree.file || {},
+    userInfo.userData.userData?.educations && userInfo.userData.userData.educations.length > 0
+      ? userInfo.userData.userData.educations.map((degree) => ({
+        universityName: degree.university || "",
+        degreeName: degree.degree || "",
+        degreeType: degree.degreeType || "",
+        specialization: degree.degreeType || "",
+        yearsOfStudy: degree.yearsOfStudyFrom || "",
+        file: degree.educationPhoto || {},
         }))
       : [
           {
@@ -27,9 +35,42 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
         ]
   );
 
+  
+  // useEffect(() => {
+  //   if (userData.userData.educations && userInfo.userData.educations.length > 0) {
+  //     setDegrees(userData.userData.educations);
+  //   }
+  // }, [userData]);
+
+  // useEffect(() => {
+  //   if (userInfo.userData.userData && userInfo.userData.userData.educations.length > 0) {
+  //     userInfo.userData.userData.educations.forEach((degree, index) => {
+  //       console.log(`Degree ${index}:`, degree.university);
+  //     });
+  //   }
+  // }, [userData]);
+
+  useEffect(() => {
+  
+    if (userInfo.userData.userData?.educations) {
+      const initialDegrees = userInfo.userData.userData.educations.map(degree => ({
+        universityName: degree.university || "",
+        degreeName: degree.degree || "",
+        degreeType: degree.degreeType || "",
+        specialization: degree.specialization || "",
+        yearsOfStudy: degree.yearsOfStudyFrom || "",
+        file: degree.educationPhoto || {},
+      }));
+
+      setDegrees(initialDegrees);
+    }
+  }, [userData]);
+  
+
   const handleCheckboxChange = () => {
     setNoHigherDegree(!noHigherDegree);
   };
+
 
   const handleChange = (index, field, value) => {
     console.log(
@@ -93,6 +134,19 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
 
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
+    try {
+      degrees.forEach(cert => {
+
+        mutate({
+          university: cert.universityName,
+          degree: cert.degreeName,
+          degreeType: cert.degreeType,
+          specialization: cert.specialization,
+          yearsOfStudyFrom: cert.yearsOfStudy,
+          educationPhoto: cert.file,
+        });
+      });
+
     setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
@@ -102,7 +156,13 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
       default:
         setActiveComponent("Description"); // Replace with the appropriate component
     }
+
+  } catch (error) {
+    console.error("Mutation failed:", error);
+  }
+    return;
   };
+
 
   const backHandler = () => {
     setActivePage((prevPage) => prevPage - 1);
@@ -111,34 +171,18 @@ const Education = ({ activePage, setActivePage, setActiveComponent }) => {
   };
 
   const addDegree = () => {
-    // Check if the current degree is incomplete before adding a new one
-    const currentDegree = degrees[degrees.length - 1];
-    if (
-      !currentDegree.universityName ||
-      !currentDegree.degreeName ||
-      !currentDegree.degreeType ||
-      !currentDegree.specialization ||
-      !currentDegree.yearsOfStudy ||
-      !currentDegree.file
-    ) {
-      alert("Please fill in all required fields for the current degree.");
-      return;
-    }
-
-    // Add a new empty degree
-    setDegrees([
-      ...degrees,
-      {
-        universityName: null,
-        degreeName: null,
-        degreeType: null,
-        specialization: null,
-        yearsOfStudy: null,
-        file: null,
-      },
-    ]);
+    console.log("Before adding new degree:", degrees);
+    setDegrees([...degrees, {
+      universityName: "",
+      degreeName: "",
+      degreeType: "",
+      specialization: "",
+      yearsOfStudy: "",
+      file: {},
+    }]);
+    console.log("After adding new degree:", degrees);
   };
-
+  
   useEffect(() => {
     // Load user data from local storage when the page renders
     setNoHigherDegree(userData.noHigherDegree || false);

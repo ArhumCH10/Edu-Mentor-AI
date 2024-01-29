@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { usePricing } from "./usePricing";
 
-const Pricing = ({ setActivePage, setActiveComponent }) => {
+const Pricing = ({activePage, setActivePage, setActiveComponent }) => {
   const [hourlyRate, setHourlyRate] = useState("");
+  const { mutate } = usePricing();
 
   useEffect(() => {
     // Load pricing data from local storage when the component mounts
@@ -33,16 +35,35 @@ const Pricing = ({ setActivePage, setActiveComponent }) => {
     // Save pricing data in local storage
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
-    console.log("User entered data:", { hourlyRate });
+    try {
+      mutate({
+        hourlyPriceUSD: hourlyRate,
+      });  
     setActivePage((prevPage) => prevPage + 1);
-    // Replace with the appropriate component for the next step
-    setActiveComponent("Completion");
+    switch (activePage) {
+      case 1:
+        setActiveComponent("Completion");
+        break;
+      // Add cases for other pages/components as needed
+      default:
+        setActiveComponent("Completion");
+    }
+  }
+  catch (error) {
+    console.error("Mutation failed:", error);
+  }
   };
 
   const backHandler = () => {
-    // Add logic for handling 'Back' button click
     setActivePage((prevPage) => prevPage - 1);
-    setActiveComponent("Availability"); // Replace with the appropriate component
+    switch (activePage) {
+      case 1:
+        setActiveComponent("Availability");
+        break;
+      // Add cases for other pages/components as needed
+      default:
+        setActiveComponent("Availability");
+    }
   };
   return (
     <div className="container mt-4" style={{ padding: "0em 10em" }}>
@@ -221,6 +242,7 @@ const Pricing = ({ setActivePage, setActiveComponent }) => {
 };
 
 Pricing.propTypes = {
+  activePage: PropTypes.number.isRequired,
   setActivePage: PropTypes.func.isRequired,
   setActiveComponent: PropTypes.func.isRequired,
 };
