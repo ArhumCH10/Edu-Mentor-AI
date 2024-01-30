@@ -95,7 +95,7 @@
 }
 
 .Earnings {
-  height: 34vh;
+  height: auto;
   margin: 10px;
   border-radius: 30px;
   background-color: white;

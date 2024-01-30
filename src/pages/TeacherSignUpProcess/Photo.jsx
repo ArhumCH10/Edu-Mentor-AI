@@ -1,11 +1,11 @@
-import  { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { updateUser, selectUser } from "../../../store/userSlice";
 //import {useUser} from '../../UserContext';
 import { usePhoto } from "./usePhoto";
 import { useGetPhoto } from "./useGetphoto";
-import toast from "react-hot-toast";
+//import toast from "react-hot-toast";
 
 const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const fileInputRef = useRef(null);
@@ -14,7 +14,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const { mutate } = usePhoto();
   const photoUrl = useGetPhoto();
   const formData = new FormData();
- 
+
   // Retrieve user object from local storage
   const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
   const user = useSelector(selectUser);
@@ -37,10 +37,10 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
     setfileStore(file);
     console.log("Selected file:", file);
 
-   // if (!storedUserData.userData.firstName) {
-     // return alert("Fill about me section first");
+    // if (!storedUserData.userData.firstName) {
+    // return alert("Fill about me section first");
     //}
-    formData.append('photo', file);
+    formData.append("photo", file);
     console.log("FormData before sending:", formData);
 
     if (file) {
@@ -54,7 +54,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
         ...storedUserData,
         photo: imageUrl,
       };
-      console.log("imageURL : ",imageUrl);
+      console.log("imageURL : ", imageUrl);
 
       // Update the Redux state with the new photo URL
       dispatch(updateUser(updatedStoredUserData));
@@ -70,18 +70,17 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const handleDelete = () => {
     // Retrieve the existing user data from local storage
     const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
-  
+
     // Remove the photo property from the user data
     const updatedUserData = { ...storedUserData, photo: null };
-  
+
     // Update the Redux state and local state to remove the photo property
     dispatch(updateUser(updatedUserData));
     setImage(null);
-  
+
     // Save the updated user data to local storage
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
   };
-  
 
   const handleZoomIn = () => {
     setZoom((prevZoom) => prevZoom + 0.1);
@@ -108,24 +107,25 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
     if (!image) {
       alert("Please upload a photo before proceeding to the next page");
       return;
-    }
-    else if(!photoUrl || !image)
-    {
-    try {
+    } else if (!photoUrl || !image) {
+      try {
         mutate({
-          fileStore: fileStore
-         });
+          fileStore: fileStore,
+        });
 
-    setActivePage((prevPage) => prevPage + 1);
-    switch (activePage) {
-      case 1:
-        setActiveComponent("Certification");
-        break;
-      // Add cases for other pages/components as needed
-      default:
-        setActiveComponent("Certification");
+        setActivePage((prevPage) => prevPage + 1);
+        switch (activePage) {
+          case 1:
+            setActiveComponent("Certification");
+            break;
+          // Add cases for other pages/components as needed
+          default:
+            setActiveComponent("Certification");
+        }
+      } catch (error) {
+        console.error("Mutation failed:", error);
+      }
     }
-}
   };
 
   const backHandler = () => {
@@ -359,17 +359,17 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
               </div>
 
               <button
-            className="btn btn-primary mb-4 mt-4"
-            style={{
-              background: "red",
-              color: "white",
-              fontWeight: "bold",
-              border: 0,
-            }}
-            onClick={handleDelete}
-          >
-            Delete
-          </button>
+                className="btn btn-primary mb-4 mt-4"
+                style={{
+                  background: "red",
+                  color: "white",
+                  fontWeight: "bold",
+                  border: 0,
+                }}
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
             </div>
           </div>
         )}

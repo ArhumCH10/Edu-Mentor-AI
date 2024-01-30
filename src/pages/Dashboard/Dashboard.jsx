@@ -241,7 +241,7 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="row ">
-          <div className="col-3 Earnings gap-3" >
+          <div className="col-4 Earnings gap-3" >
             <div className="row" style={{ marginTop: 10 }}>
               <div className="col-8">
                 <span style={{ marginLeft: 20, fontWeight: 'bold', fontSize: "large", padding: 2 }}>

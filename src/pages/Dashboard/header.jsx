@@ -3,9 +3,6 @@ import { VscSignOut } from 'react-icons/vsc';
 import { useState,useEffect } from 'react';
 
 const Header = () => {
-<<<<<<< HEAD
-    const user ='Arhum Ch';
-=======
   const [isScrolled, setIsScrolled] = useState(false);
   const handleScroll = () => {
     const scrolled = window.scrollY > 0;
@@ -20,7 +17,6 @@ const Header = () => {
   }, []);
 
     const user ='Ghous King';
->>>>>>> 96da6ed5492b3b42291c01924007150361fb7e94
     const level = 4;
     const money= 32000;
   return (
