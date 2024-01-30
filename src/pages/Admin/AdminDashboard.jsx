@@ -236,7 +236,7 @@ const AdminDashboard = () => {
               style={{
                 padding: "1em",
                 marginTop: "4em",
-                width: "1420px",
+                width: "1290px",
               }}
             >
               <Typography style={{ padding: "1em 0.5em" }} variant="h5">

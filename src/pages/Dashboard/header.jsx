@@ -2,7 +2,7 @@ import { IoIosNotifications } from 'react-icons/io';
 import { VscSignOut } from 'react-icons/vsc';
 
 const Header = () => {
-    const user ='Ghous King';
+    const user ='Arhum Ch';
     const level = 4;
     const money= 32000;
   return (

@@ -402,3 +402,187 @@
   margin-top: 0.5rem;
 }
 
+.stats-box {
+  flex: 1; /* Each box will take equal width */
+  margin: 0 10px; /* Consistent margin on left and right */
+  text-align: center; /* Ensure text is centered */
+  min-width: 150px; /* Minimum width for smaller screens */
+}
+
+.vertical-line {
+  border-left: 2px solid #ccc;
+  height: 80px;
+  self-align: center; /* Aligns the line itself */
+}
+
+.stat {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional shadow for better aesthetics */
+}
+
+/* Centering content within the .row */
+.row.justify-content-center {
+  justify-content: center;
+}
+
+/* Wrap flex items if not enough space */
+.d-flex.flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* Full width break to wrap onto the next line */
+.w-100 {
+  width: 100%; /* Forces a wrap to the next line for flex items */
+}
+
+.chart-container {
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  padding: 20px;
+  background-color: #fff;
+  margin-top: 20px;
+  max-width: 900px; /* Set a maximum width */
+  margin: 0 auto;
+}
+
+/* Customizes the font and color for chart axes */
+.chart-container .chart {
+  color: #666;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Style the legend if needed */
+.chart-container .chart-legend {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Customizes the tooltip */
+.chart-container .chart-tooltip {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  color: #333;
+}
+
+.stat-container {
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  padding: 20px;
+  background-color: #fff;
+  margin-top: 20px;
+  max-width: 400px; /* Set a maximum width */
+  margin: 0 auto;
+  margin-top: 30px;
+}
+
+/* Customizes the font and color for chart axes */
+.stat-container .chart {
+  color: #666;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Style the legend if needed */
+.stat-container .chart-legend {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Customizes the tooltip */
+.stat-container .chart-tooltip {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  color: #333;
+}
+
+/* Style for the overall statistics container */
+.statistics-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Style for the section titles */
+.section-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Style for the doughnut chart container */
+.doughnut-chart-container {
+  max-width: 50%; /* Adjust as needed */
+  margin: 0 auto; /* Center the chart container */
+}
+
+/* Style for the active sales placeholder */
+.active-sales-placeholder {
+  height: 200px; /* Adjust as needed */
+  border: 2px dashed #ccc;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ccc;
+  font-size: 24px;
+}
+
+/* Style for the legends and the average selling price section */
+.legends-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.legend-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+/* Sample colors for the legend items */
+.gigs-color {
+  background-color: #56CCF2;
+}
+
+.custom-offers-color {
+  background-color: #2F80ED;
+}
+
+.avg-selling-price {
+  margin-top: 20px;
+}
+
+/* Style for the toggle buttons */
+.toggle-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.toggle-button {
+  padding: 5px 20px;
+  margin-left: 10px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+
+.toggle-button.active {
+  background-color: #56CCF2;
+  color: #fff;
+}
+
