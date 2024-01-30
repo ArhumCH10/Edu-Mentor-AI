@@ -35,11 +35,13 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
     const file = e.target.files[0];
 
     setfileStore(file);
+    console.log("Selected file:", file);
 
    // if (!storedUserData.userData.firstName) {
      // return alert("Fill about me section first");
     //}
     formData.append('photo', file);
+    console.log("FormData before sending:", formData);
 
     if (file) {
       const imageUrl = URL.createObjectURL(file);
@@ -52,6 +54,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
         ...storedUserData,
         photo: imageUrl,
       };
+      console.log("imageURL : ",imageUrl);
 
       // Update the Redux state with the new photo URL
       dispatch(updateUser(updatedStoredUserData));
@@ -112,14 +115,8 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
         mutate({
           fileStore: fileStore
          });
-        }
-  catch (error) {
-    console.error("Mutation failed:", error);
-  }
-}
-else {
-  toast.success("Data Saved Successfully");
-  setActivePage((prevPage) => prevPage + 1);
+
+    setActivePage((prevPage) => prevPage + 1);
     switch (activePage) {
       case 1:
         setActiveComponent("Certification");
@@ -173,10 +170,11 @@ else {
 
         <input
           type="file"
-          accept=".jpg, .png"
+          accept="image/*"
           onChange={handleFileUpload}
           ref={fileInputRef}
           style={{ display: "none" }}
+          name="photo"
         />
         {image && (
           <div

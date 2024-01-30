@@ -59,16 +59,18 @@ export async function getUserData() {
 
 export async function photo({ fileStore }) {
   try {
-    const formData = new FormData();
-    formData.append('photo', fileStore);
+    console.log("My file data :",fileStore);
 
-    const token = localStorage.getItem("token"); 
-    const response = await axios.post("http://localhost:8080/photo", formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    const token = localStorage.getItem("token"); // Retrieve the token from local storage
+    const formData = new FormData();
+        formData.append('photo', fileStore);
+      const response = await axios.post("http://localhost:8080/photo",  formData,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+            //'Content-Type': 'multipart/form-data',
+        },
+        });
+        console.log("Response from server:", response.data);
 
       if (response.status === 200) {
           return true; // Indicate success to the calling code
