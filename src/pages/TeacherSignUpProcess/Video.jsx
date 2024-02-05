@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useVideo } from "./useVideo";
+import StyledSpinner from "./startSpinner";
 
-const Video = ({activePage,  setActivePage, setActiveComponent }) => {
+const Video = ({ activePage, setActivePage, setActiveComponent }) => {
   const [videoFile, setVideoFile] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
-  const { mutate } = useVideo();
+  const [loading, setLoading] = useState(true);
+  const [flag, setFlag] = useState(false);
+  const { mutate } = useVideo(setFlag, setLoading);
 
   useEffect(() => {
     // Check if videoFile and thumbnailFile exist in localStorage
@@ -23,22 +26,41 @@ const Video = ({activePage,  setActivePage, setActiveComponent }) => {
       setThumbnailFile(storedThumbnailFile);
       setThumbnailPreview(storedThumbnailPreview);
     }
+    setLoading(false);
   }, []); // Empty dependency array ensures the effect runs only once after the initial render
 
-  const handleFileChange = (e, setFile, setPreview) => {
+  const handleFileChange = async (e, setFile, setPreview) => {
     const file = e.target.files[0];
     setFile(file);
-
     // Read the file and set its preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
     if (file) {
-      reader.readAsDataURL(file);
+      try {
+        const preview = await readFileAsDataURL(file);
+        setPreview(preview);
+      } catch (error) {
+        console.error("Error reading file as data URL:", error);
+      }
     }
   };
+  const readFileAsDataURL = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
+
+      reader.onerror = (error) => {
+        reject(error);
+      };
+
+      if (file) {
+        reader.readAsDataURL(file);
+      } else {
+        reject(new Error("File is undefined or null"));
+      }
+    });
+  };
   const handleThumbnailChange = (e) => {
     if (!videoFile) {
       return alert("First Upload Video File");
@@ -47,8 +69,10 @@ const Video = ({activePage,  setActivePage, setActiveComponent }) => {
   };
 
   const handleNext = () => {
+    setLoading(true);
 
     if (!videoFile) {
+      setLoading(false);
       return alert("First Upload Video File");
     }
 
@@ -90,25 +114,32 @@ const Video = ({activePage,  setActivePage, setActiveComponent }) => {
     }
 
     try {
+      setLoading(true);
       mutate({
         data: videoFile,
         thumbnail: thumbnailFile
-       });
-       setActivePage((prevPage) => prevPage + 1);
-       switch (activePage) {
-         case 1:
-           setActiveComponent("Availability");
-           break;
-         // Add cases for other pages/components as needed
-         default:
-           setActiveComponent("Availability");
-       }
-  }
-  catch (error) {
-    console.error("Mutation failed:", error);
-  }
+      });
+
+    }
+    catch (error) {
+      console.error("Mutation failed:", error);
+    }
   };
 
+  useEffect(() => {
+    if (flag) {
+      setActivePage((prevPage) => prevPage + 1);
+      switch (activePage) {
+        case 1:
+          setActiveComponent("Availability");
+          break;
+        // Add cases for other pages/components as needed
+        default:
+          setActiveComponent("Availability");
+      }
+      setLoading(false);
+    }
+  }, [flag]);
   const backHandler = () => {
     setActivePage((prevPage) => prevPage - 1);
     switch (activePage) {
@@ -123,17 +154,19 @@ const Video = ({activePage,  setActivePage, setActiveComponent }) => {
 
   return (
     <div className="container mt-4" style={{ padding: "0em 10em" }}>
+      {/* Heading */}
+      <h1 style={{ fontWeight: "bold" }}>Video introduction</h1>
+
+      {/* Bold Paragraph */}
+      <p style={{ fontWeight: "bold" }}>
+        Add a horizontal video of up to 2 minutes
+      </p>
+      {loading?(<StyledSpinner/>):(
+      <>
       {/* Partitions */}
       <div style={{ display: "flex" }}>
         {/* First Partition */}
         <div style={{ flex: 1, marginRight: "20px" }}>
-          {/* Heading */}
-          <h1 style={{ fontWeight: "bold" }}>Video introduction</h1>
-
-          {/* Bold Paragraph */}
-          <p style={{ fontWeight: "bold" }}>
-            Add a horizontal video of up to 2 minutes
-          </p>
 
           {/* Simple Paragraph */}
           <p>
@@ -189,7 +222,6 @@ const Video = ({activePage,  setActivePage, setActiveComponent }) => {
           {/* Video Requirements Section (unchanged) */}
         </div>
       </div>
-
       {/* Navigation Buttons */}
       <div style={{ marginTop: "20px" }}>
         <button
@@ -220,6 +252,9 @@ const Video = ({activePage,  setActivePage, setActiveComponent }) => {
           Back
         </button>
       </div>
+      </>)}
+
+
     </div>
   );
 };

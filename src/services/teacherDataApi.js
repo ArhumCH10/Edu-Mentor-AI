@@ -47,7 +47,9 @@ export async function getUserData() {
     });
 
     if (response.status === 200) {
-      return response.data;
+      console.log('In getUserData api :',response.data);
+        return response.data;
+
     } else {
       throw new Error('Failed to fetch user data');
     }
@@ -187,6 +189,7 @@ export async function description({ introduceYourself, teachingExperience, motiv
 
 export async function video({ data, thumbnail }) {
   try {
+    //console.log('Video data in teacherDataApi : ',data);
     const formData = new FormData();
     formData.append('data', data);
     if (thumbnail) {
@@ -271,3 +274,4 @@ export async function availability({ timezone, availability }) {
         throw error;
     }
   }
+

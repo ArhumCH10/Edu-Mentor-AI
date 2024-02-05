@@ -5,15 +5,21 @@ import { updateUser, selectUser } from "../../../store/userSlice";
 //import {useUser} from '../../UserContext';
 import { usePhoto } from "./usePhoto";
 import { useGetPhoto } from "./useGetphoto";
+import StyledSpinner from "./startSpinner";
+
 //import toast from "react-hot-toast";
 
 const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const fileInputRef = useRef(null);
   const imgRef = useRef(null);
   const dispatch = useDispatch();
-  const { mutate } = usePhoto();
+  const [flag, setFlag] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const { mutate } = usePhoto(setFlag,setLoading);
   const photoUrl = useGetPhoto();
   const formData = new FormData();
+
 
   // Retrieve user object from local storage
   const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
@@ -29,6 +35,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   useEffect(() => {
     // Set the image from user.photo or storedUserData.photo when the component mounts
     setImage(user.photo || photoUrl || null);
+    setLoading(false)
   }, [user.photo, photoUrl]);
 
   const handleFileUpload = (e) => {
@@ -102,30 +109,51 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
     fileInputRef.current.click();
   };
 
-  const nextHandler = () => {
+  const nextHandler = async  () => {
+    //console.log("image:", image);
+    //console.log("photoUrl:", photoUrl);
     // Check if an image is uploaded
+    setLoading(true);
     if (!image) {
       alert("Please upload a photo before proceeding to the next page");
+      setLoading(false);
       return;
     } else if (!photoUrl || !image) {
       try {
         mutate({
           fileStore: fileStore,
         });
-
-        setActivePage((prevPage) => prevPage + 1);
-        switch (activePage) {
-          case 1:
-            setActiveComponent("Certification");
-            break;
-          // Add cases for other pages/components as needed
-          default:
-            setActiveComponent("Certification");
-        }
+        
       } catch (error) {
         console.error("Mutation failed:", error);
       }
+      setLoading(false);
     }
+    else if (image.startsWith("blob:")) {
+      setLoading(true);
+      try {
+        // Convert Blob URL to data URL
+        // const response = await fetch(image);
+        // const blob = await response.blob();
+        // const dataUrl = await new Promise((resolve) => {
+        //   const reader = new FileReader();
+        //   reader.onloadend = () => resolve(reader.result);
+        //   reader.readAsDataURL(blob);
+        // });
+  
+        // Use dataUrl in mutate
+        await mutate({
+          fileStore: fileStore,
+        });
+  
+        
+      } catch (error) {
+        console.error("Mutation failed:", error);
+      }
+    } else {
+      console.log("Image is not a Blob URL");
+    }
+    
   };
 
   const backHandler = () => {
@@ -139,8 +167,25 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
         setActiveComponent("About");
     }
   };
+  useEffect(()=>{
+    if(flag){
+      setActivePage((prevPage) => prevPage + 1);
+        switch (activePage) {
+          case 1:
+            setActiveComponent("Certification");
+            break;
+          // Add cases for other pages/components as needed
+          default:
+            setActiveComponent("Certification");
+        }
+      }
+      setLoading(false);
+
+  },[flag])
   return (
-    <div style={{ display: "flex", padding: "0 120px", margin: "0 30px" }}>
+    <>
+    {loading ? (<StyledSpinner />):(
+      <div style={{ display: "flex", padding: "0 120px", margin: "0 30px" }}>
       {/* Left Side */}
       <div style={{ flex: 1, padding: "20px" }}>
         <h2 style={{ fontWeight: "bold" }}>Profile Photo</h2>
@@ -557,6 +602,8 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
         </div>
       </div>
     </div>
+    )}
+    </>
   );
 };
 

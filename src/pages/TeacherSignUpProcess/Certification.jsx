@@ -2,43 +2,57 @@ import { useEffect, useMemo, useState } from "react";
 import "react-phone-number-input/style.css";
 import PropTypes from "prop-types";
 import { useCertificate } from "./useCertificate";
+import StyledSpinner from "./startSpinner";
 
 const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
   const userData = useMemo(
     () => JSON.parse(localStorage.getItem("userData")) || {},
     []
   );
-  const { mutate } = useCertificate();
+  const [loading, setLoading] = useState(true);
+  const [flag, setFlag] = useState(false);
+  const { mutate } = useCertificate(setFlag, setLoading);
 
   const [certificates, setCertificates] = useState(
     userData.userData.certifications && userData.userData.certifications.length > 0
       ? userData.userData.certifications.map(cert => ({
+        certificate: cert.certificate || "",
+        subject: cert.subject || "",
+        description: cert.description || "",
+        issuer: cert.issuedBy || "",
+        yearsOfStudy: cert.yearsOfStudyFrom || "",
+        file: cert.certificationPhoto || null, // Store the file path as a string
+      }))
+      : [
+        {
+          certificate: "",
+          subject: "",
+          description: "",
+          issuer: "",
+          yearsOfStudy: "",
+          file: null,
+        },
+      ]
+  );
+
+  useEffect(() => {
+    if (userData.userData.certifications && userData.userData.certifications.length > 0) {
+      setCertificates(
+        userData.userData.certifications.map(cert => ({
           certificate: cert.certificate || "",
           subject: cert.subject || "",
           description: cert.description || "",
           issuer: cert.issuedBy || "",
           yearsOfStudy: cert.yearsOfStudyFrom || "",
-          file: cert.certificationPhoto || null, // Store the file path as a string
+          file: cert.certificationPhoto || null,
         }))
-      : [
-          {
-            certificate: "",
-            subject: "",
-            description: "",
-            issuer: "",
-            yearsOfStudy: "",
-            file: null,
-          },
-        ]
-  );  
-
-  useEffect(() => {
-    if (userData.certificates && userData.certificates.length > 0) {
-      setCertificates(userData.certificates);
+      );
       setTeachingCertificates(true);
+      setLoading(false);
     }
   }, [userData]);
-  
+
+
   const [teachingCertificates, setTeachingCertificates] = useState(
     userData.teachingCertificates || false
   );
@@ -64,10 +78,13 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
     setCertificates(updatedCertificates);
   };
 
-  const handleNext = () => {
+
+  const handleNext = async () => {
+    setLoading(true);
     if (!teachingCertificates) {
       setActivePage((prevPage) => prevPage + 1);
       setActiveComponent("Education");
+      setLoading(false);
       return;
     }
 
@@ -83,61 +100,62 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
 
     if (isAnyCertificateIncomplete) {
       alert("Please fill in all required fields for the current certificate.");
+      setLoading(false);
       return;
     }
+
     const certificatesPayload = certificates.map((cert) => ({
       ...cert,
       file: cert.file
         ? {
-            name: cert.file.name,
-            size: cert.file.size,
-            type: cert.file.type,
-          }
+          name: cert.file.name,
+          size: cert.file.size,
+          type: cert.file.type,
+        }
         : null,
     }));
-    // Save the certificates to the user object in local storage
-    const updatedUserData = {
-      ...userData,
-      certificates: userData.certificates
-        ? [...userData.certificates, ...certificatesPayload]
-        : certificatesPayload,
-    };
-
-    localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
     try {
-      certificates.forEach(cert => {
+      setLoading(true);
+      // Clear certificates from local storage
+      let updatedUserData = { ...userData, certificates: [] };
+      // Save the certificates to the user object in local storage
+      updatedUserData = {
+        ...userData,
+        certificates: userData.certificates
+          ? [...userData.certificates, ...certificatesPayload]
+          : certificatesPayload,
+      };
 
-        mutate({
-          subject: cert.subject,
-          certificate: cert.certificate,
-          description: cert.description,
-          issuedBy: cert.issuer,
-          yearsOfStudyFrom: cert.yearsOfStudy,
-          certificationPhoto: cert.file,
-        });
-      });
+      localStorage.setItem("userData", JSON.stringify(updatedUserData));
 
-    setActivePage((prevPage) => prevPage + 1);
-    switch (activePage) {
-      case 1:
-        setActiveComponent("Education");
-        break;
-      default:
-        setActiveComponent("Education");
+      // Save each certificate using the mutate function
+      await Promise.all(
+        certificatesPayload.map((cert) =>
+          mutate({
+            subject: cert.subject,
+            certificate: cert.certificate,
+            description: cert.description,
+            issuedBy: cert.issuer,
+            yearsOfStudyFrom: cert.yearsOfStudy,
+            certificationPhoto: cert.file,
+          })
+        )
+      );
+    } catch (error) {
+      console.error("Mutation failed:", error);
     }
-  } catch (error) {
-    console.error("Mutation failed:", error);
-  }
-    return;
+
   };
 
   const deleteCertificate = (index) => {
+    setLoading(true);
     if (window.confirm("Are you sure you want to delete this certificate?")) {
       setCertificates(certificates.filter((_, idx) => idx !== index));
     }
+    setLoading(false);
   };
-  
+
   const backHandler = () => {
     setActivePage((prevPage) => prevPage - 1);
     // Add cases for other pages/components as needed
@@ -171,6 +189,19 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
       },
     ]);
   };
+  useEffect(() => {
+    if (flag) {
+      setActivePage((prevPage) => prevPage + 1);
+      switch (activePage) {
+        case 1:
+          setActiveComponent("Education");
+          break;
+        default:
+          setActiveComponent("Education");
+      }
+      setLoading(false);
+    }
+  }, [flag])
 
   return (
     <div className="container mt-4" style={{ padding: "0em 10em" }}>
@@ -181,8 +212,9 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
           your profile credibility and get more students.
         </p>
       </div>
-
-      {/* {userData?.certificates && userData?.certificates.length === 0 && ( */}
+      {loading ? (<StyledSpinner />):(
+        <>
+        {/* {userData?.certificates && userData?.certificates.length === 0 && ( */}
         <div className="mb-3 mt-5" style={{ width: "50%" }}>
           <input
             type="checkbox"
@@ -194,216 +226,219 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
             I dont have any teaching certificates yet.
           </label>
         </div>
-      {/* )} */}
-      {teachingCertificates && (
-        <form className="mt-0">
-          {certificates.map((certificate, index) => (
-            <div key={index}>
-              <div className="mb-3 mt-5" style={{ width: "50%" }}>
-                <label
-                  htmlFor={`subject-${index}`}
-                  className="form-label"
-                  style={{ fontWeight: "bold" }}
-                >
-                  Subject
-                </label>
-                <select
-                  id={`subject-${index}`}
-                  name={`choose subject ${index}`}
-                  value={certificate.subject}
-                  onChange={(e) =>
-                    handleChange(index, "subject", e.target.value)
-                  }
-                  className="form-select"
-                  required
-                  style={{ border: "1px solid black" }}
-                >
-                  <option value="" disabled selected>
-                    Select Subject
-                  </option>
-                  <option value="science">Science</option>
-                  <option value="maths">Maths</option>
-                  <option value="arts">Arts</option>
-                </select>
+        {/* )} */}
+        {teachingCertificates && (
+          <form className="mt-0">
+            {certificates.map((certificate, index) => (
+              <div key={index}>
+                <div className="mb-3 mt-5" style={{ width: "50%" }}>
+                  <label
+                    htmlFor={`subject-${index}`}
+                    className="form-label"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Subject
+                  </label>
+                  <select
+                    id={`subject-${index}`}
+                    name={`choose subject ${index}`}
+                    value={certificate.subject}
+                    onChange={(e) =>
+                      handleChange(index, "subject", e.target.value)
+                    }
+                    className="form-select"
+                    required
+                    style={{ border: "1px solid black" }}
+                  >
+                    <option value="" disabled selected>
+                      Select Subject
+                    </option>
+                    <option value="science">Science</option>
+                    <option value="maths">Maths</option>
+                    <option value="arts">Arts</option>
+                  </select>
+                </div>
+
+                <div className="mb-3" style={{ width: "50%" }}>
+                  <label
+                    htmlFor={`certificate-${index}`}
+                    className="form-label"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Certificate
+                  </label>
+                  <input
+                    style={{ border: "1px solid black" }}
+                    type="text"
+                    id={`certificate-${index}`}
+                    name={`certificate ${index}`}
+                    value={certificate.certificate}
+                    onChange={(e) =>
+                      handleChange(index, "certificate", e.target.value)
+                    }
+                    className="form-control"
+                    required
+                  />
+                </div>
+
+                <div className="mt-4" style={{ width: "50%" }}>
+                  <label
+                    htmlFor={`description-${index}`}
+                    className="form-label"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Description
+                  </label>
+                  <input
+                    style={{ border: "1px solid black" }}
+                    type="text"
+                    id={`description-${index}`}
+                    name={`description ${index}`}
+                    value={certificate.description}
+                    onChange={(e) =>
+                      handleChange(index, "description", e.target.value)
+                    }
+                    className="form-control"
+                    required
+                  />
+                </div>
+
+                <div className="mb-3 mt-5" style={{ width: "50%" }}>
+                  <label
+                    htmlFor={`issuer-${index}`}
+                    className="form-label"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Issued By
+                  </label>
+                  <select
+                    id={`issuer-${index}`}
+                    name={`issuer ${index}`}
+                    value={certificate.issuer}
+                    onChange={(e) =>
+                      handleChange(index, "issuer", e.target.value)
+                    }
+                    className="form-select"
+                    required
+                    style={{ border: "1px solid black" }}
+                  >
+                    <option value="" disabled selected>
+                      Select Issuer
+                    </option>
+                    <option value="issuer1">Issuer 1</option>
+                    <option value="issuer2">Issuer 2</option>
+                  </select>
+                </div>
+
+                <div className="mb-3 mt-5" style={{ width: "50%" }}>
+                  <label
+                    htmlFor={`yearsOfStudy-${index}`}
+                    className="form-label"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Years of Study
+                  </label>
+                  <input
+                    style={{ border: "1px solid black" }}
+                    type="number"
+                    id={`yearsOfStudy-${index}`}
+                    name={`yearsOfStudy ${index}`}
+                    value={certificate.yearsOfStudy}
+                    onChange={(e) =>
+                      handleChange(index, "yearsOfStudy", e.target.value)
+                    }
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <div className="mb-3 mt-5" style={{ width: "50%" }}>
+                  <label
+                    htmlFor={`file-${index}`}
+                    className="form-label"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    Upload Certificate
+                  </label>
+                  <input
+                    type="file"
+                    id={`file-${index}`}
+                    name={`file ${index}`}
+                    className="btn btn-primary mb-4 mt-4"
+                    style={{
+                      background: "#F0F0F0",
+                      color: "black",
+                      fontWeight: "normal",
+                      border: "2px solid black",
+                      marginRight: "1em",
+                    }}
+                    onChange={(event) => handleFileChange(index, event)}
+                  />
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-danger mb-4 mt-4"
+                    onClick={() => deleteCertificate(index)}
+                    style={{
+                      fontWeight: "bold",
+                      border: "1px solid black",
+                      marginRight: "1em",
+                    }}
+                  >
+                    Delete Certificate
+                  </button>
+                </div>
               </div>
 
-              <div className="mb-3" style={{ width: "50%" }}>
-                <label
-                  htmlFor={`certificate-${index}`}
-                  className="form-label"
-                  style={{ fontWeight: "bold" }}
-                >
-                  Certificate
-                </label>
-                <input
-                  style={{ border: "1px solid black" }}
-                  type="text"
-                  id={`certificate-${index}`}
-                  name={`certificate ${index}`}
-                  value={certificate.certificate}
-                  onChange={(e) =>
-                    handleChange(index, "certificate", e.target.value)
-                  }
-                  className="form-control"
-                  required
-                />
-              </div>
-
-              <div className="mt-4" style={{ width: "50%" }}>
-                <label
-                  htmlFor={`description-${index}`}
-                  className="form-label"
-                  style={{ fontWeight: "bold" }}
-                >
-                  Description
-                </label>
-                <input
-                  style={{ border: "1px solid black" }}
-                  type="text"
-                  id={`description-${index}`}
-                  name={`description ${index}`}
-                  value={certificate.description}
-                  onChange={(e) =>
-                    handleChange(index, "description", e.target.value)
-                  }
-                  className="form-control"
-                  required
-                />
-              </div>
-
-              <div className="mb-3 mt-5" style={{ width: "50%" }}>
-                <label
-                  htmlFor={`issuer-${index}`}
-                  className="form-label"
-                  style={{ fontWeight: "bold" }}
-                >
-                  Issued By
-                </label>
-                <select
-                  id={`issuer-${index}`}
-                  name={`issuer ${index}`}
-                  value={certificate.issuer}
-                  onChange={(e) =>
-                    handleChange(index, "issuer", e.target.value)
-                  }
-                  className="form-select"
-                  required
-                  style={{ border: "1px solid black" }}
-                >
-                  <option value="" disabled selected>
-                    Select Issuer
-                  </option>
-                  <option value="issuer1">Issuer 1</option>
-                  <option value="issuer2">Issuer 2</option>
-                </select>
-              </div>
-
-              <div className="mb-3 mt-5" style={{ width: "50%" }}>
-                <label
-                  htmlFor={`yearsOfStudy-${index}`}
-                  className="form-label"
-                  style={{ fontWeight: "bold" }}
-                >
-                  Years of Study
-                </label>
-                <input
-                  style={{ border: "1px solid black" }}
-                  type="number"
-                  id={`yearsOfStudy-${index}`}
-                  name={`yearsOfStudy ${index}`}
-                  value={certificate.yearsOfStudy}
-                  onChange={(e) =>
-                    handleChange(index, "yearsOfStudy", e.target.value)
-                  }
-                  className="form-control"
-                  required
-                />
-              </div>
-              <div className="mb-3 mt-5" style={{ width: "50%" }}>
-                <label
-                  htmlFor={`file-${index}`}
-                  className="form-label"
-                  style={{ fontWeight: "bold" }}
-                >
-                  Upload Certificate
-                </label>
-                <input
-                  type="file"
-                  id={`file-${index}`}
-                  name={`file ${index}`}
-                  className="btn btn-primary mb-4 mt-4"
-                  style={{
-                    background: "#F0F0F0",
-                    color: "black",
-                    fontWeight: "normal",
-                    border: "2px solid black",
-                    marginRight: "1em",
-                  }}
-                  onChange={(event) => handleFileChange(index, event)}
-                />
-              </div>
-              <div>
-              <button
-      type="button"
-      className="btn btn-danger mb-4 mt-4"
-      onClick={() => deleteCertificate(index)}
-      style={{
-        fontWeight: "bold",
-        border: "1px solid black",
-        marginRight: "1em",
-      }}
-    >
-      Delete Certificate
-    </button>
-  </div>
-            </div>
-            
-          ))}
+            ))}
+            <button
+              type="button"
+              className="btn btn-primary mb-4 mt-4"
+              style={{
+                background: "#7CFC00",
+                color: "black",
+                fontWeight: "bold",
+                border: 0,
+                marginRight: "1em",
+              }}
+              onClick={() => addCertificate()}
+            >
+              Add a New Certificate
+            </button>
+          </form>
+        )}
+        <div className="mb-3 mt-5" style={{ width: "50%" }}>
           <button
             type="button"
+            onClick={handleNext}
             className="btn btn-primary mb-4 mt-4"
             style={{
               background: "#7CFC00",
               color: "black",
               fontWeight: "bold",
               border: 0,
+              float: "right",
+            }}
+          >
+            Next
+          </button>
+          <button
+            className="btn btn-primary mb-4 mt-4"
+            style={{
+              background: "grey",
+              color: "black",
+              fontWeight: "bold",
+              border: 0,
               marginRight: "1em",
             }}
-            onClick={() => addCertificate()}
+            onClick={backHandler}
           >
-            Add a New Certificate
+            Back
           </button>
-        </form>
+        </div>
+      </>
       )}
-      <div className="mb-3 mt-5" style={{ width: "50%" }}>
-        <button
-          type="button"
-          onClick={handleNext}
-          className="btn btn-primary mb-4 mt-4"
-          style={{
-            background: "#7CFC00",
-            color: "black",
-            fontWeight: "bold",
-            border: 0,
-            float: "right",
-          }}
-        >
-          Next
-        </button>
-        <button
-          className="btn btn-primary mb-4 mt-4"
-          style={{
-            background: "grey",
-            color: "black",
-            fontWeight: "bold",
-            border: 0,
-            marginRight: "1em",
-          }}
-          onClick={backHandler}
-        >
-          Back
-        </button>
-      </div>
+      
     </div>
   );
 };

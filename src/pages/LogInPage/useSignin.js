@@ -22,7 +22,15 @@ export function useSignin() {
 
       await fetchUserData();
     },
-    onError: (err) => toast.error(err.message),
+    onError: (err) => {
+      toast.error(err.message);
+
+      // Handle specific error scenarios if needed
+      if (err.response?.status === 401) {
+        // Handle unauthorized access
+        toast.error(err.message ,'error status is 401');
+      }
+    },
   });
 
   return { mutate };

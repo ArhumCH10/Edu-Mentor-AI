@@ -4,7 +4,7 @@ import "react-phone-number-input/style.css";
 import PropTypes from "prop-types";
 import { useAbout } from "./useAbout";
 import {useUser} from '../../UserContext';
-import Spinner from '../../ui/Spinner';
+import Spinner from './startSpinner';
 import toast from "react-hot-toast";
 import axios from "axios";
 
@@ -21,8 +21,9 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
   const userData = useUser();
   const [isOver18, setIsOver18] = useState(false);
   const [value, setValue] = useState("");
-  const { mutate } = useAbout();
   const [loading, setLoading] = useState(true);
+  const [flag, setFlag] = useState(false);
+  const { mutate } = useAbout(setFlag,setLoading);
 
   useEffect(() => {
     const storedUserData = JSON.parse(localStorage.getItem("userData"));
@@ -64,6 +65,7 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
   
   }, [userData]);
   
+ 
   const handleCheckboxChange = () => {
     setIsOver18(!isOver18);
   };
@@ -144,17 +146,20 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
     });
   };
 
-  const handleNext = () => {
+  const handleNext =  () => {
+    setLoading(true);
     if (
       !formData.firstName ||
       !formData.lastName ||
       !formData.country ||
       !formData.subject
     ) {
+      setLoading(false);
       return alert("Please fill in all required fields");
     }
 
     if (!isOver18) {
+      setLoading(false);
       return alert("Please check the checkbox to confirm you are over 18");
     }
 
@@ -163,7 +168,9 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
   const levels = formData.levels.map((lang) => lang.level);
 
   try {
-    mutate({
+    
+    setLoading(true);
+      mutate({
       firstName: formData.firstName,
       lastName: formData.lastName,
       country: formData.country,
@@ -173,20 +180,26 @@ const About = ({ activePage, setActivePage, setActiveComponent }) => {
       phone: value,
       isOver18,
     });
-
-    setActivePage((prevPage) => prevPage + 1);
-    switch (activePage) {
-      case 1:
-        setActiveComponent("Photo");
-        break;
-      default:
-        setActiveComponent("About");
-    }
+    
   } catch (error) {
     console.error("Mutation failed:", error);
   }
   };
-
+ useEffect(()=>{
+    if (flag) {
+      setActivePage((prevPage) => prevPage + 1);
+      console.log("active page in handleNext about:", activePage);
+      switch (activePage) {
+        case 1:
+          setActiveComponent("Photo");
+          break;
+        default:
+          setActiveComponent("About");
+      }
+      setLoading(false);
+    }
+    
+  },[flag])
   return (
     <div className="container mt-4" style={{ padding: "0em 10em" }}>
       <div className="bg-light text-black p-0">
