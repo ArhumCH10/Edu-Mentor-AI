@@ -74,6 +74,8 @@ const AdminDashboard = () => {
   }, [navigate]);
 
   const handleVerifyUser = async (userId) => {
+    console.log(`User with ID ${userId} is being verified`);
+
     try {
       // Send a POST request to the backend endpoint with the user ID
       await axios.post(`http://localhost:8080/admin/verify-teacher/${userId}`);
@@ -234,8 +236,8 @@ const AdminDashboard = () => {
           <Grid item xs={12}>
             <div
               style={{
-                padding: "1em",
-                marginTop: "4em",
+                padding: "0.5em",
+                marginTop: "3em",
                 width: "1290px",
               }}
             >
@@ -243,25 +245,53 @@ const AdminDashboard = () => {
                 All Users ({users.length})
               </Typography>
               <TableContainer
-                style={{ background: "#F2F3F3", marginTop: "1em" }}
+                style={{
+                  background: "#F2F3F3",
+                  marginTop: "-1em",
+                  border: "2px solid grey",
+                }}
                 component={Paper}
               >
                 <Table>
                   <ToastContainer />
                   <TableHead>
                     <TableRow>
-                      <TableCell>Email</TableCell>
-                      <TableCell>First Name</TableCell>
-                      <TableCell>Last Name</TableCell>
-                      <TableCell>Country Origin</TableCell>
-                      <TableCell>Language Spoken</TableCell>
-                      <TableCell>Subjects Taught</TableCell>
-                      <TableCell>Phone Number</TableCell>
-                      <TableCell>Hourly Price USD</TableCell>
-                      <TableCell>Certifications</TableCell>
-                      <TableCell>Educations</TableCell>
-                      <TableCell>Availability</TableCell>
-                      <TableCell>Actions</TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Email
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        First Name
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Last Name
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Country Origin
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Language Spoken
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Subjects Taught
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Phone Number
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Hourly Price USD
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Certifications
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Educations
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Availability
+                      </TableCell>
+                      <TableCell style={{ fontWeight: "bold" }}>
+                        Actions
+                      </TableCell>
 
                       {/* Add other fields based on your user data */}
                     </TableRow>
@@ -282,16 +312,40 @@ const AdminDashboard = () => {
                         <TableCell>{user.hourlyPriceUSD}</TableCell>
                         <TableCell>
                           {user.certifications &&
-                            user.certifications.join(", ")}
+                          user.certifications.length > 0 ? (
+                            user.certifications.map((certification, index) => (
+                              <div key={index}>{certification}</div>
+                            ))
+                          ) : (
+                            <div>No Certifications</div>
+                          )}
+                        </TableCell>
+
+                        <TableCell>
+                          {user.educations &&
+                            user.educations.map((education, index) => (
+                              <div key={index}>
+                                University: {education.university}, Degree:{" "}
+                                {education.degree}
+                              </div>
+                            ))}
                         </TableCell>
                         <TableCell>
-                          {user.educations && user.educations.join(", ")}
-                        </TableCell>
-                        <TableCell>
-                          {user.availability && user.availability.join(", ")}
+                          {user.availability &&
+                            user.availability.map((availability, index) => (
+                              <div key={index}>
+                                Day: {availability.day}, Timezone:{" "}
+                                {availability.timezone}, Slots:{" "}
+                                {availability.slots.map((slot) => (
+                                  <span key={slot._id}>
+                                    {slot.from} - {slot.to}
+                                  </span>
+                                ))}
+                              </div>
+                            ))}
                         </TableCell>
                         {/* Add other fields based on your user data */}
-                        {user.isVerified ? (
+                        {user.isRegistered ? (
                           <button
                             style={{
                               background: "#4798CC",
