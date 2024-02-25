@@ -1,0 +1,60 @@
+.classroom-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .classroom-title{
+    margin-left: 35px;
+  }
+  
+  .schedule-table {
+    margin-left: auto; 
+    margin-right: auto;
+    border-radius: 20px;
+    width: auto;
+    max-width: 95%; 
+  }
+
+  .current-month{
+    align-items: end;
+    justify-content: end;
+    display: flex;
+    margin-right: 80px;
+    margin-bottom: 8px;
+  }
+  
+  .month{
+    font-weight: bolder;
+    margin-right: 8px;
+  }
+  
+  .schedule-table th,
+  .schedule-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+
+  }
+  
+  .schedule-table th {
+    background-color: #f0f0f0;
+  }
+  
+  .session {
+    padding: 10px;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .session-time {
+    font-weight: bold;
+  }
+  
+  .session-details {
+    margin-top: 5px;
+  }  
+  
+  /* Add a light border to define cell boundaries clearly */
+  .schedule-table td {
+    border: 1px solid #e1e1e1;
+  }

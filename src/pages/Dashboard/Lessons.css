@@ -1,0 +1,40 @@
+.lessons-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Adjust minmax for card size */
+    gap: 20px; /* Space between cards */
+    padding: 20px;
+  }
+
+  .lesson-title{
+    margin-left: 35px;
+  }
+  
+  .lesson-card {
+    background-color: #fff; /* Background color of the cards */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Card shadow */
+    border-radius: 8px; /* Rounded corners for card */
+    overflow: hidden; /* Ensures the content respects border radius */
+    cursor: pointer;
+  }
+  
+  .lesson-header {
+    background-color: #009e66; /* Header background color */
+    color: #fff; /* Text color for the header */
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+  
+  .lesson-body {
+    padding: 15px;
+    line-height: 1.6; /* Spacing between lines */
+    cursor: pointer;
+  }
+  
+  .lesson-body h3 {
+    margin-top: 0; /* Removes default margin */
+  }
+  
+  /* Styles for the lesson details */
+  .lesson-body p {
+    margin: 10px 0; /* Spacing between paragraphs */
+  }  
