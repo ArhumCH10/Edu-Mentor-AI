@@ -1,0 +1,23 @@
+.dashboard-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* creates two columns */
+  gap: 20px; /* space between the columns */
+}
+
+.graph-container,
+.chart-box {
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  padding: 20px;
+  background: var(--color-grey-0); 
+}
+
+/* This will make each container take up 50% of the width, adjust if needed */
+.graph-container {
+  grid-column: 1 / 2; /* Assign to first column */
+}
+
+.chart-box {
+  grid-column: 2 / 3; /* Assign to second column */
+  padding: 2.4rem 2.2rem;
+}
