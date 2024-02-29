@@ -44,7 +44,7 @@ function ForgetPasswordPage() {
       setLoading(true);
       try {
         const response = await axios.post(
-          "http://localhost:8080/auth/resetPassword",
+          "http://localhost:8080/resetPassword",
           {
             email: email,
           }
@@ -79,7 +79,7 @@ function ForgetPasswordPage() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:8080/auth/validateResetPassword",
+        "http://localhost:8080/validateResetPassword",
         {
           email: email,
           verificationCode: verificationCode,
@@ -125,7 +125,7 @@ function ForgetPasswordPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/auth/finalResetPassword",
+        "http://localhost:8080/finalResetPassword",
         {
           email: email,
           newPassword: newPassword,
