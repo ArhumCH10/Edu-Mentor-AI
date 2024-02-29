@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
 import store from "../store/store";
 import MainLayout from "./ui/MainLayout";
+import GetStartedMain  from "./pages/mainPage/get-started-page/getStartedMain";
+import  TutorsSearch  from "./pages/mainPage/Tutor-Search/TutorsSearch";
 import LoginPage from "./pages/LogInPage/LoginPage";
 import { Toaster } from "react-hot-toast";
 import SignUpMain from "./pages/SignUpMainPage/SignUpMain";
@@ -13,6 +15,8 @@ import AdminLogin from "../src/pages/Admin/AdminLogin";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import { PrivateRoute } from "./AuthDashboardRoutes";
 import ForgetPasswordPage from "./pages/LogInPage/forgetPasswordPage";
+
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -29,6 +33,8 @@ export default function App() {
         <Router>
           <Routes>
             <Route index element={<MainLayout />} />
+            <Route path="/get-started/*" element={<GetStartedMain />} />
+            <Route path="/tutors-search/*" element={<TutorsSearch />} />
             <Route path="/sign-up" element={<SignUpMain />} />
             <Route path="/login" element={<LoginPage />} />
             <Route
