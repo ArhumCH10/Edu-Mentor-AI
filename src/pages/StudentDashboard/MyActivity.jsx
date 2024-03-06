@@ -71,7 +71,7 @@ const ActivityStatus = styled.div`
     color: var(--color-grey-800);
     background-color: var(--color-grey-50);
   }
-  color: ${props => props.isSubmitted ? 'var(--color-brand-100)' : '#ff1744'}; // Changes color based on submission status
+ color: ${props => props.isSubmitted ? 'var(--color-brand-100)' : '#ff1744'}; // Changes color based on submission status
 `;
 
 const Wrapper = styled.div`

@@ -3,8 +3,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSignup } from "./useSignup";
 import { useNavigate } from "react-router-dom";
+import PropTypes from 'prop-types';
 
-function SignUpPage() {
+function SignUpPage({ role, setRole }) {
   const {
     register,
     handleSubmit,
@@ -16,6 +17,15 @@ function SignUpPage() {
   const [isHovered, setIsHovered] = useState(false);
   const { mutate } = useSignup();
   const navigate = useNavigate();
+
+
+  const toggleRole = () => {
+    setRole(role === 'student' ? 'tutor' : 'student');
+  };
+
+  const validateName = () => {
+   //Complete it
+  };
 
   // Validation functions
   const validateEmail = (value) => {
@@ -93,6 +103,15 @@ function SignUpPage() {
       marginBottom: "90px",
       position: "relative",
     },
+    RightImage: {
+      width: "20rem",
+      zIndex: 3,
+      marginLeft: "8rem",
+      transform: "scale(1.7)",
+      marginTop: "2rem",
+      marginBottom: "90px",
+      position: "relative",
+    },
     rightSection: {
       flex: 1,
     },
@@ -115,7 +134,7 @@ function SignUpPage() {
     heading: {
       fontWeight: "bold",
       fontSize: "2em",
-      marginBottom: "1em",
+      marginBottom: "0.5rem",
       textAlign: "center",
     },
     formContent: {
@@ -169,16 +188,16 @@ function SignUpPage() {
               marginTop: "2rem",
             }}
           >
-            Start Earning Money On{" "}
+            {role==="student" ? "We Will Transform the" : "Start Earning Money On"}{" "}
           </h3>
           <h3 style={{ color: "white", zIndex: 2, margin: "auto" }}>
-            Your Schedule
+          {role==="student" ? "New you" : "your Schedule"}
           </h3>
           <img
             src="d1.png"
             alt="design1"
             style={{
-              height: "20%",
+              height: "10%",
               width: "20%",
               margin: "auto",
               zIndex: 3,
@@ -186,7 +205,10 @@ function SignUpPage() {
             }}
           />
           <div style={styles.greenBox}></div>
-          <img src="Home.png" alt="Image 1" style={styles.leftImage} />
+          { role === 'student' ?
+          <img src="learner.png" alt="Image 1" style={styles.RightImage} />
+          : <img src="Home.png" alt="Image 1" style={styles.leftImage} />
+          }
         </div>
         <div style={styles.rightSection}>
           <img
@@ -201,13 +223,34 @@ function SignUpPage() {
           />
           <div style={styles.formContainer}>
             <div style={styles.paperContainer}>
-              <h2 style={styles.heading}>Mentor Online</h2>
+              <h2 style={styles.heading}>{role === 'student' ? "Student Online": "Mentor Online"}</h2>
+              <h6 onClick={toggleRole} style={{ cursor: 'pointer', marginBottom: '1rem', textDecoration: 'underline' }}>
+              {role === 'student' ? "Signup as a tutor" : "Signup as a student"}
+            </h6>
               <form
                 style={styles.formContent}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 onSubmit={handleSubmit(onSubmit)}
               >
+           {
+            role === 'student' ?
+              (
+              <><input
+                  type="text"
+                  style={styles.formInput}
+                  placeholder="Enter your Name"
+                  {...register("name", {
+                    required: "This field is required",
+                  })}
+                  onBlur={(e) => validateName(e.target.value)} // it is not completed, Complete it Bilal
+                />
+                {errors.email && (
+                  <p style={{ color: "red" }}>{errors.name.message}</p>
+                )}</>)
+                : ""
+         }
+
                 <input
                   type="text"
                   style={styles.formInput}
@@ -271,5 +314,10 @@ function SignUpPage() {
     </>
   );
 }
+
+SignUpPage.propTypes = {
+  role: PropTypes.string.isRequired,
+  setRole: PropTypes.func.isRequired,
+};
 
 export default SignUpPage;

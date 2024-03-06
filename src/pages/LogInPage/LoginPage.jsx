@@ -17,6 +17,11 @@ function LoginPage() {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoginHovered, setIsLoginHovered] = useState(false);
   const [isForgotHovered, setIsForgotHovered] = useState(false);
+  const [role, setRole] = useState('tutor'); 
+
+  const toggleRole = () => {
+    setRole(role === 'student' ? 'tutor' : 'student');
+  };
 
   const { mutate } = useSignin();
 
@@ -100,12 +105,14 @@ function LoginPage() {
       paddingLeft: "3.5em",
       paddingTop: "2em",
       zIndex: 100,
+      width: 'fit-content',
     },
     heading: {
       fontWeight: "bold",
-      fontSize: "2.5em",
-      marginLeft: "6rem",
-      marginBottom: "2rem",
+      fontSize: "2rem",
+      marginLeft: "1rem",
+      marginBottom: "0.5rem",
+      whiteSpace: 'nowrap', 
     },
     formContent: {
       width: "100%",
@@ -200,7 +207,10 @@ function LoginPage() {
             }}
           />
           <div style={styles.greenBox}></div>
+          { role === 'student' ?
           <img src="student.png" alt="Image 1" style={styles.leftImage} />
+          : <img src="mentor.png" alt="Image 1" style={styles.leftImage} />
+          }
         </div>
         <div style={styles.rightSection}>
           <img
@@ -220,7 +230,10 @@ function LoginPage() {
           />
           <div style={styles.formContainer}>
             <div style={styles.paperContainer}>
-              <h1 style={styles.heading}>Login</h1>
+            <h1 style={styles.heading}>{role === 'student' ? "Login as Student" : "Login as Mentor"}</h1>
+              <h6 onClick={toggleRole} style={{ cursor: 'pointer', marginBottom: '1rem', textDecoration: 'underline' }}>
+              {role === 'student' ? "Login as a tutor" : "Login as a student"}
+            </h6>
               <form
                 style={styles.formContent}
                 onMouseEnter={() => setIsHovered(true)}

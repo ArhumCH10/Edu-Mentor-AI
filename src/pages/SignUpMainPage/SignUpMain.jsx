@@ -1,11 +1,18 @@
 import SignUpPage from "../SignUpPage/SignUpPage";
+import { useState } from "react";
+
 
 function SignUpMain() {
+
+  const [role, setRole] = useState('tutor'); 
+
   return (
     <>
-      <SignUpPage />
+     <SignUpPage role={role} setRole={setRole} />
+     { role === "tutor" ? (
+       <>
       <div style={{ background: "white", display: "flex", marginTop: "50px" }}>
-        {/* First Row */}
+
         <div style={{ flex: 1, padding: "20px", textAlign: "center" }}>
           <img src="dollar.png" alt="Image 1" style={{ width: "50%" }} />
           <div></div>
@@ -41,7 +48,6 @@ function SignUpMain() {
           </p>
         </div>
       </div>
-      {/* Second Row */}
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1, padding: "20px", marginTop: "9em" }}>
           <p style={{ fontSize: "2.9em" }}>
@@ -177,7 +183,7 @@ function SignUpMain() {
 
           }}
         >
-          {/* Left Partitions */}
+     
           <div style={{ flex: 1 }}>
             <img
               src="teaching.png"
@@ -186,7 +192,6 @@ function SignUpMain() {
             />
           </div>
 
-          {/* Right Partition */}
           <div style={{ flex: 1, paddingRight: "10em" }}>
             <h1 style={{ fontSize: "60px" }}>
               <strong>Get paid to mentor online</strong>
@@ -225,7 +230,7 @@ function SignUpMain() {
           flexDirection: "row",
         }}
       >
-        {/* First Partition */}
+ 
         <div style={{ flex: 1, padding: "20px" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src="logo.png" alt="Image 1" style={{ width: "25%" }} />
@@ -235,19 +240,19 @@ function SignUpMain() {
           </div>
         </div>
 
-        {/* Second Partition */}
+ 
         <div style={{ flex: 1, padding: "20px" }}>
           <strong>For Students</strong>
           <p>Find a Mentor</p>
         </div>
 
-        {/* Third Partition */}
+  
         <div style={{ flex: 1, padding: "20px" }}>
           <strong>For Mentors</strong>
           <p>Become a Mentor</p>
         </div>
 
-        {/* Fourth Partition */}
+ 
         <div style={{ flex: 1, padding: "20px" }}>
           <strong>Our Contact</strong>
           <p>Edumentorai10@gmail.com </p>
@@ -259,6 +264,13 @@ function SignUpMain() {
           Copyright, Edu Mentor Ai 2030, All rights reserved.
         </p>
       </div>
+      </>
+      ) :      <div style={{ background: "black", height: "30px", textAlign: "center" }}>
+      <p style={{ color: "white" }}>
+        Copyright, Edu Mentor Ai 2030, All rights reserved.
+      </p>
+    </div>
+    }
     </>
   );
 }
