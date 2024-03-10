@@ -1,0 +1,142 @@
+.request-container {
+    max-width: 970px; /* Adjust the width as needed */
+    border: 1px solid #ddd; /* Border color for the card */
+    border-radius: 8px; /* Rounded corners for card */
+    overflow: hidden; /* Ensures the content respects border radius */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Card shadow */
+   margin-left: 3px;
+   margin-top: 5px;
+   margin-bottom: 20px;
+    background: var(--color-grey-0); /* White background for the card */
+  }
+  
+  .tutor-card {
+    display: flex; /* Use flex layout for the card content */
+    padding: 20px;
+  }
+  
+  .from-text {
+    display: block; /* or you can use 'flex' if you prefer */
+    margin-top: 4px; /* Adjust top margin as needed */
+  }
+  
+  .tutor-image img {
+    border-radius: 50%; /* Round image */
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 20px; 
+    cursor: pointer;
+  }
+  
+  .tutor-info {
+    flex-grow: 1;
+  }
+  
+  .tutor-session-info {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: center; /* Align items to the start */
+    padding-top: 10px;
+    border-top: 1px solid #ddd; /* Line above the session info */
+    margin-top: 10px;
+  }
+  
+  .tutor-level{
+    background-color: var(--color-grey-300); /* Light gray background for new tutor label */
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin-left: 20px;
+  }
+  
+  .tutor-new {
+    background-color: #f0f0f0; /* Light gray background for new tutor label */
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.8em;
+  }
+  
+  .tutor-price {
+    font-weight: bold;
+  }
+  
+  .tutor-duration {
+    font-size: 0.8em;
+    color: var(--color-grey-500);
+    margin-bottom: 10px;
+  }
+  
+  .accept {
+    background-color: var(--color-blue-500); /* Pink background for button */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    margin: 5px 0;
+    cursor: pointer;
+    border: 1px solid #3661a0; /* Same color border */
+  }
+  
+  .send-message {
+    background-color: #fff;
+    color: #3661a0; /* Pink color for text */
+    border: 1px solid #3661a0;
+    padding: 10px 20px;
+    border-radius: 20px;
+    margin: 5px 0;
+    cursor: pointer;
+  }
+  
+  .accept:hover {
+    background-color: #3661a0; /* Lighter pink on hover */
+  }
+  
+  .send-message:hover {
+    background-color: #e4efff; /* Light pink background on hover */
+  }
+  
+  .read-more {
+    background: none;
+    color: #009e66;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  
+  .tutor-info p {
+    display: inline; 
+  }
+  
+  .rating-number {
+    margin-left: 8px;
+    font-weight: bold;
+    margin-top: 10px; 
+  }
+  
+  
+  .tutor-info p.from-label {
+    font-weight: bold; 
+    margin-right: 5px; 
+  }
+  
+  .tutor-rating {
+    display: flex;
+    align-items: center; /* Aligns stars and number vertically */
+    justify-content: flex-start; /* Aligns the rating to the end of the session info */
+    margin-top: 10px; /* Adds space above the rating */
+  }
+  
+  .rating {
+    display: flex;
+    align-items: center; 
+    justify-content: flex-start; 
+   margin-left: 25px;
+   margin-bottom: 10px;
+  }
+  
+  .education-icon {
+    margin-right: 5px; 
+  }
+  

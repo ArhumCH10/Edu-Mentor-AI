@@ -16,7 +16,7 @@ function Dashboard() {
   return (
     <>
     <StyledDashboardLayout>
-      <Heading as="h1" style={{ gridColumn: '1 / -1' }}>Dashboard</Heading>
+      <Heading as="head1" style={{ gridColumn: '1 / -1' }}>Dashboard</Heading>
       <DashboardGraph/>
       <AssignmentChart />
     </StyledDashboardLayout>

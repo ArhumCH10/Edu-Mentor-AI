@@ -1,8 +1,9 @@
 .lessons-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Adjust minmax for card size */
-    gap: 20px; /* Space between cards */
+    gap: 20px; 
     padding: 20px;
+    margin-bottom: 50px;
   }
 
   .lesson-title{
@@ -17,8 +18,8 @@
     cursor: pointer;
   }
   
-  .lesson-header {
-    background-color: #009e66; /* Header background color */
+  .triallesson-header {
+    background-color: #949e00; /* Header background color */
     color: #fff; /* Text color for the header */
     padding: 10px 15px;
     cursor: pointer;
@@ -47,7 +48,6 @@
     gap: 20px; /* You can adjust the gap size as needed */
     font-size: 20px; 
     cursor: pointer;
-    font-family: 'Roboto Slab';
     border-bottom: 1px solid #ddd;
   }
   
@@ -65,5 +65,25 @@
     border-bottom: 3px solid #009e66; /* Solid underline for the active tab */
     padding-bottom: calc(10px - 3px); /* Adjust padding to align text properly */
   }
+
+  .view {
+    background-color: #fff;
+    color: #949e00; /* Pink color for text */
+    border: 1px solid #949e00;
+    padding: 10px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-left: 15px;
+  }
+
+  .view:hover {
+    background-color: #f6ffe4; /* Light pink background on hover */
+  }
   
+  .add {
+    display: flex;
+    align-items: center; 
+    justify-content: flex-start;
+  }
   

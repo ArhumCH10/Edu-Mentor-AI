@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useSignin } from "./useSignin";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function LoginPage() {
   const {
@@ -17,10 +18,10 @@ function LoginPage() {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoginHovered, setIsLoginHovered] = useState(false);
   const [isForgotHovered, setIsForgotHovered] = useState(false);
-  const [role, setRole] = useState('tutor'); 
+  const [role, setRole] = useState("tutor");
 
   const toggleRole = () => {
-    setRole(role === 'student' ? 'tutor' : 'student');
+    setRole(role === "student" ? "tutor" : "student");
   };
 
   const { mutate } = useSignin();
@@ -29,6 +30,17 @@ function LoginPage() {
   const validateEmail = (value) => {
     if (!/\S+@\S+\.\S+/.test(value)) {
       setError("email", {
+        type: "manual",
+        message: "Please provide a valid email address",
+      });
+    } else {
+      clearErrors("email");
+    }
+  };
+
+  const validateEmailStudent = (value) => {
+    if (!/\S+@\S+\.\S+/.test(value)) {
+      setError("studentemail", {
         type: "manual",
         message: "Please provide a valid email address",
       });
@@ -48,6 +60,17 @@ function LoginPage() {
     }
   };
 
+  const validatePasswordStudent = (value) => {
+    if (value.length < 8) {
+      setError("studentpassword", {
+        type: "manual",
+        message: "Password needs a minimum of 8 characters",
+      });
+    } else {
+      clearErrors("password");
+    }
+  };
+
   const onSubmit = ({ email, password }) => {
     mutate({ email, password })
       .then(() => {
@@ -56,6 +79,36 @@ function LoginPage() {
       .catch((error) => {
         console.error("Mutation failed:", error);
       });
+  };
+  const onSubmitStudent = async ({ studentemail, studentpassword }) => {
+    try {
+      const response = await axios.post("http://localhost:8080/student/login", {
+        email: studentemail,
+        password: studentpassword,
+      });
+
+      console.log("Response from backend:", response.data);
+
+      if (response.status === 300 && response.data.isVerified === false) {
+        // Redirect to verification page
+        navigate("/verify");
+        return;
+      }
+
+      // Account is verified, redirect to student dashboard
+      navigate("/studentdashboard");
+    } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 300 &&
+        error.response.data.isVerified === false
+      ) {
+        // Redirect to verification page
+        navigate("/verify");
+        return;
+      }
+      console.error("Login error:", error);
+    }
   };
 
   const styles = {
@@ -105,14 +158,14 @@ function LoginPage() {
       paddingLeft: "3.5em",
       paddingTop: "2em",
       zIndex: 100,
-      width: 'fit-content',
+      width: "fit-content",
     },
     heading: {
       fontWeight: "bold",
       fontSize: "2rem",
       marginLeft: "1rem",
       marginBottom: "0.5rem",
-      whiteSpace: 'nowrap', 
+      whiteSpace: "nowrap",
     },
     formContent: {
       width: "100%",
@@ -177,11 +230,12 @@ function LoginPage() {
       document.documentElement.style.overflowY = "auto";
     };
   }, []);
-  
+
   const navigate = useNavigate();
   const forgetHandler = () => {
     navigate("/forget-password");
   };
+
   return (
     <>
       <NavBar currentImageIndex={0} />
@@ -207,10 +261,11 @@ function LoginPage() {
             }}
           />
           <div style={styles.greenBox}></div>
-          { role === 'student' ?
-          <img src="student.png" alt="Image 1" style={styles.leftImage} />
-          : <img src="mentor.png" alt="Image 1" style={styles.leftImage} />
-          }
+          {role === "student" ? (
+            <img src="student.png" alt="Image 1" style={styles.leftImage} />
+          ) : (
+            <img src="mentor.png" alt="Image 1" style={styles.leftImage} />
+          )}
         </div>
         <div style={styles.rightSection}>
           <img
@@ -230,71 +285,158 @@ function LoginPage() {
           />
           <div style={styles.formContainer}>
             <div style={styles.paperContainer}>
-            <h1 style={styles.heading}>{role === 'student' ? "Login as Student" : "Login as Mentor"}</h1>
-              <h6 onClick={toggleRole} style={{ cursor: 'pointer', marginBottom: '1rem', textDecoration: 'underline' }}>
-              {role === 'student' ? "Login as a tutor" : "Login as a student"}
-            </h6>
-              <form
-                style={styles.formContent}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                onSubmit={handleSubmit(onSubmit)}
+              <h1 style={styles.heading}>
+                {role === "student" ? "Login as Student" : "Login as Mentor"}
+              </h1>
+              <h6
+                onClick={toggleRole}
+                style={{
+                  cursor: "pointer",
+                  marginBottom: "1rem",
+                  textDecoration: "underline",
+                }}
               >
-                <input
-                  type="text"
-                  style={styles.formInput}
-                  placeholder="name@gmail.com"
-                  {...register("email", {
-                    required: "This field is required",
-                  })}
-                  onBlur={(e) => validateEmail(e.target.value)}
-                />
-                {errors.email && (
-                  <p style={{ color: "red" }}>{errors.email.message}</p>
-                )}
-                <input
-                  type="password"
-                  style={styles.formInput}
-                  placeholder="Your Password"
-                  {...register("password", {
-                    required: "This field is required",
-                  })}
-                  onBlur={(e) => validatePassword(e.target.value)}
-                />
-                {errors.password && (
-                  <p style={{ color: "red" }}>{errors.password.message}</p>
-                )}
-                <div>
-                  <div style={{ display: "inline-block", marginRight: "4em" }}>
-                    <button
-                      type="submit"
-                      style={{
-                        ...styles.submitBtn,
-                        backgroundColor: isLoginHovered ? "#55c703" : "#4DFF00",
-                      }}
-                      onMouseEnter={() => setIsLoginHovered(true)}
-                      onMouseLeave={() => setIsLoginHovered(false)}
+                {role === "student" ? "Login as a tutor" : "Login as a student"}
+              </h6>
+              {role === "student" ? (
+                <>
+                  <form
+                    style={styles.formContent}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    onSubmit={handleSubmit(onSubmitStudent)}
+                  >
+                    <input
+                      type="text"
+                      style={styles.formInput}
+                      placeholder="student@gmail.com"
+                      {...register("studentemail", {
+                        required: "This field is required",
+                      })}
+                      onBlur={(e) => validateEmailStudent(e.target.value)}
+                    />
+                    {errors.studentemail && (
+                      <p style={{ color: "red" }}>
+                        {errors.studentemail.message}
+                      </p>
+                    )}
+                    <input
+                      type="password"
+                      style={styles.formInput}
+                      placeholder="Your Password"
+                      {...register("studentpassword", {
+                        required: "This field is required",
+                      })}
+                      onBlur={(e) => validatePasswordStudent(e.target.value)}
+                    />
+                    {errors.studentpassword && (
+                      <p style={{ color: "red" }}>
+                        {errors.studentpassword.message}
+                      </p>
+                    )}
+                    <div>
+                      <div
+                        style={{ display: "inline-block", marginRight: "4em" }}
+                      >
+                        <button
+                          type="submit"
+                          style={{
+                            ...styles.submitBtn,
+                            backgroundColor: isLoginHovered
+                              ? "#55c703"
+                              : "#4DFF00",
+                          }}
+                          onMouseEnter={() => setIsLoginHovered(true)}
+                          onMouseLeave={() => setIsLoginHovered(false)}
+                        >
+                          Login as Student
+                        </button>
+                      </div>
+                      <div style={{ display: "inline-block" }}>
+                        <a
+                          onClick={forgetHandler}
+                          style={{
+                            ...styles.forgetBtn,
+                            backgroundColor: isForgotHovered
+                              ? "#55c703"
+                              : "#4DFF00",
+                          }}
+                          onMouseEnter={() => setIsForgotHovered(true)}
+                          onMouseLeave={() => setIsForgotHovered(false)}
+                        >
+                          Forgot Password ?
+                        </a>
+                      </div>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <form
+                  style={styles.formContent}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  onSubmit={handleSubmit(onSubmit)}
+                >
+                  <input
+                    type="text"
+                    style={styles.formInput}
+                    placeholder="name@gmail.com"
+                    {...register("email", {
+                      required: "This field is required",
+                    })}
+                    onBlur={(e) => validateEmail(e.target.value)}
+                  />
+                  {errors.email && (
+                    <p style={{ color: "red" }}>{errors.email.message}</p>
+                  )}
+                  <input
+                    type="password"
+                    style={styles.formInput}
+                    placeholder="Your Password"
+                    {...register("password", {
+                      required: "This field is required",
+                    })}
+                    onBlur={(e) => validatePassword(e.target.value)}
+                  />
+                  {errors.password && (
+                    <p style={{ color: "red" }}>{errors.password.message}</p>
+                  )}
+                  <div>
+                    <div
+                      style={{ display: "inline-block", marginRight: "4em" }}
                     >
-                      Login
-                    </button>
+                      <button
+                        type="submit"
+                        style={{
+                          ...styles.submitBtn,
+                          backgroundColor: isLoginHovered
+                            ? "#55c703"
+                            : "#4DFF00",
+                        }}
+                        onMouseEnter={() => setIsLoginHovered(true)}
+                        onMouseLeave={() => setIsLoginHovered(false)}
+                      >
+                        Login as Mentor
+                      </button>
+                    </div>
+                    <div style={{ display: "inline-block" }}>
+                      <a
+                        onClick={forgetHandler}
+                        style={{
+                          ...styles.forgetBtn,
+                          backgroundColor: isForgotHovered
+                            ? "#55c703"
+                            : "#4DFF00",
+                        }}
+                        onMouseEnter={() => setIsForgotHovered(true)}
+                        onMouseLeave={() => setIsForgotHovered(false)}
+                      >
+                        Forgot Password ?
+                      </a>
+                    </div>
                   </div>
-                  <div style={{ display: "inline-block" }}>
-                    <a
-                      onClick={forgetHandler}
-                      style={{
-                        ...styles.forgetBtn,
-                        backgroundColor: isForgotHovered
-                          ? "#55c703"
-                          : "#4DFF00",
-                      }}
-                      onMouseEnter={() => setIsForgotHovered(true)}
-                      onMouseLeave={() => setIsForgotHovered(false)}
-                    >
-                      Forgot Password ?
-                    </a>
-                  </div>
-                </div>
-              </form>
+                </form>
+              )}
             </div>
           </div>
           <img

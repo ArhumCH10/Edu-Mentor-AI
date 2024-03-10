@@ -1,0 +1,60 @@
+.classroom-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .classroom-title{
+    margin-left: 35px;
+  }
+  
+  .time-table {
+    margin-left: auto; 
+    margin-right: auto;
+    border-radius: 20px;
+    width: auto;
+    max-width: 100%; 
+  }
+
+  .current-month{
+    align-items: end;
+    justify-content: end;
+    display: flex;
+    margin-right: 80px;
+    margin-bottom: 8px;
+  }
+  
+  .month{
+    font-weight: bolder;
+    margin-right: 8px;
+  }
+  
+  .time-table th,
+  .time-table td {
+    border: 1px solid var(--color-grey-800);
+    padding: 8px;
+    text-align: center;
+
+  }
+  
+  .time-table th {
+    background-color: var(--color-grey-0);
+  }
+  
+  .session {
+    padding: 10px;
+    color: var(--color-grey-0);
+    cursor: pointer;
+  }
+  
+  .session-time {
+    font-weight: bold;
+  }
+  
+  .session-details {
+    margin-top: 5px;
+  }  
+  
+  /* Add a light border to define cell boundaries clearly */
+  .time-table td {
+    border: 1px solid var(--color-grey-800);
+  }

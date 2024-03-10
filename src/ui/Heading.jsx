@@ -20,6 +20,13 @@ const Heading = styled.h1`
       font-weight: 600;
       margin-bottom: 20px;
     `}
+    ${(props) =>
+    props.as === "head1" &&
+    css`
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    `}
 
     ${(props) =>
     props.as === "heading2" &&
