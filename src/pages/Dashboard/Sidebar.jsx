@@ -64,7 +64,7 @@ const Sidebar = () => {
       </div>
       {
         menuItem.map((item, index) => (
-          <NavLink exact to={item.path} key={index} className="link" activeClassName="active">
+          <NavLink exact to={item.path} key={index} className="link" activeClassName="activeSidebar">
             <div className="icon">{item.icon}</div>
             <div className="link_text">{item.name}</div>
           </NavLink>

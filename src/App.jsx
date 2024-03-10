@@ -27,7 +27,7 @@ import HireMentor from "./pages/StudentDashboard/HireMentor";
 import Statistics from "./pages/StudentDashboard/Statistics";
 import Payment from "./pages/StudentDashboard/Payment";
 import Settings from "./pages/StudentDashboard/Settings";
-
+import TutorProfile from "./pages/mainPage/Tutor-Search/Tutor-Profile/TutorProfile";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -47,6 +47,7 @@ export default function App() {
             <Route index element={<MainLayout />} />
             <Route path="/get-started/*" element={<GetStartedMain />} />
             <Route path="/tutors-search/*" element={<TutorsSearch />} />
+            <Route path="/tutor/*" element={<TutorProfile />} />
             <Route path="/sign-up" element={<SignUpMain />} />
             <Route path="/login" element={<LoginPage />} />
             <Route

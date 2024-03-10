@@ -115,7 +115,7 @@ export const GetStarted = ({ isLoading, setLoading, mySubject, setMySubject, sel
     return (
         <>
             <NavBar currentImageIndex={0} />
-            <div className="container" >
+            <div className="getstarted-container" >
 
                 <div className="row" style={{ marginTop: '3rem' }}>
                     <div className="col-md-6">

@@ -43,7 +43,7 @@
   border-radius: 120px;
 }
 
-.active {
+.activeSidebar {
   background: rgb(34, 245, 80);
   border-radius: 120px;
   color: #000;
