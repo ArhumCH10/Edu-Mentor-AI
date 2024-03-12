@@ -106,7 +106,7 @@ function SignUpPage({ role, setRole }) {
 
       // Navigate to a new page if the response is OK
       if (response.status === 200) {
-        navigate("/verify", { replace: true });
+        navigate("/verify");
       }
     } catch (error) {
       // Handle errors if the request fails
