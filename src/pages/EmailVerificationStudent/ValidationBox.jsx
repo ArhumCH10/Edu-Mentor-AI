@@ -56,9 +56,9 @@ function ValidationBox() {
     const concatenatedValue = Object.values(formValues).join("");
     console.log("Code Value:", concatenatedValue);
     setLoadingstate(true);
+    const email = localStorage.getItem("email"); // Retrieve email from local storage
 
     try {
-      const email = localStorage.getItem("email"); // Retrieve email from local storage
       const response = await axios.post(
         "http://localhost:8080/student/verify",
         {
@@ -77,6 +77,7 @@ function ValidationBox() {
       if (response.status === 200) {
         console.log("email Verification successful");
         console.log("API Response:", response.data);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
 
         navigate("/studentdashboard");
       } else if (response.status === 400) {

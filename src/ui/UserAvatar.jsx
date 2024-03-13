@@ -1,6 +1,6 @@
 import styled from "styled-components";
-//import {useUser} from './useUser';
-import Button from './Button';
+import { useState, useEffect } from "react";
+import Button from "./Button";
 
 const StyledUserAvatar = styled.div`
   display: flex;
@@ -11,38 +11,35 @@ const StyledUserAvatar = styled.div`
   color: var(--color-grey-600);
 `;
 
-// const Avatar = styled.img`
-//   display: block;
-//   width: 4rem;
-//   width: 3.6rem;
-//   aspect-ratio: 1;
-//   object-fit: cover;
-//   object-position: center;
-//   border-radius: 50%;
-//   outline: 2px solid var(--color-grey-100);
-// `;
-
 const Heading = styled.h3`
-      font-size: 1.7rem;
-      font-weight: 600;
-      color: var(--color-grey-900);
-      margin-top: 3px;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--color-grey-900);
+  margin-top: 3px;
 `;
 
-
 export default function UserAvatar() {
+  const [userName, setUserName] = useState("");
+  const [userLevel, setUserLevel] = useState(0); // State to store the user level
 
-  //const {user} = useUser();
+  useEffect(() => {
+    // Get the user object from local storage
+    const storedUser = JSON.parse(localStorage.getItem("user"));
 
-//   const {fullName, avatar} = user.user_metadata;
-//   console.log(avatar);
-
+    if (storedUser) {
+      // Update the user name and level in state
+      setUserName(storedUser.name);
+      setUserLevel(storedUser.levels); // Assuming levels are stored as a number
+    }
+  }, []);
 
   return (
     <StyledUserAvatar>
-      {/* <Avatar src={avatar || "default-user.jpg"} alt={`Avatar of ${fullName}`}/> */}
-      <Heading>Welcome, Arhum Naveed</Heading>
-      <Button  variation="light" size="small">Level 0</Button>
+      {/* Display the user name and level */}
+      <Heading>Welcome, {userName || "Guest"}</Heading>
+      <Button variation="light" size="small">
+        Level {userLevel}
+      </Button>
     </StyledUserAvatar>
-  )
+  );
 }

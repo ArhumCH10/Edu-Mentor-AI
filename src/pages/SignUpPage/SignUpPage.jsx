@@ -101,11 +101,19 @@ function SignUpPage({ role, setRole }) {
 
       // Reset the form if needed
       reset();
-      toast.success("Verification code sent on email");
-      localStorage.setItem("email", studentemail);
 
-      // Navigate to a new page if the response is OK
-      if (response.status === 200) {
+      if (response.status === 409) {
+        // Show toast message for already registered as a student
+        toast.error("This email is already registered");
+        console.log("Email already registered");
+      } else if (response.status === 400) {
+        // Show toast message for already registered as a teacher
+        toast.error("This email is already registered as a teacher");
+        console.log("Email already registered as teacher");
+      } else if (response.status === 200) {
+        // Show success toast and navigate to verify page
+        toast.success("Verification code sent on email");
+        localStorage.setItem("email", studentemail);
         navigate("/verify");
       }
     } catch (error) {

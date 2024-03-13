@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useSignin } from "./useSignin";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 function LoginPage() {
   const {
@@ -17,7 +18,6 @@ function LoginPage() {
   } = useForm();
   const [isHovered, setIsHovered] = useState(false);
   const [isLoginHovered, setIsLoginHovered] = useState(false);
-  const [isForgotHovered, setIsForgotHovered] = useState(false);
   const [role, setRole] = useState("tutor");
 
   const toggleRole = () => {
@@ -80,6 +80,7 @@ function LoginPage() {
         console.error("Mutation failed:", error);
       });
   };
+
   const onSubmitStudent = async ({ studentemail, studentpassword }) => {
     try {
       const response = await axios.post("http://localhost:8080/student/login", {
@@ -90,10 +91,18 @@ function LoginPage() {
       console.log("Response from backend:", response.data);
 
       if (response.status === 300 && response.data.isVerified === false) {
-        // Redirect to verification page
-        navigate("/verify");
+        // Show toast notification for verification pending
+        toast.error("Verification pending. Please verify your account.");
+
+        // Redirect to verification page after a delay
+        setTimeout(() => {
+          navigate("/verify");
+        }, 3000); // 3000 milliseconds (3 seconds) delay before navigating
         return;
       }
+
+      // Store user object in local storage
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       // Account is verified, redirect to student dashboard
       navigate("/studentdashboard");
@@ -103,8 +112,13 @@ function LoginPage() {
         error.response.status === 300 &&
         error.response.data.isVerified === false
       ) {
-        // Redirect to verification page
-        navigate("/verify");
+        // Show toast notification for verification pending
+        toast.error("Verification pending. Please verify your account.");
+
+        // Redirect to verification page after a delay
+        setTimeout(() => {
+          navigate("/verify");
+        }, 3000); // 3000 milliseconds (3 seconds) delay before navigating
         return;
       }
       console.error("Login error:", error);
@@ -195,21 +209,13 @@ function LoginPage() {
       transition: "background-color 0.3s",
     },
     forgetBtn: {
-      marginTop: "1em",
-      margin: "auto",
-      backgroundColor: isHovered ? "#55c703" : "#4DFF00",
-      color: "black",
-      fontWeight: "bold",
-      borderRadius: "1em",
-      padding: "0.5em 1em",
       cursor: "pointer",
-      textAlign: "center",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      transition: "background-color 0.3s",
-      border: "1.5px solid black",
+      marginBottom: "1rem",
+      textDecoration: "underline",
+      backgroundColor: "transparent",
+      borderRadius: "1em",
     },
+
     backgroundImage: {
       position: "absolute",
       top: 100,
@@ -357,12 +363,7 @@ function LoginPage() {
                           onClick={forgetHandler}
                           style={{
                             ...styles.forgetBtn,
-                            backgroundColor: isForgotHovered
-                              ? "#55c703"
-                              : "#4DFF00",
                           }}
-                          onMouseEnter={() => setIsForgotHovered(true)}
-                          onMouseLeave={() => setIsForgotHovered(false)}
                         >
                           Forgot Password ?
                         </a>
@@ -424,12 +425,7 @@ function LoginPage() {
                         onClick={forgetHandler}
                         style={{
                           ...styles.forgetBtn,
-                          backgroundColor: isForgotHovered
-                            ? "#55c703"
-                            : "#4DFF00",
                         }}
-                        onMouseEnter={() => setIsForgotHovered(true)}
-                        onMouseLeave={() => setIsForgotHovered(false)}
                       >
                         Forgot Password ?
                       </a>
