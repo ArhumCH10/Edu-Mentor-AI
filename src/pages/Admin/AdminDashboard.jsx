@@ -8,6 +8,7 @@ import {
   IconButton,
   Paper,
 } from "@material-ui/core";
+import { Modal, Box, Button } from "@mui/material";
 
 import clsx from "clsx";
 import {
@@ -26,9 +27,20 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 const AdminDashboard = () => {
   const [open, setOpen] = useState(false);
+  const [selectedButton, setSelectedButton] = useState("Mentor"); // Default selected button
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const handleOpenModal = (student) => {
+    setSelectedStudent(student);
+    setIsModalOpen(true);
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
+  };
+
+  const handleButtonSelect = (buttonName) => {
+    setSelectedButton(buttonName);
   };
 
   useEffect(() => {
@@ -46,6 +58,8 @@ const AdminDashboard = () => {
   }, [open]);
 
   const [users, setUsers] = useState([]);
+  const [students, setStudents] = useState([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,6 +76,31 @@ const AdminDashboard = () => {
           console.log(response.data);
           // Update the state with the fetched users
           setUsers(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching users:", error);
+          // Handle errors if needed
+        });
+    } else {
+      // Admin not logged in, navigate to "/admin"
+      navigate("/admin");
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const adminLoggedIn = localStorage.getItem("adminLoggedIn");
+
+    // Check if admin is logged in
+    if (adminLoggedIn === "true") {
+      const backendEndpoint = "http://localhost:8080/admin/get-all-students";
+
+      // Make a GET request to fetch all users
+      axios
+        .get(backendEndpoint)
+        .then((response) => {
+          console.log(response.data);
+          // Update the state with the fetched users
+          setStudents(response.data);
         })
         .catch((error) => {
           console.error("Error fetching users:", error);
@@ -92,6 +131,173 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem("adminLoggedIn");
     navigate("/admin");
+  };
+
+  const renderContent = () => {
+    if (selectedButton === "Mentor") {
+      return (
+        <TableContainer
+          style={{
+            background: "#F2F3F3",
+            marginTop: "-1em",
+            border: "2px solid grey",
+          }}
+          component={Paper}
+        >
+          <Table>
+            <ToastContainer />
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ fontWeight: "bold" }}>Email</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>First Name</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Last Name</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>
+                  Country Origin
+                </TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>
+                  Language Spoken
+                </TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>
+                  Subjects Taught
+                </TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>
+                  Phone Number
+                </TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>
+                  Hourly Price USD
+                </TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>
+                  Certifications
+                </TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Educations</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>
+                  Availability
+                </TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Actions</TableCell>
+
+                {/* Add other fields based on your user data */}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user._id}>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.firstName}</TableCell>
+                  <TableCell>{user.lastName}</TableCell>
+                  <TableCell>{user.countryOrigin}</TableCell>
+                  <TableCell>
+                    {user.LanguageSpoken && user.LanguageSpoken.join(", ")}
+                  </TableCell>
+                  <TableCell>{user.subjectsTaught}</TableCell>
+                  <TableCell>{user.phoneNumber}</TableCell>
+                  <TableCell>{user.hourlyPriceUSD}</TableCell>
+
+                  <TableCell>
+                    {user.certifications && user.certifications.length > 0 ? (
+                      user.certifications.map((certification, index) => (
+                        <div key={index}>{certification}</div>
+                      ))
+                    ) : (
+                      <div>No Certifications</div>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    {user.educations &&
+                      user.educations.map((education, index) => (
+                        <div key={index}>
+                          University: {education.university}, Degree:{" "}
+                          {education.degree}
+                        </div>
+                      ))}
+                  </TableCell>
+                  <TableCell>
+                    {user.availability &&
+                      user.availability.map((availability, index) => (
+                        <div key={index}>
+                          Day: {availability.day}, Timezone:{" "}
+                          {availability.timezone}, Slots:{" "}
+                          {availability.slots.map((slot) => (
+                            <span key={slot._id}>
+                              {slot.from} - {slot.to}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                  </TableCell>
+                  {/* Add other fields based on your user data */}
+                  {user.isRegistered ? (
+                    <button
+                      style={{
+                        background: "#4798CC",
+                        borderRadius: "2em",
+                        padding: "0.4em",
+                        border: "0",
+                        color: "yellow",
+                        margin: "12px 5px",
+                      }}
+                      disabled
+                    >
+                      Verified
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleVerifyUser(user._id)}
+                      style={{
+                        background: "#00A65F",
+                        borderRadius: "2em",
+                        padding: "0.4em",
+                        border: "0",
+                        margin: "12px 5px",
+                      }}
+                    >
+                      Verify
+                    </button>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      );
+    } else if (selectedButton === "Students") {
+      return (
+        <TableContainer
+          style={{
+            background: "#F2F3F3",
+            marginTop: "-1em",
+            border: "2px solid grey",
+          }}
+          component={Paper}
+        >
+          <Table>
+            <ToastContainer />
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ fontWeight: "bold" }}>Email</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Name</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Username</TableCell>
+                <TableCell style={{ fontWeight: "bold" }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {students.map((student) => (
+                <TableRow key={student._id}>
+                  <TableCell>{student.email}</TableCell>
+                  <TableCell>{student.name}</TableCell>
+                  <TableCell>{student.username}</TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleOpenModal(student)}>
+                      View Details
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      );
+    }
   };
 
   return (
@@ -161,68 +367,7 @@ const AdminDashboard = () => {
           </Toolbar>
         </AppBar>
       </div>
-      {/*
-      <Drawer
-        variant="persistent"
-        anchor="left"
-        open={open}
-        classes={{
-          paper: "drawerPaper",
-        }}
-      >
-        <div
-          className="drawerHeader"
-          style={{ marginTop: "20px", width: "200px" }}
-        >
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === "ltr" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )}
-          </IconButton>
-        </div>
-        <Divider />
-        <List>
-          <ListItem
-            style={{
-              marginLeft: "-130px",
-            }}
-            button
-            selected={selectedMenuItem === "Dashboard"}
-            onClick={() => handleMenuItemClick("Dashboard")}
-          >
-            <ListItemIcon>
-              <DashboardIcon />
-              <p>Dashboard</p>
-            </ListItemIcon>
-          </ListItem>
-          <ListItem
-            style={{
-              marginLeft: "-130px",
-            }}
-            button
-            selected={selectedMenuItem === "Add Product"}
-            onClick={() => handleMenuItemClick("Add Product")}
-          >
-            <ListItemIcon>
-              <PostAddIcon />
-              <p>Add Product</p>
-            </ListItemIcon>
-          </ListItem>
-        </List>
 
-        <Divider />
-        <List style={{ position: "absolute", bottom: 0, width: "100%" }}>
-          <ListItem button key="Log Out" onClick={LogOutHandler}>
-            <ListItemIcon>
-              <MeetingRoomIcon />
-            </ListItemIcon>
-            <ListItemText primary="Log Out" />
-          </ListItem>
-        </List>      
-      </Drawer>
-      */}
       <main
         className={clsx("content", {
           contentShift: open,
@@ -230,9 +375,6 @@ const AdminDashboard = () => {
       >
         <div className="drawerHeader" />
         <Grid container spacing={1}>
-          {/* ... (other components) */}
-
-          {/* Section to display user's products */}
           <Grid item xs={12}>
             <div
               style={{
@@ -241,161 +383,96 @@ const AdminDashboard = () => {
                 width: "1290px",
               }}
             >
-              <Typography style={{ padding: "1em 0.5em" }} variant="h5">
-                All Users ({users.length})
-              </Typography>
-              <TableContainer
-                style={{
-                  background: "#F2F3F3",
-                  marginTop: "-1em",
-                  border: "2px solid grey",
-                }}
-                component={Paper}
-              >
-                <Table>
-                  <ToastContainer />
-                  <TableHead>
-                    <TableRow>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Email
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        First Name
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Last Name
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Country Origin
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Language Spoken
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Subjects Taught
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Phone Number
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Hourly Price USD
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Certifications
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Educations
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Availability
-                      </TableCell>
-                      <TableCell style={{ fontWeight: "bold" }}>
-                        Actions
-                      </TableCell>
+              <div style={{ margin: "1em 0", padding: "1em" }}>
+                <Button
+                  style={{ marginRight: "1em" }}
+                  variant={
+                    selectedButton === "Mentor" ? "contained" : "outlined"
+                  }
+                  onClick={() => handleButtonSelect("Mentor")}
+                >
+                  Mentors
+                </Button>
+                <Button
+                  variant={
+                    selectedButton === "Students" ? "contained" : "outlined"
+                  }
+                  onClick={() => handleButtonSelect("Students")}
+                >
+                  Students
+                </Button>
+              </div>
 
-                      {/* Add other fields based on your user data */}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user._id}>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.firstName}</TableCell>
-                        <TableCell>{user.lastName}</TableCell>
-                        <TableCell>{user.countryOrigin}</TableCell>
-                        <TableCell>
-                          {user.LanguageSpoken &&
-                            user.LanguageSpoken.join(", ")}
-                        </TableCell>
-                        <TableCell>{user.subjectsTaught}</TableCell>
-                        <TableCell>{user.phoneNumber}</TableCell>
-                        <TableCell>{user.hourlyPriceUSD}</TableCell>
-                        <TableCell>
-                          {user.certifications &&
-                          user.certifications.length > 0 ? (
-                            user.certifications.map((certification, index) => (
-                              <div key={index}>{certification}</div>
-                            ))
-                          ) : (
-                            <div>No Certifications</div>
-                          )}
-                        </TableCell>
-
-                        <TableCell>
-                          {user.educations &&
-                            user.educations.map((education, index) => (
-                              <div key={index}>
-                                University: {education.university}, Degree:{" "}
-                                {education.degree}
-                              </div>
-                            ))}
-                        </TableCell>
-                        <TableCell>
-                          {user.availability &&
-                            user.availability.map((availability, index) => (
-                              <div key={index}>
-                                Day: {availability.day}, Timezone:{" "}
-                                {availability.timezone}, Slots:{" "}
-                                {availability.slots.map((slot) => (
-                                  <span key={slot._id}>
-                                    {slot.from} - {slot.to}
-                                  </span>
-                                ))}
-                              </div>
-                            ))}
-                        </TableCell>
-                        {/* Add other fields based on your user data */}
-                        {user.isRegistered ? (
-                          <button
-                            style={{
-                              background: "#4798CC",
-                              borderRadius: "2em",
-                              padding: "0.4em",
-                              border: "0",
-                              color: "yellow",
-                              margin: "12px 5px",
-                            }}
-                            disabled
-                          >
-                            Verified
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleVerifyUser(user._id)}
-                            style={{
-                              background: "#00A65F",
-                              borderRadius: "2em",
-                              padding: "0.4em",
-                              border: "0",
-                              margin: "12px 5px",
-                            }}
-                          >
-                            Verify
-                          </button>
-                        )}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              {renderContent()}
             </div>
           </Grid>
-
-          {/* ... (other components) */}
         </Grid>
-        {/* {selectedMenuItem === "Dashboard" && <DashboardContent />}
-        {selectedMenuItem === "Add Product" && <AddProductForm />} */}
-
-        {/* {selectedMenuItem === "Users" && <UsersView />}
-        {selectedMenuItem === "Cars" && <VehicleView />}
-        {selectedMenuItem === "Bikes" && <BikesView />}
-
-        {selectedMenuItem === "View Products" && <ProductsView />}
-        {selectedMenuItem === "Videos" && <VideosView />}
-        {selectedMenuItem === "Orders" && <OrdersView />}
-
-        {selectedMenuItem === "Log Out" && LogOutHandler} */}
       </main>
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        aria-labelledby="student-modal-title"
+        aria-describedby="student-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "0.5em",
+          }}
+        >
+          <Typography
+            style={{ fontWeight: "bold", marginBottom: "1em" }}
+            id="student-modal-title"
+            variant="h6"
+            component="h2"
+          >
+            Student Details
+          </Typography>
+          {selectedStudent && (
+            <div id="student-modal-description">
+              <p>Email: {selectedStudent.email}</p>
+              <p>Name: {selectedStudent.name}</p>
+              <p>Username: {selectedStudent.username}</p>
+              {/* Add other student details as needed */}
+            </div>
+          )}
+          <div style={{ marginTop: "3em" }}>
+            <Button
+              style={{ marginRight: "0.5em" }}
+              variant="contained"
+              color="primary"
+              size="small"
+            >
+              Action 1
+            </Button>
+            <Button
+              style={{ marginRight: "0.5em" }}
+              variant="contained"
+              color="secondary"
+              size="small"
+            >
+              Action 2
+            </Button>
+            <Button
+              size="small"
+              style={{ marginRight: "0.5em" }}
+              variant="outlined"
+            >
+              Action 3
+            </Button>
+          </div>
+          {/* <Button onClick={() => setIsModalOpen(false)}>Close</Button> */}
+        </Box>
+      </Modal>
+
       <footer
         style={{
           position: "fixed",
