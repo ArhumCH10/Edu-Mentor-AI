@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { CirclesWithBar } from 'react-loader-spinner';
 import { useNavigate } from "react-router-dom";
+import PropTypes from 'prop-types';
 
-export const StartedSpinner = () => {
+export const StartedSpinner = ({searchQuery}) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('Finding tutor who will Support you');
@@ -22,7 +23,7 @@ export const StartedSpinner = () => {
             const timer4 = setTimeout(() => {
               setAni(false);
               setLoading(false);
-              navigate('/tutors-search');
+              navigate(`/tutors-search?${searchQuery}`);
             },2000)
             return () => clearTimeout(timer4);
           }, 2000);
@@ -59,4 +60,7 @@ export const StartedSpinner = () => {
       )}
     </div>
   );
+};
+StartedSpinner.propTypes = {
+  searchQuery: PropTypes.any.isRequired,
 };

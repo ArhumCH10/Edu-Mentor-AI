@@ -20,6 +20,7 @@ import TutorSearchFooter from "./TutorSearchFooter";
 import ReactPaginate from 'react-paginate';
 
 
+
 const StyledSlider = styled(ReactSlider)`
     width: 100%;
     height: 25px;
@@ -51,20 +52,33 @@ const Track = (props, state) => <StyledTrack {...props} index={state.index} />;
 
 //const ITEMS_PER_PAGE = 5;
 
+const timeArray = ['3-6', '6-9', '9-12', '12-15', '15-18', '18-21', '21-24', '0-3'];
+const dayArray = ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat'];
+
+const subjects = [
+    { value: "maths", label: "Math" },
+    { value: "science", label: "Science" },
+    { value: "English", label: "English" },
+    { value: "Urdu", label: "Urdu" },
+    { value: "Computer Science", label: "Computer Science" },
+    { value: "Computer Science", label: "Computer Science" },
+    { value: "Computer Science", label: "Computer Science" },
+    { value: "Computer Science", label: "Computer Science" },
+    { value: "Computer Science", label: "Computer Science" },
+];
+
+const allCountries = [
+    { value: 'US', label: 'United States of America', flag: 'https://static.preply.com/groot/country_flags/4x3/us.svg' },
+    { value: 'IN', label: 'India', flag: 'https://static.preply.com/groot/country_flags/4x3/in.svg' },
+    { value: 'GB', label: 'United Kingdom', flag: 'https://static.preply.com/groot/country_flags/4x3/gb.svg' },
+    { value: 'CA', label: 'Canada', flag: 'https://static.preply.com/groot/country_flags/4x3/ca.svg' },
+    { value: 'AU', label: 'Australia', flag: 'https://static.preply.com/groot/country_flags/4x3/au.svg' },
+    { value: 'PK', label: 'Pakistan', flag: 'https://static.preply.com/groot/country_flags/4x3/pk.svg' },
+];
 function TutorsSearch() {
     const tutor = 'English';
     //we will catch subject from backend with the all tutor subject fields
-    const subjects = [
-        { value: "maths", label: "Math" },
-        { value: "science", label: "Science" },
-        { value: "English", label: "English" },
-        { value: "Urdu", label: "Urdu" },
-        { value: "Computer Science", label: "Computer Science" },
-        { value: "Computer Science", label: "Computer Science" },
-        { value: "Computer Science", label: "Computer Science" },
-        { value: "Computer Science", label: "Computer Science" },
-        { value: "Computer Science", label: "Computer Science" },
-    ];
+
     const [searchQuery, setSearchQuery] = useSearchParams();
     // const { mutate } = useTotalTutor(setTotalTutor, setLoading);
     // const [isLoading, setLoading] = useState(false);
@@ -73,7 +87,6 @@ function TutorsSearch() {
 
     const [selectedSubject, setSelectedSubject] = useState();
     const [mySubject, setMySubject] = useState('');
-
 
 
     const customStyles = {
@@ -133,17 +146,63 @@ function TutorsSearch() {
         setSelectedSubject(null);
         setMySubject('');
     };
+
+    const [totalTutor, setTotalTutor] = useState(0);
+
     useEffect(() => {
 
         const subjectFromQuery = searchQuery.get("subject");
+        const TTParam = searchQuery.get("TT");
+        const countryParam = searchQuery.get("Country");
+        const timesParam = searchQuery.get("Times");
+        const daysParam = searchQuery.get("Days");
+        const minPParam = searchQuery.get("minP");
+        const maxPParam = searchQuery.get("maxP");
+
         const isValidSubject = subjects.some(subject => subject.value === subjectFromQuery);
+
         if (isValidSubject) {
             setMySubject({ subject: searchQuery.get("subject") });
             const selectedSubjectObject = subjects.find(subject => subject.value === subjectFromQuery);
             setSelectedSubject(selectedSubjectObject);
 
+
         }
-    }, []);
+        if (TTParam && !isNaN(parseInt(TTParam))) {
+            setTotalTutor(parseInt(TTParam));
+        }
+
+        if (countryParam) {
+            const countryArray = countryParam.split('+');
+            const isValidCountry = countryArray.every(country => allCountries.some(c => c.value === country));
+            if (isValidCountry) {
+                setSelectedCountries(countryArray);
+            }
+        }
+        if (timesParam) {
+            const time = timesParam.split('+');
+            const isValidTimes = time.every(t => timeArray.includes(t));
+            if (isValidTimes) {
+                setSelectedTimes(time);
+            }
+        }
+
+        if (daysParam) {
+            const day = daysParam.split('+');
+            const isValidDays = day.every(d => dayArray.includes(d));
+            if (isValidDays) {
+                setSelectedDays(day);
+            }
+        }
+        if (minPParam && !isNaN(parseInt(minPParam))) {
+            setMinPrice(parseInt(minPParam));
+        }
+
+        if (maxPParam && !isNaN(parseInt(maxPParam))) {
+            setMaxPrice(parseInt(maxPParam));
+        }
+
+    }, [searchQuery]);
 
     useEffect(() => {
         //console.log("My subject in useEffect:", mySubject);
@@ -271,16 +330,16 @@ function TutorsSearch() {
                     top: '0',
                     zIndex: '100',
                     background: isSticky
-                      ? 'linear-gradient(to bottom, #ffffff, #f8f8f8)'
-                      : 'white',
+                        ? 'linear-gradient(to bottom, #ffffff, #f8f8f8)'
+                        : 'white',
                     padding: '1rem',
                     position: 'sticky',
                     boxShadow: isSticky
-                      ? '0 2px 10px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15)'
-                      : 'none',
-                    borderRadius: '0px 0px 10px 10px', 
+                        ? '0 2px 10px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15)'
+                        : 'none',
+                    borderRadius: '0px 0px 10px 10px',
                     transition: 'background 0.3s ease, box-shadow 0.3s ease',
-                  }}
+                }}
             >
                 <div className="row gap-2 searchNav" style={{ marginLeft: '5px' }}>
                     <div className="col-3 myCustomStyle" >
@@ -302,7 +361,7 @@ function TutorsSearch() {
                         <small style={{ marginLeft: '10px' }}>Price per lesson</small>
                         <div className="row" style={{ marginLeft: '0px', marginTop: '5px' }}>
                             <div className="col-9" style={{ fontWeight: 'bold' }}>
-                                $ 1 – $ 100
+                                {`$ ${minPrice} - $ ${maxPrice}`}
                             </div>
                             <div className="col-3">
                                 <RiArrowDropDownLine style={{ fontSize: '28px' }} />
@@ -365,7 +424,7 @@ function TutorsSearch() {
             </div>
             <main>
                 <div className="row" style={{ padding: '5px', marginLeft: '20px', fontWeight: 'bold', fontSize: '20px' }}>
-                    8519 {tutor} tutor available
+                    {totalTutor} {tutor} tutor available
                 </div>
                 {[1, 2, 3, 4, 5].map((index) => (
                     <div key={index} className="row" style={{ marginLeft: '5px' }}>

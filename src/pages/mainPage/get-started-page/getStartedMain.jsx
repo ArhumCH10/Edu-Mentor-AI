@@ -8,6 +8,7 @@ import { Component1 } from './Component1';
 import { Component2 } from './Component2';
 import { Component3 } from './Component3';
 import { Component4 } from './Component4';
+import { Component5 } from './Component5';
 import { StartedSpinner } from './StartedSpinner';
 import './getStarted.css';
 
@@ -28,6 +29,8 @@ function GetStartedMain() {
     const [searchResults, setSearchResults] = useState([]);
     const [selectedTimes, setSelectedTimes] = useState([]);
     const [selectedDays, setSelectedDays] = useState([]);
+    const [minPrice, setMinPrice] = useState(1);
+    const [maxPrice, setMaxPrice] = useState(100);
 
     const { mutate } = useTotalTutor(setTotalTutor, setLoading);
 
@@ -83,12 +86,12 @@ function GetStartedMain() {
         }
     }, [mySubject]);
 
-   return (
+    return (
         <>
             {componentIndex >= 1 ? (
                 <>
-                    {componentIndex === 5 ? (
-                        <StartedSpinner />
+                    {componentIndex === 6 ? (
+                        <StartedSpinner searchQuery={searchQuery} />
                     ) : (<div className='row' style={{ height: '100vh' }}>
                         <div className="col-6 left-Section" style={{ padding: '4rem' }}>
                             <div className="row ">
@@ -120,9 +123,13 @@ function GetStartedMain() {
                                 (<div className="row" style={{ margin: '0 auto', padding: '30% 0', paddingBottom: '26%' }} >
                                     <h1 style={{ fontWeight: 'bold', fontSize: '3.2rem' }} >When can you take lessons?</h1> </div>)}
 
+                            {componentIndex === 5 &&
+                                (<div className="row" style={{ margin: '0 auto', padding: '30% 0', paddingBottom: '26%' }} >
+                                    <h1 style={{ fontWeight: 'bold', fontSize: '3.2rem' }} >What&apos;s your budget per lesson?</h1> </div>)}
+
 
                             <div className="row" style={{ padding: '7% 0' }}>
-                                <span>
+                                <span style={{ marginTop: '-3rem' }}>
                                     <span style={{ fontWeight: 'bold', fontSize: '1.5rem', marginRight: '3px' }}>
                                         Mentor
 
@@ -145,7 +152,7 @@ function GetStartedMain() {
                                     </a>
                                 </span>
                             </div>
-                            <div className="row" style={{ paddingTop: componentIndex === 3 ? '5%' : componentIndex === 4 ? '0%' : '13%', marginBottom: '2rem', height: componentIndex === 1 ? '75%' : componentIndex === 2 ? '75%' : componentIndex === 3 ? '75%' : '75%', overflowY: 'auto', overflowX: 'hidden' }}>
+                            <div className="row" style={{ paddingTop: componentIndex === 1 ? '5%' : componentIndex === 3 ? '5%' : componentIndex === 4 ? '0%' : '10%', marginBottom: '2rem', height: componentIndex === 4 ? '68%' : componentIndex === 3 ? '68%' : '73%', overflowY: 'auto', overflowX: 'hidden' }}>
                                 {componentIndex === 1 && (
                                     <Component1 selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
                                 )}
@@ -158,6 +165,9 @@ function GetStartedMain() {
                                 {componentIndex === 4 && (
                                     <Component4 selectedTimes={selectedTimes} setSelectedTimes={setSelectedTimes} selectedDays={selectedDays} setSelectedDays={setSelectedDays} />
                                 )}
+                                {componentIndex === 5 && (
+                                    <Component5 minPrice={minPrice} maxPrice={maxPrice} setMinPrice={setMinPrice} setMaxPrice={setMaxPrice} />
+                                )}
 
                             </div>
                             <div className="row">
@@ -166,6 +176,12 @@ function GetStartedMain() {
 
                                         let previousComponentIndex = componentIndex;
                                         previousComponentIndex = previousComponentIndex + 1;
+                                        const formattedTimes = selectedTimes.join('+');
+                                        const formattedDays = selectedDays.join('+');
+                                        const formattedCountry = selectedCountries.join('+');
+                                        if (componentIndex === 5) {
+                                            setSearchQuery({ subject: mySubject.subject, TT: totalTutor, Country: formattedCountry, Times: formattedTimes, Days: formattedDays, minP: minPrice, maxP: maxPrice })
+                                        }
                                         setComponentIndex(previousComponentIndex);
                                     }}
                                 >Continue</button>

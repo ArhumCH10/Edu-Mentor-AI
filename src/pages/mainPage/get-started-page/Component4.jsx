@@ -19,7 +19,7 @@ export const Component4 = ({selectedTimes,setSelectedTimes,selectedDays,setSelec
         }
     };
     return (
-        <div className="time-filter-block">
+        <div className="time-filter-block" >
         <div className="filter-label">Times</div>
         <div className="block">
             <div className="layout-flex">
@@ -148,8 +148,8 @@ export const Component4 = ({selectedTimes,setSelectedTimes,selectedDays,setSelec
 
 
 Component4.propTypes = {
-    selectedTimes: PropTypes.array.isRequired,
-    selectedDays: PropTypes.array.isRequired,
+    selectedTimes: PropTypes.number.isRequired,
+    selectedDays: PropTypes.number.isRequired,
     setSelectedTimes: PropTypes.func.isRequired,
     setSelectedDays: PropTypes.func.isRequired,
   };

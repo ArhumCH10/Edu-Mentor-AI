@@ -4,8 +4,6 @@ import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
 import PropTypes from "prop-types";
 
-import { useAuth } from "../../AuthContext";
-import { Navigate } from "react-router-dom";
 
 const gradients = [
   ["#3661a0", "#57cbf5"],
@@ -22,13 +20,8 @@ function VerificationPageNavbar({ currentImageIndex }) {
     setBackgroundGradient(gradients[currentImageIndex % gradients.length]);
   }, [currentImageIndex]);
 
-  const { isAuthenticated } = useAuth();
-
-  // If the user is not authenticated, redirect them to the login page
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
+ 
+  
   return (
     <AppBar position="sticky">
       <Container
