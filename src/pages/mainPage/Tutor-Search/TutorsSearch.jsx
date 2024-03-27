@@ -14,10 +14,17 @@ import { Component4 } from "../get-started-page/Component4";
 import { MdVerified } from "react-icons/md";
 import { SlGraduation } from "react-icons/sl";
 import { PiStudentDuotone } from "react-icons/pi";
+import { IoSearch } from "react-icons/io5";
 //import { Backend_URI } from '../../Config/Constant';
 import ReactPlayer from 'react-player';
 import TutorSearchFooter from "./TutorSearchFooter";
 import ReactPaginate from 'react-paginate';
+import toast from "react-hot-toast";
+import { useSearchTutors } from './useSearchTutors';
+import SkeletonLoader from './SkeletonLoader';
+import { Backend_URI } from '../../../Config/Constant'
+
+
 
 
 
@@ -76,7 +83,11 @@ const allCountries = [
     { value: 'PK', label: 'Pakistan', flag: 'https://static.preply.com/groot/country_flags/4x3/pk.svg' },
 ];
 function TutorsSearch() {
-    const tutor = 'English';
+
+    const [skeltonloading, setSkeltonLoading] = useState(true);
+    const [TutorsArray, setTutorArray] = useState([]);
+    const { mutate } = useSearchTutors(setSkeltonLoading, setTutorArray);
+
     //we will catch subject from backend with the all tutor subject fields
 
     const [searchQuery, setSearchQuery] = useSearchParams();
@@ -147,12 +158,10 @@ function TutorsSearch() {
         setMySubject('');
     };
 
-    const [totalTutor, setTotalTutor] = useState(0);
 
     useEffect(() => {
 
         const subjectFromQuery = searchQuery.get("subject");
-        const TTParam = searchQuery.get("TT");
         const countryParam = searchQuery.get("Country");
         const timesParam = searchQuery.get("Times");
         const daysParam = searchQuery.get("Days");
@@ -165,11 +174,6 @@ function TutorsSearch() {
             setMySubject({ subject: searchQuery.get("subject") });
             const selectedSubjectObject = subjects.find(subject => subject.value === subjectFromQuery);
             setSelectedSubject(selectedSubjectObject);
-
-
-        }
-        if (TTParam && !isNaN(parseInt(TTParam))) {
-            setTotalTutor(parseInt(TTParam));
         }
 
         if (countryParam) {
@@ -209,7 +213,7 @@ function TutorsSearch() {
         if (mySubject) {
             const fetchData = async () => {
                 try {
-                    // mutate(mySubject)
+                    handleSearch();
 
                 } catch (error) {
                     console.error("Error in useEffect:", error);
@@ -219,6 +223,7 @@ function TutorsSearch() {
 
             fetchData();
         }
+        setSkeltonLoading(true);
     }, [mySubject]);
 
 
@@ -285,7 +290,7 @@ function TutorsSearch() {
     const toggleShowMore = (index) => {
         setShowMoreIndex(index === showMoreIndex ? null : index);
     };
-    const content = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitaeelit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitae.';
+    let content = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitaeelit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitae.';
 
     const [hovered, setHovered] = useState(1);
     //const [currentPage, setCurrentPage] = useState(0);
@@ -313,6 +318,53 @@ function TutorsSearch() {
     };
 
     window.onscroll = handleScroll;
+    const inputRef = useRef(null);
+
+    const handleClick = () => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
+
+    const handleSearch = () => {
+        setSkeltonLoading(true);
+        if (!selectedSubject) {
+            toast.error("Please select a subject or search by email");
+            setSkeltonLoading(false);
+            return;
+        }
+
+        const newSearchParams = {};
+
+        newSearchParams.subject = mySubject.subject;
+
+
+        if (selectedTimes.length > 0) {
+            const formattedTimes = selectedTimes.join('+');
+            newSearchParams.Times = formattedTimes;
+        }
+
+        if (selectedDays.length > 0) {
+            const formattedDays = selectedDays.join('+');
+            newSearchParams.Days = formattedDays;
+        }
+
+        if (selectedCountries.length > 0) {
+            const formattedCountry = selectedCountries.join('+');
+            newSearchParams.Country = formattedCountry;
+        }
+
+        if (minPrice !== null && maxPrice !== null) {
+            newSearchParams.minP = minPrice;
+            newSearchParams.maxP = maxPrice;
+        }
+
+        setSearchQuery(newSearchParams);
+
+        mutate({ searchParams: newSearchParams });
+
+    };
+
     return (
         <>
             <div className="CovertNavStatic">
@@ -320,7 +372,7 @@ function TutorsSearch() {
             </div>
             <div>
                 <h1 style={{ margin: "10px 10px", marginLeft: "20px" }}>
-                    Online {tutor} tutors & teachers for private lessons
+                    Online {mySubject.subject} tutors & teachers for private lessons
 
                 </h1>
             </div>
@@ -420,144 +472,219 @@ function TutorsSearch() {
                         </div>
                     </div>
                 </div>
+                <div className="row gap-2 searchNav" style={{ marginLeft: '5px', marginTop: '10px' }}>
+                    <div className="col-4 myCustomStyle" style={{ height: '50px', display: 'flex', alignItems: 'center' }} onClick={handleClick}>
+                        <div style={{ display: 'flex', alignItems: 'center', width: '100%', background: isSticky ? 'linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))' : 'white' }}>
+                            <span style={{ margin: '10px' }}>
+                                <IoSearch />
+                            </span>
+                            <span style={{ width: '100%', height: '100%' }}>
+                                <input id="search-by-email" ref={inputRef} type="text" name="search" placeholder="Search by email" style={{ width: '100%', height: '100%', border: 'none', outline: 'none', background: isSticky ? 'linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))' : 'white', padding: '2px 0' }} />
+                            </span>
+                        </div>
+                    </div>
+                    <div className="col-2" style={{ marginTop: '2px' }}>
+
+                        <button className="Tutor-Search-Button" onClick={handleSearch} >Search</button>
+                    </div>
+
+
+
+                </div>
 
             </div>
             <main>
-                <div className="row" style={{ padding: '5px', marginLeft: '20px', fontWeight: 'bold', fontSize: '20px' }}>
-                    {totalTutor} {tutor} tutor available
-                </div>
-                {[1, 2, 3, 4, 5].map((index) => (
-                    <div key={index} className="row" style={{ marginLeft: '5px' }}>
-                        <div className="col-8 prof">
-                            <div
-                                className={`row ${hovered === index ? 'hov' : ''}`}
-                                onMouseEnter={() => setHovered(index)}
-                                style={{
-                                    marginLeft: '10px',
-                                    border: hovered === index ? '2px solid black' : '2px solid #ccc',
-                                    padding: '20px',
-                                    borderRadius: '5px',
-                                    marginBottom: '10px',
-                                }}
-                            >
-                                <div className={` col-2`}>
-                                    <img src="./king.jpg" alt="ProfilePic" style={{ margin: 'auto', borderRadius: '10% 1%' }} height={150} width={120} />
-                                </div>
-                                <div className="col-6 mx-4">
-                                    <div className="row" style={{ fontWeight: 'bold', paddingLeft: '10px', marginBottom: '10px' }}>
-                                        Ghous Ali
-                                        <div className="col-1">
-                                            <MdVerified style={{ display: 'inline', color: 'green' }} />
-                                        </div>
-                                    </div>
-                                    <div className="row" style={{ marginBottom: '10px' }}>
-                                        <span className="col-3" style={{ marginLeft: '10px', padding: '5px', paddingLeft: '10px', background: '#f5f5f5', borderRadius: '5px' }}>
-                                            Super Tutor
-                                        </span>
-                                    </div>
-                                    <div className="row" style={{ marginBottom: '10px' }}>
-                                        <div className="col-1">
-                                            <SlGraduation />
-                                        </div>
-                                        Your Tutor
-                                    </div>
-                                    <div className="row" style={{ marginBottom: '10px' }}>
-                                        <div className="col-1">
-                                            <PiStudentDuotone />
-                                        </div>
-                                        1 lessons
-                                    </div>
-                                    <div className="row">
-                                        <p>
-                                            {content.length > 100 ? (
-                                                <>
-                                                    {showMoreIndex === index ? content : `${content.slice(0, 100)}...`}
-                                                    <div onClick={() => toggleShowMore(index)} style={{ fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}>
-                                                        {showMoreIndex === index ? ' Hide Details' : ' Read more'}
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                content
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="col-3">
-                                    <div className="row">
-                                        <div className="col-4">
-                                            <div style={{ fontWeight: 'bold' }}>New</div>
-                                            <div> tutor</div>
-                                        </div>
-                                        <div className="col-8">
-                                            <div style={{ fontWeight: 'bold' }}>Rs 3,632</div>
-                                            <div> 50-min lesson</div>
-                                        </div>
-                                    </div>
-                                    <div className="row">
-                                        <button className="btn" style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
-                                            Book a trail
-                                        </button>
-                                    </div>
-                                    <div className="row">
-                                        <button className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
-                                            Send Message
-                                        </button>
-                                    </div>
-                                </div>
-
-                            </div>
+                {skeltonloading ? (<SkeletonLoader />) : (
+                    <>
+                        <div className="row" style={{ padding: '5px', marginLeft: '20px', fontWeight: 'bold', fontSize: '20px' }}>
+                            {TutorsArray.length} {mySubject.subject} tutors available
                         </div>
-                        {hovered == index && (
-                            <div className="col-4 vid">
-                                <div className="row" style={{ width: '90%', marginLeft: '18px', padding: '2px' }}>
-                                    <ReactPlayer
-                                        style={{ border: '2px solid black', borderRadius: '5px', padding: 0 }}
-                                        url="https://www.youtube.com/watch?v=rEGSx47bg80"
-                                        controls
-                                        height={230}
-                                        width={350}
-                                    />
+                        {TutorsArray.length > 0 ? (
+
+                            TutorsArray.map((index) => (
+                                <div key={index} className="row" style={{ marginLeft: '5px' }}>
+                                    <div className="col-8 prof">
+                                        <div
+                                            className={`row ${hovered === index ? 'hov' : ''}`}
+                                            onMouseEnter={() => setHovered(index)}
+                                            style={{
+                                                marginLeft: '10px',
+                                                border: hovered === index ? '2px solid black' : '2px solid #ccc',
+                                                padding: '20px',
+                                                borderRadius: '5px',
+                                                marginBottom: '10px',
+                                            }}
+                                        >
+                                            <div className={` col-2`}>
+                                                <a href={`/tutor?id=${index._id}`} target="_blank" rel="noopener noreferrer">
+                                                    <img src={index.profilePhoto ? `${Backend_URI}/${index.profilePhoto}` : 'UserDpNotFound.jpg'} alt="userProfile" style={{ margin: 'auto', borderRadius: '10% 1%' }} height={150} width={120} onError={(e) => {
+                                                        e.target.src = `./UserDpNotFound.jpg`;
+                                                        e.target.style.border = '1px solid #ccc';
+
+                                                    }} />
+                                                </a>
+                                            </div>
+                                            <div className="col-6 mx-4">
+                                                <div className="row" style={{ fontWeight: 'bold', paddingLeft: '10px', marginBottom: '10px' }}>
+
+                                                    <a className="col-3" href={`/tutor?id=${index._id}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'black', display: 'inline' }}>
+                                                        {index.firstName} {index.lastName}
+                                                    </a>
+                                                    <div className="col-1">
+                                                        <MdVerified style={{ display: 'inline', color: 'green' }} />
+                                                    </div>
+                                                </div>
+
+                                                <div className="row" style={{ marginBottom: '10px' }}>
+                                                    <span className="col-4" style={{ marginLeft: '10px', padding: '5px', paddingLeft: '10px', background: '#f5f5f5', borderRadius: '5px' }}>
+                                                        Super Tutor
+                                                    </span>
+                                                </div>
+                                                <div className="row" style={{ marginBottom: '10px' }}>
+                                                    <div className="col-1">
+                                                        <SlGraduation />
+                                                    </div>
+                                                    Your Tutor
+                                                </div>
+                                                <div className="row" style={{ marginBottom: '10px' }}>
+                                                    <div className="col-1">
+                                                        <PiStudentDuotone />
+                                                    </div>
+                                                    1 lessons
+                                                </div>
+                                                <div className="row" style={{ whiteSpace: 'pre-line' }}>
+                                                    <p>
+                                                        {(() => {
+                                                            let newContent = '';
+                                                            if (index.profileDescription) {
+                                                                newContent += index.profileDescription.introduceYourself + '\n\n';
+                                                                newContent += index.profileDescription.motivateStudents + '\n\n';
+                                                                newContent += index.profileDescription.teachingExperience;
+                                                                content = newContent;
+                                                            }
+                                                            return (
+                                                                <>
+                                                                    {content.length > 100 ? (
+                                                                        <>
+                                                                            {showMoreIndex === index ? newContent : `${newContent.slice(0, 100)}...`}
+                                                                            <div onClick={() => toggleShowMore(index)} style={{ fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}>
+                                                                                {showMoreIndex === index ? ' Hide Details' : ' Read more'}
+                                                                            </div>
+                                                                        </>
+                                                                    ) : (
+                                                                        newContent
+                                                                    )}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </p>
+                                                </div>
+
+                                            </div>
+                                            <div className="col-3">
+                                                <div className="row">
+                                                    <div className="col-4">
+                                                        <div style={{ fontWeight: 'bold' }}>New</div>
+                                                        <div> tutor</div>
+                                                    </div>
+                                                    <div className="col-8">
+                                                        <div style={{ fontWeight: 'bold' }}>$ {index.hourlyPriceUSD}</div>
+                                                        <div> 50-min lesson</div>
+                                                    </div>
+                                                </div>
+                                                <div className="row">
+                                                    <button className="btn" style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                        Book a trail
+                                                    </button>
+                                                </div>
+                                                <div className="row">
+                                                    <button className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                        Send Message
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    {hovered == index && (
+                                        <div className="col-4 vid">
+                                            <div className="row" style={{ width: '90%', marginLeft: '18px', padding: '2px' }}>
+                                                <ReactPlayer
+                                                    style={{ border: '2px solid black', borderRadius: '5px', padding: 0 }}
+                                                    url={`${Backend_URI}/${index.video.data}`}
+                                                    controls
+                                                    height={230}
+                                                    width={350}
+                                                    onError={() => {
+                                                        console.log('Video loading error');
+
+
+                                                    }}
+                                                    config={{
+                                                        file: {
+                                                            attributes: {
+                                                                poster: `${Backend_URI}/${index.video.thumbnail}`
+                                                            }
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="row">
+                                                <a href={`/tutor?id=${index._id}&sc=true`} target="_blank" rel="noopener noreferrer">
+                                                    <button className="btn hov-btn" style={{ background: 'white', border: '2px solid black', marginLeft: '1.8rem', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '80%' }}>
+                                                        View full schedule
+                                                    </button>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="row">
-                                    <button className="btn hov-btn" style={{ background: 'white', border: '2px solid black', marginLeft: '1.8rem', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '80%' }}>
-                                        View full schedule
-                                    </button>
+                            ))
+                        ) : (
+                            <div className="row" >
+                                <div className="col-5" style={{ margin: 'auto' }}>
+                                    <p>
+                                        <h3>
+                                            Looks like we can’t find any matches
+                                        </h3>
+
+                                    </p>
+                                    <p>Try removing some filters to see your top tutors</p>
+                                </div>
+                                <div className="col-4">
+                                    <img src="./NotFound.jpg" alt="Not_Found_Pic" height={300} width={300} />
                                 </div>
                             </div>
-                        )}
-                    </div>
-                ))}
+                        )
+                        }
+                    </>
+                )}
+
             </main>
-            <div className="pagination-container">
-                {/* <ReactPaginate
-                    breakLabel="..."
-                    nextLabel="next >"
-                    // onPageChange={handlePageClick}
-                    pageRangeDisplayed={5}
-                    // pageCount={pageCount}
-                    previousLabel="< previous"
-                    renderOnZeroPageCount={null}
-                /> */}
-                <ReactPaginate
-                    pageCount={25}
-                    //onPageChange={handlePageChange}
-                    containerClassName="pagination"
-                    pageClassName="page-item"
-                    pageLinkClassName="page-link"
-                    activeClassName="active"
-                    previousClassName="page-item"
-                    previousLinkClassName="page-link"
-                    nextClassName="page-item"
-                    nextLinkClassName="page-link"
-                    breakClassName="page-item"
-                    breakLinkClassName="page-link"
-                    previousLabel="< previous"
-                    nextLabel="next >"
-                    breakLabel="..."
-                    pageRangeDisplayed={2}
-                    marginPagesDisplayed={1}
-                />
-            </div>
+            {!SkeletonLoader &&
+                <div className="pagination-container">
+
+                    <ReactPaginate
+                        pageCount={25}
+                        //onPageChange={handlePageChange}
+                        containerClassName="pagination"
+                        pageClassName="page-item"
+                        pageLinkClassName="page-link"
+                        activeClassName="active"
+                        previousClassName="page-item"
+                        previousLinkClassName="page-link"
+                        nextClassName="page-item"
+                        nextLinkClassName="page-link"
+                        breakClassName="page-item"
+                        breakLinkClassName="page-link"
+                        previousLabel="< previous"
+                        nextLabel="next >"
+                        breakLabel="..."
+                        pageRangeDisplayed={2}
+                        marginPagesDisplayed={1}
+                    />
+                </div>
+            }
 
             <TutorSearchFooter />
         </>

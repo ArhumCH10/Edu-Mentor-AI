@@ -21,7 +21,19 @@
 
     
 }
-
+.Tutor-Search-Button{
+  background: linear-gradient(to top, #3661a0, #57cbf5);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px ;
+  border: 1px solid black;
+  transition: background-color 0.3s ease;
+}
+.Tutor-Search-Button:hover {
+  background-color: #0056b3;
+}
 .tutor-searchNav-container {
 
 }
@@ -120,3 +132,6 @@
     border: 1px solid #007bff;
   }
   
+  .react-loading-skeleton {
+  animation-duration: 0.8s !important; 
+}

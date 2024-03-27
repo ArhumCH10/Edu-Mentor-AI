@@ -299,3 +299,30 @@ export async function getTotalTutor({ subject }) {
         
     }
 }
+
+export async function fetchTutorsSearchAPI ({searchParams}) {
+    try {
+        //console.log("searchParams:", searchParams);
+        const response = await axios.get('http://localhost:8080/searchTutors/',{ params: searchParams });
+        
+        const tutorsData = response.data;
+        //console.log("tutorsData search API:", tutorsData);
+        return tutorsData;
+    } catch (error) {
+        console.error("Error fetching Search tutors data:", error);
+        throw error;
+    }
+}
+export async function fetchTutorProfile ({searchParams}) {
+    try {
+        //console.log("searchParams in fetchTutorProfile:", searchParams);
+        const response = await axios.get('http://localhost:8080/tutorProfile/',{ params: searchParams });
+        
+        const tutorProfData = response.data;
+        //console.log("tutorsData profile API:", tutorProfData);
+        return tutorProfData;
+    } catch (error) {
+        console.error("Error fetching  tutors Profile data:", error);
+        throw error;
+    }
+}
