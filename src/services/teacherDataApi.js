@@ -313,6 +313,19 @@ export async function fetchTutorsSearchAPI ({searchParams}) {
         throw error;
     }
 }
+export async function fetchTutorsSearchByEmailAPI ({searchParams}) {
+    try {
+        console.log("searchParams:", searchParams);
+        const response = await axios.get('http://localhost:8080/searchTutorByEmail/',{ params: searchParams });
+        
+        const tutorsData = response.data;
+        console.log("tutorsData search API:", tutorsData);
+        return tutorsData;
+    } catch (error) {
+        console.error("Error fetching Search tutors data:", error);
+        throw error;
+    }
+}
 export async function fetchTutorProfile ({searchParams}) {
     try {
         //console.log("searchParams in fetchTutorProfile:", searchParams);

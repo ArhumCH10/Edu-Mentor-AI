@@ -74,6 +74,8 @@ const TutorProfile = () => {
     const [ResumeTabs, setResumeTabs] = useState([]);
     const [resumeTabValue, setResumeTabValue] = useState(0);
     const [activeResumeTab, setActiveResumeTab] = useState(ResumeTabs[0]);
+    const [events, setEvents] = useState([]);
+
     const [searchQuery] = useSearchParams();
 
     let content = ` Hello there! I'm AutoBot`;
@@ -164,7 +166,7 @@ const TutorProfile = () => {
 
     const currentDate = new Date();
 
-    const [events] = useState([
+    const [event] = useState([
 
         {
             start: new Date(currentDate.getTime() + 3 * 60 * 60 * 1000),
@@ -185,7 +187,8 @@ const TutorProfile = () => {
     useEffect(() => {
         const removeUnnecessary = () => {
             const allDayCell = document.querySelector('.rbc-allday-cell');
-            const alltimegutter = document.querySelector('rbc-time-gutter');
+            const alltimegutter = document.querySelector('.rbc-time-gutter');
+            const allrbcEventContent = document.querySelectorAll('.rbc-event-content');
             if (allDayCell) {
                 allDayCell.remove();
             }
@@ -193,10 +196,27 @@ const TutorProfile = () => {
                 alltimegutter.remove();
             }
 
-        };
+            if (allrbcEventContent) {
+                allrbcEventContent.forEach((element) => {
+                    element.remove();
+                });
+            }
 
-        removeUnnecessary();
-    }, []);
+        };
+        const adjustHeight = () => {
+            const rbcEvent = document.querySelector('.rbc-event');
+            if (rbcEvent && !isLoading) {
+                rbcEvent.style.height = 'auto';
+            }
+        };
+        const timeout = setTimeout(() => {
+            if (!isLoading) {
+                removeUnnecessary();
+                adjustHeight();
+            }
+        }, 2000);
+        return () => clearTimeout(timeout);
+    }, [isLoading]);
 
     const [id, setId] = useState();
     useEffect(() => {
@@ -212,8 +232,8 @@ const TutorProfile = () => {
         if (id) {
             const newSearchParams = {};
             newSearchParams.id = id;
-             mutate({ searchParams: newSearchParams });
-           
+            mutate({ searchParams: newSearchParams });
+
         }
 
     }, [id])
@@ -229,7 +249,46 @@ const TutorProfile = () => {
     }, [isLoading, tutorProfileData, searchQuery, tabs]);
 
     useEffect(() => {
+        const generateEvents = () => {
+            const newEvents = [];
+            const today = moment();
+            const twoMonthsLater = moment().add(2, 'months');
+    
+            const datesUntilTwoMonthsLater = [];
+            while (today.isBefore(twoMonthsLater)) {
+                datesUntilTwoMonthsLater.push(today.clone());
+                today.add(1, 'week');
+            }
+    
+            datesUntilTwoMonthsLater.forEach(date => {
+                tutorProfileData.availability.forEach(day => {
+                    const dayOfWeek = date.clone().day(day.day);
+                    day.slots.forEach(slot => {
+                        const startDateTime = dayOfWeek.clone().set({
+                            hour: parseInt(slot.from.split(':')[0]),
+                            minute: parseInt(slot.from.split(':')[1]),
+                        });
+                        const endDateTime = dayOfWeek.clone().set({
+                            hour: parseInt(slot.to.split(':')[0]),
+                            minute: parseInt(slot.to.split(':')[1]),
+                        });
+
+                        if (startDateTime.isSameOrAfter(moment(), 'day')) {
+                            newEvents.push({
+                                start: startDateTime.toDate(),
+                                end: endDateTime.toDate(),
+                               // title: `${startDateTime.format('LT')} – ${endDateTime.format('LT')}`,
+                            });
+                        }
+                    });
+                });
+            });
+    
+            setEvents(newEvents);
+        };
+
         if (tutorProfileData) {
+            console.log("tutorProfileData", tutorProfileData);
             const newTabs = [];
             const newResumeTabs = [];
 
@@ -239,6 +298,7 @@ const TutorProfile = () => {
 
             if (tutorProfileData.availability) {
                 newTabs.push("Schedule");
+                generateEvents();
             }
 
             if (tutorProfileData.educations || tutorProfileData.certifications) {
@@ -261,6 +321,15 @@ const TutorProfile = () => {
         }
 
     }, [tutorProfileData]);
+
+    const handleEventClick = (event) => {
+        console.log("Event clicked:", event);
+    };
+
+
+
+
+
 
     return (
         <>
@@ -363,7 +432,7 @@ const TutorProfile = () => {
                                         <div>
                                             <Calendar
                                                 localizer={localizer}
-                                                events={events}
+                                                events={events ? events : event}
                                                 startAccessor="start"
                                                 endAccessor="end"
                                                 defaultView="week"
@@ -371,7 +440,7 @@ const TutorProfile = () => {
                                                 date={date}
                                                 onNavigate={onNavigate}
                                                 style={{ height: 450 }}
-
+                                                onSelectEvent={handleEventClick}
                                             />
                                             <style>
                                                 {`
@@ -399,11 +468,21 @@ const TutorProfile = () => {
     background-color: white;
     color: black;
     
+    
+ }
+  .rbc-event{
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: underline;
  }
  .rbc-event:focus{
     outline: none;
  }
+ .rbc-today {
+    background-color: white;
+}
  .rbc-header{
+    height: 29px;
     border-top: 7px solid green;
     border-radius: 3px;
     margin-right: 3px;

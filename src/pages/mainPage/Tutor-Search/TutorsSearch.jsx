@@ -86,7 +86,9 @@ function TutorsSearch() {
 
     const [skeltonloading, setSkeltonLoading] = useState(true);
     const [TutorsArray, setTutorArray] = useState([]);
-    const { mutate } = useSearchTutors(setSkeltonLoading, setTutorArray);
+    const [email, setEmail] = useState('');
+
+    const { mutate } = useSearchTutors(setSkeltonLoading, setTutorArray, email);
 
     //we will catch subject from backend with the all tutor subject fields
 
@@ -326,45 +328,72 @@ function TutorsSearch() {
         }
     };
 
+    const [emailTrue, setEmailTrue] = useState(false);
     const handleSearch = () => {
-        setSkeltonLoading(true);
-        if (!selectedSubject) {
-            toast.error("Please select a subject or search by email");
-            setSkeltonLoading(false);
-            return;
+
+        if(email.trim() !== ''){
+            if (!validateEmail(email)) {
+                toast.error("Please enter a valid email address");
+                setEmail('');
+                document.getElementById('search-by-email').value = '';
+                inputRef.current.focus();
+                return;
+            }
+            setEmailTrue(true);
+            setSkeltonLoading(true);
+            const newSearchParams = {};
+            newSearchParams.email = email;
+            setSearchQuery(newSearchParams);
+            mutate({ searchParams: newSearchParams });
+            
+            setEmail('');
+            document.getElementById('search-by-email').value = '';
         }
-
-        const newSearchParams = {};
-
-        newSearchParams.subject = mySubject.subject;
-
-
-        if (selectedTimes.length > 0) {
-            const formattedTimes = selectedTimes.join('+');
-            newSearchParams.Times = formattedTimes;
+        else{
+            setSkeltonLoading(true);
+            if (!selectedSubject ) {
+                toast.error("Please select a subject or search by email");
+                setSkeltonLoading(false);
+                return;
+            }
+    
+            const newSearchParams = {};
+    
+            newSearchParams.subject = mySubject.subject;
+    
+    
+            if (selectedTimes.length > 0) {
+                const formattedTimes = selectedTimes.join('+');
+                newSearchParams.Times = formattedTimes;
+            }
+    
+            if (selectedDays.length > 0) {
+                const formattedDays = selectedDays.join('+');
+                newSearchParams.Days = formattedDays;
+            }
+    
+            if (selectedCountries.length > 0) {
+                const formattedCountry = selectedCountries.join('+');
+                newSearchParams.Country = formattedCountry;
+            }
+    
+            if (minPrice !== null && maxPrice !== null) {
+                newSearchParams.minP = minPrice;
+                newSearchParams.maxP = maxPrice;
+            }
+    
+            setSearchQuery(newSearchParams);
+    
+            mutate({ searchParams: newSearchParams });
+    
         }
-
-        if (selectedDays.length > 0) {
-            const formattedDays = selectedDays.join('+');
-            newSearchParams.Days = formattedDays;
-        }
-
-        if (selectedCountries.length > 0) {
-            const formattedCountry = selectedCountries.join('+');
-            newSearchParams.Country = formattedCountry;
-        }
-
-        if (minPrice !== null && maxPrice !== null) {
-            newSearchParams.minP = minPrice;
-            newSearchParams.maxP = maxPrice;
-        }
-
-        setSearchQuery(newSearchParams);
-
-        mutate({ searchParams: newSearchParams });
 
     };
 
+    const validateEmail = (email) => {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    };
     return (
         <>
             <div className="CovertNavStatic">
@@ -479,7 +508,7 @@ function TutorsSearch() {
                                 <IoSearch />
                             </span>
                             <span style={{ width: '100%', height: '100%' }}>
-                                <input id="search-by-email" ref={inputRef} type="text" name="search" placeholder="Search by email" style={{ width: '100%', height: '100%', border: 'none', outline: 'none', background: isSticky ? 'linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))' : 'white', padding: '2px 0' }} />
+                                <input id="search-by-email" onChange={(e) => setEmail(e.target.value)} ref={inputRef} type="text" name="search" placeholder="Search by email" style={{ width: '100%', height: '100%', border: 'none', outline: 'none', background: isSticky ? 'linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))' : 'white', padding: '2px 0' }} />
                             </span>
                         </div>
                     </div>
@@ -640,7 +669,20 @@ function TutorsSearch() {
                                     )}
                                 </div>
                             ))
-                        ) : (
+                        ) : emailTrue ? (<div className="row">
+                            <div className="col-5" style={{ margin: 'auto' }}>
+                                    <p>
+                                        <h3>
+                                            Looks searched email: &quot;{searchQuery.get("email")}&quot;  can’t find any matches
+                                        </h3>
+
+                                    </p>
+                                    <p>Try removing some filters to see your top tutors</p>
+                                </div>
+                                <div className="col-4">
+                                    <img src="./NotFound.jpg" alt="Not_Found_Pic" height={300} width={300} />
+                                </div>
+                        </div>) : (
                             <div className="row" >
                                 <div className="col-5" style={{ margin: 'auto' }}>
                                     <p>
