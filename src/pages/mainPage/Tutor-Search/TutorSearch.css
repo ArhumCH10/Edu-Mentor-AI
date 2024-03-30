@@ -135,3 +135,62 @@
   .react-loading-skeleton {
   animation-duration: 0.8s !important; 
 }
+
+.modal-content {
+  width: 65% ;
+  margin: auto !important;
+}
+.modal-auth-content {
+  text-align: center;
+}
+.google-signup-btn {
+ 
+  background-color: white;
+  border-radius: 5px;
+  padding: 10px 20px;
+  margin: 7px 0px;
+  width: 100%;
+}
+
+.google-signup-btn:hover {
+  background-color: whitesmoke;
+}
+
+.google-icon {
+  margin-right: 10px;
+  width: 24px;
+  height: 24px;
+}
+
+.modal-auth-footer{
+  margin-top: 20px;
+  padding-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 2px solid #ccc;
+}
+
+.modal-auth-footer-login-btn {
+  margin-left: 10px;
+  border: none;
+  background-color: white;
+  border-radius: 5px;
+  text-decoration: underline;
+}
+.modal-login{
+  z-index: 9999;
+}
+.modal-signup{
+  z-index: 9999;
+}
+
+.navbar {
+  z-index: 1000;
+}
+
+
+.modal-auth-footer-login-btn:hover {
+  cursor: pointer;
+  color: green;
+}
