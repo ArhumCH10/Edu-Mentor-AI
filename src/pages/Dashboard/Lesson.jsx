@@ -5,6 +5,7 @@ import NewRequest from './NewRequest';
 import TrialLessons from './TrialLessons';
 import Clicked from './Clicked';
 import Cancelled from './Cancelled';
+import { useNavigate } from 'react-router-dom';
 
 const lessonsData = [
   {
@@ -131,6 +132,12 @@ export default function Lessons() {
     setActiveTab(tabName); 
   };
 
+  const navigate=useNavigate()
+
+  const handleModuleOpen = () => {
+    navigate("student");
+  };
+  
   return (
     <>
       <Header />
@@ -154,9 +161,10 @@ export default function Lessons() {
       {activeTab === 'lessons' && (
         <>
           <h2 className="lesson-title">Active Lessons</h2>
-          <div className="lessons-container">
+          <div  className="lessons-container">
             {lessonsData.map((lesson, index) => (
-              <div className="lesson-card" key={index}>
+              <div className="lesson-card"                 onClick={() => handleModuleOpen(lesson)}
+              key={index}>
                 <div className="lesson-header">{lesson.title}</div>
                 <div className="lesson-body">
                   <h3>{lesson.instructor}</h3>

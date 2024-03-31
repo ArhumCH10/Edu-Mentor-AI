@@ -11,6 +11,7 @@ import Earnings from './Earnings';
 import Settings from './Settings';
 import './Dashboard.css';
 import {PrivateRoute} from '../../AuthDashboardRoutes';
+import StudentCourse from './StudentCourse';
 
 
 export default function DashboardLinks() {
@@ -40,6 +41,11 @@ export default function DashboardLinks() {
             path="/Lesson/"
             element={<PrivateRoute element={<Lesson />} path="/Lesson" />}
           />
+         <Route
+  path="/Lesson/student"
+  element={<PrivateRoute element={<StudentCourse />} />}
+/>
+
           <Route
             path="/Message/"
             element={<PrivateRoute element={<Message />} path="/Message" />}
