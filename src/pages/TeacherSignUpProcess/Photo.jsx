@@ -19,6 +19,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const { mutate } = usePhoto(setFlag,setLoading);
   const photoUrl = useGetPhoto();
   const formData = new FormData();
+  console.log("photo",photoUrl);
 
 
   // Retrieve user object from local storage
@@ -119,6 +120,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       setLoading(false);
       return;
     } else if (!photoUrl || !image) {
+      console.log("file data is",fileStore);
       try {
         mutate({
           fileStore: fileStore,
@@ -130,6 +132,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       setLoading(false);
     }
     else if (image.startsWith("blob:")) {
+      
       setLoading(true);
       try {
         // Convert Blob URL to data URL
@@ -238,7 +241,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
             {/* Display the image within a container div */}
             <img
               ref={imgRef}
-              src={image}
+              src={photoUrl}
               alt="Preview"
               style={{
                 maxWidth: "100%",

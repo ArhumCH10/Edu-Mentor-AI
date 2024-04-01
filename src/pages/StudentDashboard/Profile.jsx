@@ -1,7 +1,15 @@
-import React, { useState } from "react";
+import { useState, useRef } from "react";
 import Heading from "../../ui/Heading";
+import axios from 'axios';
+import toast from "react-hot-toast";
 import styles from "../Dashboard/Cancelled.module.css";
 import Row from "../../ui/Row";
+import Modal from '../../ui/Modal';
+import Form from '../../ui/Form';
+import { useForm } from 'react-hook-form';
+import Button from '../../ui/Button';
+import Textarea from '../../ui/Textarea';
+import Spinner from '../TeacherSignUpProcess/startSpinner';
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -10,6 +18,10 @@ import {
   faClock,
   faArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
+import { useStudent } from "../../services/useStudent";
+import FormRow from "../../ui/FormRow";
+import StyledFormRow from "../../ui/StyledFormRow";
+import Input from "../../ui/Input";
 
 const StyledProfileLayout = styled.div`
   display: grid;
@@ -39,23 +51,27 @@ const AdditionalCard = styled.div`
 `;
 
 const ImageContainer = styled.div`
+    width: 100px; 
+    height: 100px;
   cursor: pointer;
   position: relative;
-  display: inline-block; /* For the sake of positioning the badge and icon */
+  display: inline-block;
+  border-radius: 50%; /* Match the border-radius with the image */
+  overflow: hidden;
   &:hover::after {
-    content: "📷";
+    content: '📷';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-size: 1rem;
+    border-radius: 50%; 
   }
 `;
 
@@ -82,10 +98,9 @@ const InfoItem = styled.div`
 
 const LevelBadge = styled.div`
   position: absolute;
-  bottom: 0;
-  right: 0;
-  transform: translate(50%, -50%);
-  background-color: #00b22d; /* Adjust to match the level color */
+  bottom: 1rem;
+  right: -2rem; 
+  background-color: #00b22d; 
   color: white;
   padding: 0.5rem 1rem;
   cursor: pointer;
@@ -94,7 +109,9 @@ const LevelBadge = styled.div`
   font-weight: bold;
   text-transform: uppercase;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2; 
 `;
+
 
 const EditIcon = styled.span`
   position: absolute;
@@ -147,19 +164,45 @@ const ReviewBody = styled.div`
 `;
 
 function Profile() {
+  const { data, isLoading, isError,  refetchUser } = useStudent();
   const storedUser = JSON.parse(localStorage.getItem("user")) || {}; // Using const and default empty object
+  const { register, handleSubmit, formState } = useForm();
+  const { errors } = formState;
+  const [showForm, setShowForm] = useState(false);
+  const [otherForm, setOtherForm] = useState(false);
+  const [addLanguage, setAddLanguage] = useState(false);
+  const [addEducation, setAddEducation] = useState(false);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState({
-    name: "Arhum Ch",
-    username: "@arhumnafeed392",
-    rating: 4.6,
-    reviews: 27,
-    country: "Pakistan",
-    memberSince: "Jun 2020",
-    grade: "8",
-    lessons: "10",
-  });
+  const handleAddEducation = () => {
+    setAddEducation(true);
+  }
+
+  const handleAddLanguage = () => {
+    setAddLanguage(true);
+  }
+
+  const handleCloseModal = () => {
+    setShowForm(false);
+  };
+
+  const handleOtherModal = () => {
+    setOtherForm(false);
+  };
+
+  const handleImageSrc = (imagePath) => {
+    if (!imagePath) {
+        console.log("Image path is undefined or null.");
+        return '/path/to/default/image.png'; 
+    }
+
+    if (imagePath.startsWith('http')) {
+        return imagePath;
+    } else {
+        const baseUrl = "http://localhost:8080/uploads/"; 
+        console.log(baseUrl);
+        return baseUrl + imagePath.replace(/\\/g, '/'); 
+    }
+}; 
 
   const reviews = [
     {
@@ -179,35 +222,107 @@ function Profile() {
       date: "1 month ago",
     },
   ];
+  
+  const fileInputRef = useRef();
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-    isEditing;
-    setProfile({
-      name: "Arhum Naveed",
-      username: "@arhumnafeed392",
-      rating: 4.6,
-      reviews: 27,
-      country: "Pakistan",
-      memberSince: "Jun 2020",
-      grade: "7",
-      lessons: "10",
-    });
-  };
+  const Name = data?.user?.name;
+  const Country = data?.user?.country;
+  const Grade = data?.user?.grade;
+  const Photo = data?.user?.profilePhoto;
+  const Description = data?.user?.description;
+  const Language = data?.user?.language;
+  const Education = data?.user?.education;
+  const Language1 = data?.user?.language1;
+  const Education1 = data?.user?.education1;
 
-  const fileInputRef = React.useRef();
+  const languages = [Language, Language1].filter(Boolean);
+  const educations = [Education, Education1].filter(Boolean);
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
+    const userData = JSON.parse(localStorage.getItem("user")); 
+    const email = userData && userData.email;
+  
     const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        // This is where you'd handle the uploaded image data
-        // For example, setting it in state or uploading to a server
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('photo', file);
+      formData.append('email', email);
+
+      try {
+        await axios.post('http://localhost:8080/uploads', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });       
+        await refetchUser(); 
+        toast.success("Data Saved Successfully");
+      } catch (error) {
+        console.error('Error uploading photo:', error.message);
+      }
     }
   };
+
+  const profileData = async (data) => {
+   const { name, country, grade } = data;
+  const userData = JSON.parse(localStorage.getItem("user"));
+  const email = userData && userData.email;
+
+  if (data) {
+       await axios.post('http://localhost:8080/student/profile', {
+        email: email,
+        name: name,
+        country: country,
+        grade: grade
+      });
+    await refetchUser();
+    toast.success("Data Saved Successfully");
+  }
+};
+  
+
+const otherData = async (data) => {
+  const { description, language, language1, education, education1 } = data;
+ const userData = JSON.parse(localStorage.getItem("user"));
+ const email = userData && userData.email;
+
+ if (data) {
+      await axios.post('http://localhost:8080/student/other', {
+       email: email,
+       description: description,
+       language: language,
+       language1: language1,
+       education: education,
+       education1: education1
+     });
+   await refetchUser();
+   toast.success("Data Saved Successfully");
+ }
+};
+  function onSubmit(data) {
+    profileData(data).then(() => {
+      handleCloseModal(); 
+  }).catch((error) => {
+      console.error("Error submitting the form: ", error);
+      toast.error("Error saving data.");
+  });
+  }
+
+  function onOtherSubmit(data) {
+    otherData(data).then(() => {
+      handleOtherModal(); 
+  }).catch((error) => {
+      console.error("Error submitting the form: ", error);
+      toast.error("Error saving data.");
+  });
+  }
+
+  if (isLoading) {
+    return <Spinner/>
+  }
+
+  if (isError) {
+    return <div>Error fetching data</div>;
+  }
 
   return (
     <>
@@ -217,32 +332,30 @@ function Profile() {
 
       <StyledProfileLayout>
         <ProfileCard>
-          <EditIcon onClick={handleEditClick} />
+          <EditIcon  onClick={() => setShowForm((show) => !show)} />
           <div style={{ textAlign: "center" }}>
-            <ImageContainer onClick={() => fileInputRef.current.click()}>
+          <ImageContainer onClick={() => fileInputRef.current.click()}>
               <input
                 type="file"
-                style={{ display: "none" }}
+                style={{ display: 'none' }}
                 ref={fileInputRef}
                 onChange={handleImageUpload}
               />
-              <img
-                src={profile.imageUrl || "/public/default-user.jpg"}
-                alt={storedUser.name}
-              />
-              <LevelBadge>New Student</LevelBadge>
+            {Photo ? <img src={handleImageSrc(Photo)} /> : 
+             <img src={"/public/default-user.jpg"}/> }
+            <LevelBadge>New Student</LevelBadge>
             </ImageContainer>
             {/* Profile Name */}
-            <h2>{storedUser.name}</h2>
+            <h2>{Name}</h2>
             {/* Username */}
             <p>@{storedUser.username}</p>
             {/* Rating */}
             <div>
               {Array.from({ length: 5 }, (_, index) => (
-                <span key={index}>{index < profile.rating ? "★" : "☆"}</span>
+                <span key={index}>{index < 4.6 ? "★" : "☆"}</span>
               ))}
               <span>
-                {profile.rating} ({profile.reviews} reviews)
+                4.6 (26 reviews)
               </span>
             </div>
           </div>
@@ -254,9 +367,9 @@ function Profile() {
               </InfoLabel>
               <InfoValue>
                 {" "}
-                {storedUser.country ? (
+                {Country ? (
                   <p style={{ fontSize: "14px", paddingLeft: "15px" }}>
-                    {storedUser.country}
+                    {Country}
                   </p>
                 ) : (
                   <p
@@ -276,14 +389,14 @@ function Profile() {
                 <FontAwesomeIcon icon={faCalendarAlt} />
                 Member since:
               </InfoLabel>
-              <InfoValue>{profile.memberSince}</InfoValue>
+              <InfoValue>2020</InfoValue>
             </InfoItem>
             <InfoItem>
               <InfoLabel>
                 <FontAwesomeIcon icon={faClock} />
                 Grade
               </InfoLabel>
-              <InfoValue>{profile.grade}</InfoValue>
+              <InfoValue>{Grade}</InfoValue>
             </InfoItem>
             <InfoItem>
               <InfoLabel>
@@ -311,65 +424,194 @@ function Profile() {
           </div>
         </ProfileCard>
 
+           {showForm && <Modal onClose={handleCloseModal}>
+           
+      <Form onSubmit={handleSubmit(onSubmit)}>
+      <StyledFormRow labelName='Enter Name' error={errors?.name?.message}>
+      <Input
+          type="text"
+          id="name"
+          defaultValue={Name}
+          {...register("name", {
+            required: "This Field is Required",
+          })}
+        />
+      </StyledFormRow>
+
+      <StyledFormRow labelName='Enter Country' error={errors?.country?.message}>
+      <Input
+          type="text"
+          id="country"
+          defaultValue={Country}
+          {...register("country", {
+            required: "This Field is Required",
+          })}
+        />
+      </StyledFormRow>
+
+      <StyledFormRow labelName='Enter Grade' error={errors?.grade?.message}>
+      <Input
+          type="number"
+          id="grade"
+          defaultValue={Grade}
+          {...register("grade", {
+            required: "This Field is Required",
+          })}
+        />
+      </StyledFormRow>
+
+      <FormRow>
+        <Button onClick={handleCloseModal} variation="secondary" type="reset">
+          Cancel
+        </Button>
+        <Button>Submit</Button>
+        </FormRow>
+      </Form>
+  </Modal>}
+
         <AdditionalCard>
           <h3 style={{ paddingLeft: "15px", paddingTop: "15px" }}>About me</h3>
-          <EditIcon onClick={handleEditClick} />
-          {storedUser.description ? (
+          <EditIcon onClick={() => setOtherForm((show) => !show)} />
+          {Description ? (
             <p style={{ fontSize: "14px", paddingLeft: "15px" }}>
-              {storedUser.description}
+              {Description}
             </p>
           ) : (
             <p style={{ fontSize: "14px", paddingLeft: "15px", color: "grey" }}>
               Add Description
             </p>
           )}
-          <InfoItem>
-            <InfoLabel>
-              <span style={{ marginLeft: "10px" }}>🎓</span>
-              Languages you speak:
-            </InfoLabel>
-            <InfoValue>
-              {storedUser.languages ? (
-                <p style={{ fontSize: "14px", paddingLeft: "15px" }}>
-                  {storedUser.languages}
-                </p>
-              ) : (
-                <p
-                  style={{
-                    fontSize: "14px",
-                    paddingLeft: "15px",
-                    color: "grey",
-                  }}
-                >
-                  Add languages
-                </p>
-              )}
-            </InfoValue>
-          </InfoItem>
-          <AboutSection>
-            <SectionTitle>
-              <span style={{ marginLeft: "10px" }}>🎓</span>Education
-            </SectionTitle>
-            <SectionContent style={{ marginLeft: "10px" }}>
-              {storedUser.education ? (
-                <p style={{ fontSize: "14px", paddingLeft: "15px" }}>
-                  {storedUser.education}
-                </p>
-              ) : (
-                <p
-                  style={{
-                    fontSize: "14px",
-                    paddingLeft: "15px",
-                    color: "grey",
-                  }}
-                >
-                  Add Education
-                </p>
-              )}
-            </SectionContent>
-          </AboutSection>
+         <InfoItem>
+        <InfoLabel>
+          <span style={{ marginLeft: "10px" }}>🎓</span>
+          Languages you speak:
+        </InfoLabel>
+        <InfoValue>
+          {languages.length > 0 ? (
+            languages.map((language, index) => (
+              <p key={index} style={{  display: 'inline-block', marginRight: '0.5rem', fontSize: "14px" }}>
+                {language},
+              </p>
+            ))
+          ) : (
+            <p
+              style={{
+                fontSize: "14px",
+                paddingLeft: "15px",
+                color: "grey",
+              }}
+            >
+              Add languages
+            </p>
+          )}
+        </InfoValue>
+      </InfoItem>
+      <AboutSection>
+        <SectionTitle>
+          <span style={{ marginLeft: "10px" }}>🎓</span>Education
+        </SectionTitle>
+        <SectionContent style={{ marginLeft: "10px" }}>
+          {educations.length > 0 ? (
+            educations.map((education, index) => (
+              <p key={index} style={{ fontSize: "14px", paddingLeft: "15px" }}>
+                {education}
+              </p>
+            ))
+          ) : (
+            <p
+              style={{
+                fontSize: "14px",
+                paddingLeft: "15px",
+                color: "grey",
+              }}
+            >
+              Add Education
+            </p>
+          )}
+        </SectionContent>
+      </AboutSection>
         </AdditionalCard>
       </StyledProfileLayout>
+
+      {otherForm && <Modal onClose={handleOtherModal}>
+           
+           <Form onSubmit={handleSubmit(onOtherSubmit)}>
+           <StyledFormRow labelName='Introduce Yourself' error={errors?.description?.message}>
+           <Textarea
+               type="text"
+               id="description"
+               defaultValue={Description}
+               {...register("description", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+     
+           <StyledFormRow labelName='Add First Language' error={errors?.language?.message}>
+           <Input
+               type="text"
+               id="language"
+               defaultValue={Language}
+               {...register("language", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+           {
+            !addLanguage &&
+           <Button onClick={handleAddLanguage} variation="danger">Add Another</Button>
+           }
+           {
+            addLanguage &&
+            <StyledFormRow labelName='Add Another Language' error={errors?.language1?.message}>
+            <Input
+                type="text"
+                id="language1"
+                defaultValue={Language1}
+                {...register("language1", {
+                  required: "This Field is Required",
+                })}
+              />
+            </StyledFormRow>
+           }
+
+           <StyledFormRow labelName='Enter your Education' error={errors?.education?.message}>
+           <Textarea
+               type="number"
+               id="education"
+               defaultValue={Education}
+               {...register("education", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+
+           {
+            !addEducation &&
+           <Button onClick={handleAddEducation} variation="danger">Add Another</Button>
+           }
+           {
+            addEducation &&
+            <StyledFormRow labelName='Enter Another Education' error={errors?.education1?.message}>
+            <Textarea
+                type="number"
+                id="education1"
+                defaultValue={Education1}
+                {...register("education1", {
+                  required: "This Field is Required",
+                })}
+              />
+            </StyledFormRow>
+           }
+     
+           <FormRow>
+             <Button onClick={handleOtherModal} variation="secondary" type="reset">
+               Cancel
+             </Button>
+             <Button>Submit</Button>
+             </FormRow>
+           </Form>
+       </Modal>}
 
       <ReviewsSection>
         <Row type="horizontal">

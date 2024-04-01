@@ -88,7 +88,10 @@ function LoginPage() {
         password: studentpassword,
       });
 
-      console.log("Response from backend:", response.data);
+        const token = response.data.token;
+
+        localStorage.setItem('token', token);
+        document.cookie = `token=${token}; path=/; samesite=strict; secure`;
 
       if (response.status === 300 && response.data.isVerified === false) {
         // Show toast notification for verification pending
@@ -104,7 +107,7 @@ function LoginPage() {
       // Store user object in local storage
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      // Account is verified, redirect to student dashboard
+      toast.success("Login Successfully");
       navigate("/studentdashboard");
     } catch (error) {
       if (

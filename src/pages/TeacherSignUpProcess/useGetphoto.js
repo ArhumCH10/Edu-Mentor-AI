@@ -14,8 +14,9 @@ export function useGetPhoto() {
                     responseType: 'blob'
                 });
                 
-                // Create a local URL for the blob
+                
                 const url = URL.createObjectURL(response.data);
+                
                 setPhotoUrl(url);
             } catch (error) {
                 console.error('Error fetching photo:', error);

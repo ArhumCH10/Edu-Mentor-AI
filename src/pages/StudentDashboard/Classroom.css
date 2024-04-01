@@ -1,0 +1,13 @@
+ 
+  .class-duration {
+    font-size: 0.8em;
+    color: var(--color-grey-500);
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  .timer {
+    color: red;
+    font-weight: bold;
+  }

@@ -61,11 +61,11 @@ export async function getUserData() {
 
 export async function photo({ fileStore }) {
     try {
-        console.log("My file data :", fileStore);
-
-        const token = localStorage.getItem("token"); // Retrieve the token from local storage
+        const token = localStorage.getItem("token");
+        console.log("Hello");
         const formData = new FormData();
         formData.append('photo', fileStore);
+        console.log(fileStore);
         const response = await axios.post("http://localhost:8080/photo", formData, {
             headers: {
                 Authorization: `Bearer ${token}`,

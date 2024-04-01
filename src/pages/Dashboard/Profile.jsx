@@ -1,19 +1,93 @@
 import Header from './header';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { RiVerifiedBadgeFill } from "react-icons/ri";
 import { TiDelete } from "react-icons/ti";
 import ReactPlayer from 'react-player';
-import { useGetPhoto } from '../TeacherSignUpProcess/useGetphoto';
 import { useUser } from '../../UserContext';
 import { useGetVideo } from './useGetVideo';
 import { Backend_URI } from '../../Config/Constant';
+import styled from "styled-components";
+import { usePhoto } from '../TeacherSignUpProcess/usePhoto';
+import { useGetPhoto } from '../TeacherSignUpProcess/useGetphoto';
+import Modal from '../../ui/TeacherModal';
+import Form from '../../ui/TeacherForm';
+import { useForm } from 'react-hook-form';
+import Button from '../../ui/TeacherButton';
+import FormRow from "../../ui/FormRow";
+import StyledFormRow from "../../ui/TeacherStyledFormRow";
+import Input from "../../ui/TeacherInput";
+import { useAbout } from '../TeacherSignUpProcess/useAbout';
+import FileInput from '../../ui/FileInput';
+import { useVideo } from '../TeacherSignUpProcess/useVideo';
 
+// const LevelBadge = styled.div`
+//   position: absolute;
+//   bottom: 1rem;
+//   right: -2rem; 
+//   background-color: #00b22d; 
+//   color: white;
+//   padding: 0.5rem 1rem;
+//   cursor: pointer;
+//   border-radius: 2.5rem;
+//   font-size: 0.8rem;
+//   font-weight: bold;
+//   text-transform: uppercase;
+//   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+//   z-index: 2; 
+// `;
+
+const ImageContainer = styled.div`
+  width: 100px; 
+  height: 100px;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  border-radius: 50%;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &:hover::after {
+    content: '📷';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    border-radius: 50%;
+  }
+`;
+
+const EditIcon = styled.span`
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  cursor: pointer;
+  /* You can use a real edit icon here */
+  &:after {
+    content: "✏️";
+  }
+`;
 
 export default function Profile() {
   const userData = useUser();
-  const profilePhoto = useGetPhoto();
+  const photoUrl = useGetPhoto(); 
+  const [photo, setPhoto] = useState(""); 
+  const { register, handleSubmit, formState } = useForm();
+  const { errors } = formState;
+  const [showForm, setShowForm] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
   const videoData = useGetVideo();
-
   const [fullUsername, setFullUsername] = useState('');
   const [aboutMeParagraph, setAboutMeParagraph] = useState('');
   const [teachLesson, setTeachLesson] = useState('');
@@ -22,7 +96,12 @@ export default function Profile() {
   const [certificates, setCertificates] = useState([]);
   //const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isVideo, setIsVideo] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { mutate } = usePhoto(setLoading);
+  const { mutate: aboutMutation } = useAbout(setLoading);
+  const { mutate: videoMutation } = useVideo(setLoading);
   const [isThubmnail, setIsThumbnail] = useState('');
+  const fileInputRef = useRef();
   //const [speciality, setSpeciality] = useState('');
 
  // const videoRef = useRef(null);
@@ -58,6 +137,71 @@ export default function Profile() {
   //     };
   //   }
   // }, [videoRef]);
+
+  const handleCloseModal = () => {
+    setShowForm(false);
+  };
+
+  const handleVideoModal = () => {
+    setShowVideo(false);
+  };
+
+  function onSubmit(data) {
+    const { firstName, lastName, subject } = data;
+    const username = `${firstName} ${lastName}`;
+    setFullUsername(username);
+    const Discription = `Teaches ${subject} lesson`;
+    setTeachLesson(Discription);
+    try {
+      aboutMutation({
+        firstName: firstName,
+        lastName: lastName,
+        subject: subject,
+      });
+      handleCloseModal(); 
+    } catch (error) {
+      console.error("Mutation failed:", error);
+    }
+  }
+
+  function onVideoSubmit(data) {
+    const { video, thumbnail } = data;
+    const videoFile = video.target.files[0];
+    console.log("video: ", videoFile);
+
+    const thumbnailFile = thumbnail.target.files[0];
+    try {
+      videoMutation({
+        data: videoFile,
+        thumbnail: thumbnailFile
+      });
+      handleVideoModal(); 
+    } catch (error) {
+      console.error("Mutation failed:", error);
+    }
+  }
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    setLoading(false);
+    console.log("loading:", loading);
+    setPhoto(URL.createObjectURL(file));
+    try {
+      mutate({
+        fileStore: file,
+      });
+    setLoading(false);
+    } catch (error) {
+      console.error("Mutation failed:", error);
+      setLoading(false);
+    }
+    setLoading(false);
+  };  
+
+  useEffect(() => {
+    setPhoto(photoUrl);
+  }, [photoUrl]);
+
   useEffect(() => {
     console.log(isVideo,isThubmnail);
     if (videoData?.videoData) {
@@ -247,47 +391,73 @@ export default function Profile() {
 
   }, [TotalReviws]);
 
-  // const svgStyle = {
-  //   width: '150%',
-  //   height: '100%',
-  //   top: '-200px',
-
-  // };
-  // const imageStyle = {
-  //   height: '80%',
-  //   width: '90%',
-  //   borderRadius: '50%',
-  //   clipPath: 'url(#profileImageClip)',
-  // };
-
   return (
     <>
       <Header />
-
       <div className="Profile-container ">
         <div className="Profile ">
           <div className="Profile-Top">
-            <div className='row' style={{ padding: 0 }}>
-              {profilePhoto && <img src={profilePhoto} alt="ProfilePic" style={{ height: '150px', width: '160px', borderRadius: '90px' }} />}
-              {/* <svg id="sw-js-blob-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={svgStyle}>
-            <defs>
-              <linearGradient id="sw-gradient" x1="0" x2="1" y1="1" y2="0">
-                <stop id="stop1" stopColor="rgba(255, 88.818, 10.168, 1)" offset="0%"></stop>
-                <stop id="stop2" stopColor="rgba(162.861, 152.78, 136.139, 1)" offset="100%"></stop>
-              </linearGradient>
-            </defs>
-            <path fill="none" d="M19.2,-34.4C22.3,-31.5,20.6,-21.1,20.4,-14.2C20.3,-7.2,21.9,-3.6,25.1,1.8C28.3,7.3,33.1,14.6,31,17.8C29,21,20,20,13.7,22.3C7.4,24.5,3.7,29.9,0.3,29.3C-3,28.7,-6,22.1,-12.1,19.8C-18.2,17.4,-27.4,19.3,-33.5,16.7C-39.6,14.1,-42.6,7,-40.9,1C-39.2,-5.1,-32.8,-10.2,-27.9,-14.8C-23,-19.4,-19.5,-23.7,-15.1,-25.8C-10.7,-28,-5.4,-28.1,1.3,-30.4C8,-32.8,16.1,-37.3,19.2,-34.4Z" transform="translate(50 50)" strokeWidth="1" style={{ transition: 'all 0.3s ease 0s' }} stroke="url(#sw-gradient)"></path>
-            <clipPath id="profileImageClip">
-            <path fill="none" d="M19.2,-34.4C22.3,-31.5,20.6,-21.1,20.4,-14.2C20.3,-7.2,21.9,-3.6,25.1,1.8C28.3,7.3,33.1,14.6,31,17.8C29,21,20,20,13.7,22.3C7.4,24.5,3.7,29.9,0.3,29.3C-3,28.7,-6,22.1,-12.1,19.8C-18.2,17.4,-27.4,19.3,-33.5,16.7C-39.6,14.1,-42.6,7,-40.9,1C-39.2,-5.1,-32.8,-10.2,-27.9,-14.8C-23,-19.4,-19.5,-23.7,-15.1,-25.8C-10.7,-28,-5.4,-28.1,1.3,-30.4C8,-32.8,16.1,-37.3,19.2,-34.4Z" transform="translate(50 50)" strokeWidth="1" style={{ transition: 'all 0.3s ease 0s' }} stroke="url(#sw-gradient)"></path>
-           
-            </clipPath>
-            <image xlinkHref={profilePhoto} style={imageStyle} />
-              </svg> */}
-            </div>
+          <EditIcon onClick={() => setShowForm((show) => !show)} />
+         <ImageContainer onClick={() => fileInputRef.current.click()}>
+          <input
+                type="file"
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+              /> 
+            {photo || photoUrl ? <img src={photo} /> : 
+             <img src={"/public/default-user.jpg"}/> }
+            {/* <LevelBadge>New Student</LevelBadge> */}
+            </ImageContainer>
             <div ><strong>{fullUsername}</strong> </div>
             <div className="mx-3"><small> {teachLesson} </small> </div>
             <div> <span style={{ color: 'gold' }}> {generateStars(ratings)} </span><strong>{ratings} ({TotalReviws} reviews)</strong>  </div>
         </div>
+
+        {showForm && <Modal onClose={handleCloseModal}>
+           
+           <Form onSubmit={handleSubmit(onSubmit)}>
+           <StyledFormRow labelName='Enter First Name' error={errors?.firstName?.message}>
+           <Input
+               type="text"
+               id="firstName"
+              //  defaultValue={Name}
+               {...register("firstName", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+
+           <StyledFormRow labelName='Enter Last Name' error={errors?.lastName?.message}>
+           <Input
+               type="text"
+               id="lastName"
+              //  defaultValue={Name}
+               {...register("lastName", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+     
+           <StyledFormRow labelName='Enter Subject you teach' error={errors?.subject?.message}>
+           <Input
+               type="text"
+               id="subject"
+              //  defaultValue={Country}
+               {...register("subject", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+     
+           <FormRow>
+             <Button onClick={handleCloseModal} variation="secondary" type="reset">
+               Cancel
+             </Button>
+             <Button>Submit</Button>
+             </FormRow>
+           </Form>
+       </Modal>}
 
           <div className='Profile-Bottom '>
             <div className='row' style={{ marginTop: 3 }}>
@@ -322,17 +492,48 @@ export default function Profile() {
             <div className='row' style={{ marginTop: 3 }}>
               <strong className='col-9'>Earned in {CurrentMonth} </strong>
               <strong className='col-3'>  ${MonthEarn}</strong></div>
+
           </div>
         </div>
-        <div className="Portfolio-video " >
+        <div className="Portfolio-video" >
+        <EditIcon onClick={() => setShowVideo((show) => !show)} />
           <h4 style={{ marginLeft: 10 }}>Portfolio Video</h4>
           <ReactPlayer
           url={`${Backend_URI}/${isVideo}`}  // Replace 'isVideo' with your video URL
           controls
           height={230}
           width={350}
-        
         />
+           {showVideo && <Modal onClose={handleVideoModal}>
+           <Form onSubmit={handleSubmit(onVideoSubmit)}>
+           <FormRow>
+            <StyledFormRow labelName='Upload your video' error={errors?.video?.message}>
+             <FileInput id="video" type="file" accept="video/*" 
+            {...register("video", {
+               required: "This Field is Required",
+            })}
+               />
+              </StyledFormRow>
+           </FormRow>
+
+           <FormRow>
+            <StyledFormRow labelName='Upload Thumbnail' error={errors?.thumbnail?.message}>
+             <FileInput id="thumbnail" type="file" accept="image/*" 
+            {...register("thumbnail", {
+               required: "This Field is Required",
+            })}
+               />
+              </StyledFormRow>
+           </FormRow>
+
+           <FormRow>
+             <Button onClick={handleVideoModal} variation="secondary" type="reset">
+               Cancel
+             </Button>
+             <Button>Submit</Button>
+             </FormRow>
+           </Form>
+       </Modal>}
           
         </div>
         <div className="About ">

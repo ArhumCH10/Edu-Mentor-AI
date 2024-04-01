@@ -225,6 +225,7 @@
 
 }
 .Profile-Top{
+  position: relative;
   margin-top: 30px;
   display: flex;
   flex-direction: column;
@@ -235,11 +236,12 @@
   width: 90%;
   margin-left: 2rem;
   font-size: 18px;
-
-
 }
+
 .Portfolio-video {
+  position: relative;
   grid-area: Portfolio-video;
+  
   border-radius: 30px;
   background-color: white;
   overflow: hidden;
