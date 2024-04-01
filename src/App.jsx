@@ -42,30 +42,6 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <DarkModeProvider>
-      {/* <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          <Router>
-            <Routes>
-              <Route index element={<MainLayout />} />
-              <Route path="/get-started/*" element={<GetStartedMain />} />
-              <Route path="/tutors-search/*" element={<TutorsSearch />} />
-              <Route path="/tutor/*" element={<TutorProfile />} />
-              <Route path="/sign-up" element={<SignUpMain />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/dashboardlinks/*"
-                element={
-                  <PrivateRoute
-                    element={<DashboardLinks />}
-                    path="/dashboardlinks/*"
-                  />
-                }
-              />
-            </Routes>
-          </Router>
-        </Provider>
-      </QueryClientProvider> */}
-
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
           <Router>
@@ -73,7 +49,7 @@ export default function App() {
               <Route index element={<MainLayout />} />
               <Route path="/get-started/*" element={<GetStartedMain />} />
               <Route path="/tutors-search/*" element={<TutorsSearch />} />
-              <Route path="/tutor/*" element={<TutorProfile />} />
+              <Route path="/tutor" element={<TutorProfile />} />
 
               <Route path="/sign-up" element={<SignUpMain />} />
               <Route path="/login" element={<LoginPage />} />
