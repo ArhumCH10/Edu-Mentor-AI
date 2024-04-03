@@ -4,6 +4,7 @@ import { useState } from "react";
 import Select from "react-select";
 import { useSearchParams } from 'react-router-dom';
 import NavBar from "../../../ui/NavBar";
+import AlternativeNavbar from "../../../ui/AlternativeNavbar";
 import './TutorSearch.css';
 //import { useTotalTutor } from "../../../services/useTotalTutor";
 import ReactSlider from 'react-slider'
@@ -17,14 +18,20 @@ import { PiStudentDuotone } from "react-icons/pi";
 import { IoSearch } from "react-icons/io5";
 //import { Backend_URI } from '../../Config/Constant';
 import ReactPlayer from 'react-player';
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 import TutorSearchFooter from "./TutorSearchFooter";
 import ReactPaginate from 'react-paginate';
-import toast from "react-hot-toast";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useSearchTutors } from './useSearchTutors';
 import SkeletonLoader from './SkeletonLoader';
 import { Backend_URI } from '../../../Config/Constant'
 import { Modal, Form } from "react-bootstrap";
 import ScheduleModal  from "./ScheduleModal";
+import { useSignin } from "./useSignin";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 
 const StyledSlider = styled(ReactSlider)`
@@ -146,12 +153,97 @@ function TutorsSearch() {
 
     };
 
+    const [loadingState, setLoadingstate] = useState(false);
+    const [validationError, setValidationError] = useState("");
+    const [verifyshowModal, setVerifyshowModal] = useState(false);
+  
+    const [formValues, setFormValues] = useState({
+      code1: "",
+      code2: "",
+      code3: "",
+      code4: "",
+      code5: "",
+      code6: "",
+    });
+  
+    const inputRefs = {
+      code1: useRef(null),
+      code2: useRef(null),
+      code3: useRef(null),
+      code4: useRef(null),
+      code5: useRef(null),
+      code6: useRef(null),
+    };
+  
+    const handleInputChange = (e, inputName) => {
+      const { value } = e.target;
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        [inputName]: value,
+      }));
+  
+      // Focus on the next input field if there is one
+      const currentIndex = Number(inputName.charAt(inputName.length - 1));
+      if (currentIndex < 6) {
+        const nextInputName = `code${currentIndex + 1}`;
+        inputRefs[nextInputName].current.focus();
+      }
+    };
+  
+    const handleData = async (e) => {
+      e.preventDefault();
+      const concatenatedValue = Object.values(formValues).join("");
+      console.log("Code Value:", concatenatedValue);
+      setLoadingstate(true);
+      const email = localStorage.getItem("email"); // Retrieve email from local storage
+  
+      try {
+        const response = await axios.post(
+          "http://localhost:8080/student/verify",
+          {
+            concatenatedValue: concatenatedValue,
+            email: email, // Include email in the request payload
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("API Response:", response);
+        setLoadingstate(false);
+  
+        if (response.status === 200) {
+          console.log("email Verification successful");
+          console.log("API Response:", response.data);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+  
+          navigate("/tutors-search/*");
+        } else if (response.status === 400) {
+          console.error("Validation error response:", response.data);
+  
+          if (response.data && response.data.error) {
+            setValidationError(response.data.error);
+          } else {
+            setValidationError("Invalid Code");
+          }
+  
+          console.error("Verification failed with status code:", response.status);
+        }
+      } catch (error) {
+        setLoadingstate(false);
+        setValidationError("Invalid Code");
+        console.error("verification error:", error);
+      }
+    };
+
     const handleSelectChange = async (selectedOption) => {
         const selectedValue = selectedOption.value;
         setSelectedSubject(selectedOption);
         setMySubject({ subject: selectedValue });
         setSearchQuery({ subject: selectedValue });
     };
+
 
 
     const handleClear = () => {
@@ -231,6 +323,8 @@ function TutorsSearch() {
     const [minPrice, setMinPrice] = useState(1);
     const [maxPrice, setMaxPrice] = useState(100);
     const [isRangeModal, setRangeModal] = useState(false);
+    const navigate = useNavigate();
+
 
     const OpenRangeModal = () => {
 
@@ -393,12 +487,16 @@ function TutorsSearch() {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailPattern.test(email);
     };
-
+    
     const [signUpEmail, setSignUpEmail] = useState('');
     const [signUpPassword, setSignUpPassword] = useState('');
+    const [signUpStudentName, setSignUpStudentName] = useState('');
+    const [signUpStudentEmail, setSignUpStudentEmail] = useState('');
+    const [signUpStudentPassword, setSignUpStudentPassword] = useState('');
     const [SignUpshowModal, setSignUpShowModal] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showScheduleModal, setCloseScheduleModal] = useState(false);
+    const handleCloseVerifyModal = () => setVerifyshowModal(false);
 
     const handleShowScheduleModal = () => {
         setCloseScheduleModal(true); 
@@ -426,8 +524,45 @@ function TutorsSearch() {
         setSignUpPassword('');
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
+        const { name, studentemail, studentpassword } = event.target.elements; 
+
+        try {
+          // Make a POST request to the backend
+          const response = await axios.post(
+            "http://localhost:8080/student/signup",
+            {
+              name: name.value,
+              email: studentemail.value,
+              password: studentpassword.value,
+            }
+          );
+    
+          console.log("Response from backend:", response.data);
+    
+        if (response.status === 200) {
+            // Show success toast and navigate to verify page
+            toast.success("Verification code sent on email");
+            localStorage.setItem("email", studentemail);
+            setVerifyshowModal(true);
+          }
+        } catch (error) {
+            if (error.response.status === 409) {
+                // Show toast message for already registered as a student
+                toast.error("This email is already registered");
+                console.log("Email already registered");
+              } else if (error.response.status === 400) {
+                // Show toast message for already registered as a teacher
+                toast.error("This email is already registered as a teacher");
+                console.log("Email already registered as teacher");
+              }
+              else if (error.response.status === 401) {
+                // Show toast message for already registered as a teacher
+                toast.error("Password must be at least 8 characters long and contain at least one capital letter and one special character.");
+                console.log("Email already registered as teacher");
+              }
+        }
     };
 
     const handleShowLoginModal = () => {
@@ -437,17 +572,26 @@ function TutorsSearch() {
         setShowLoginModal(true);
     }
     const handleCloseLoginModal = () => setShowLoginModal(false);
+    const { mutate: login } = useSignin({ setSignUpEmail, setSignUpPassword, handleShowScheduleModal });
+    const token = localStorage.getItem('token');
 
     const handleLogin = (e) => {
-        // Handle form submission
         e.preventDefault();
-        // Your form submission logic here
+        const { email, password } = e.target.elements; 
+        setShowLoginModal(false);
+        login({ studentemail: email.value, studentpassword: password.value})
+            .catch((error) => {
+                console.error("Mutation failed:", error);
+            });
     };
     
     return (
         <>
+        <ToastContainer />
             <div className="CovertNavStatic">
+                {token ? <AlternativeNavbar currentImageIndex={0}/> :
                 <NavBar currentImageIndex={0} />
+                }
             </div>
 
             <div>
@@ -673,9 +817,86 @@ function TutorsSearch() {
                                                     </div>
                                                 </div>
                                                 <div className="row">
+                                                    {!token ?
                                                     <button className="btn" onClick={handleShowSignUpModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
-                                                        Book a trail
-                                                    </button>
+                                                        Book a trial
+                                                    </button> : 
+                                                      <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                      Book a trial
+                                                  </button>
+                                                    }
+
+                   <Modal show={verifyshowModal} onHide={handleCloseVerifyModal} centered className="modal-signup">
+
+                 <Modal.Body>
+                 <div className="m-5 d-flex justify-content-center align-items-center vh-100">
+      {loadingState ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Box sx={{ display: "flex" }}>
+            <CircularProgress />
+          </Box>
+        </div>
+      ) : (
+        <div
+          style={{
+            width: "20rem",
+            border: "1px solid grey",
+            padding: "20px 15px",
+            borderRadius: "10px",
+            boxShadow: "5px 10px 18px #888888",
+            marginBottom: "350px",
+          }}
+        >
+          <form onSubmit={handleData}>
+            <h4
+              className="text-center mb-4"
+              style={{ color: "#233D7B", fontWeight: "bold" }}
+            >
+              Enter your code
+            </h4>
+            <p className="text-center mb-4">
+              Please enter the Code received on your email for verification.
+            </p>
+            <div className="d-flex mb-3">
+              {Array.from({ length: 6 }, (_, i) => (
+                <input
+                  key={i}
+                  type="tel"
+                  name={`code${i + 1}`}
+                  maxLength="1"
+                  pattern="[0-9]"
+                  value={formValues[`code${i + 1}`]}
+                  onChange={(e) => handleInputChange(e, `code${i + 1}`)}
+                  className="form-control"
+                  style={{ margin: "0px 5px" }}
+                  required
+                  ref={inputRefs[`code${i + 1}`]}
+                />
+              ))}
+            </div>
+            <button
+              type="submit"
+              className="w-100 btn btn-primary"
+              style={{ background: "#318F3A" }}
+            >
+              Verify account
+            </button>
+            {validationError && (
+              <div className="alert alert-danger mt-3">{validationError}</div>
+            )}
+          </form>
+        </div>
+      )}
+    </div>
+                </Modal.Body>
+                 </Modal>
+                                                    
                                                     <Modal show={SignUpshowModal} onHide={handleCloseSignUpModal} centered className="modal-signup">
 
                                                         <Modal.Body>
@@ -702,25 +923,36 @@ function TutorsSearch() {
                                                             </button>
 
                                                             <Form onSubmit={handleSubmit}>
-                                                                <Form.Group controlId="email">
+                                                            <Form.Group controlId="name">
+                                                                    <Form.Label>Name</Form.Label>
+                                                                    <Form.Control
+                                                                        type="text"
+                                                                        className="w-100"
+                                                                        placeholder="Enter name"
+                                                                        value={signUpStudentName}
+                                                                        onChange={(e) => setSignUpStudentName(e.target.value)}
+                                                                        required
+                                                                    />
+                                                                </Form.Group>
+                                                                <Form.Group controlId="studentemail">
                                                                     <Form.Label>Email</Form.Label>
                                                                     <Form.Control
                                                                         type="email"
                                                                         className="w-100"
                                                                         placeholder="Enter email"
-                                                                        value={signUpEmail}
-                                                                        onChange={(e) => setSignUpEmail(e.target.value)}
+                                                                        value={signUpStudentEmail}
+                                                                        onChange={(e) => setSignUpStudentEmail(e.target.value)}
                                                                         required
                                                                     />
                                                                 </Form.Group>
-                                                                <Form.Group controlId="password">
+                                                                <Form.Group controlId="studentpassword">
                                                                     <Form.Label>Password</Form.Label>
                                                                     <Form.Control
                                                                         type="password"
                                                                         className="w-100"
                                                                         placeholder="Enter password"
-                                                                        value={signUpPassword}
-                                                                        onChange={(e) => setSignUpPassword(e.target.value)}
+                                                                        value={signUpStudentPassword}
+                                                                        onChange={(e) => setSignUpStudentPassword(e.target.value)}
                                                                         required
                                                                     />
                                                                 </Form.Group>
@@ -791,10 +1023,17 @@ function TutorsSearch() {
                                                     </Modal>
                                                     <ScheduleModal availability={index.availability} showScheduleModal={showScheduleModal} handleCloseScheduleModal={handleCloseScheduleModal} profilePhoto={index.profilePhoto} />
                                                 </div>
+                                                
                                                 <div className="row">
-                                                    <button onClick={handleShowScheduleModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                {!token ?
+                                                    <button onClick={handleShowSignUpModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
                                                         Send Message
                                                     </button>
+                                                    :
+                                                    <button onClick={handleShowScheduleModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                    Send Message
+                                                </button>
+                                                 }
                                                 </div>
                                             </div>
 
@@ -805,7 +1044,7 @@ function TutorsSearch() {
                                             <div className="row" style={{ width: '90%', marginLeft: '18px', padding: '2px' }}>
                                                 <ReactPlayer
                                                     style={{ border: '2px solid black', borderRadius: '5px', padding: 0 }}
-                                                    url={`${Backend_URI}/${index.video.data}`}
+                                                   // url={`${Backend_URI}/${index.video.data}`}
                                                     controls
                                                     height={230}
                                                     width={350}
@@ -817,7 +1056,7 @@ function TutorsSearch() {
                                                     config={{
                                                         file: {
                                                             attributes: {
-                                                                poster: `${Backend_URI}/${index.video.thumbnail}`
+                                                                //poster: `${Backend_URI}/${index.video.thumbnail}`
                                                             }
                                                         }
                                                     }}

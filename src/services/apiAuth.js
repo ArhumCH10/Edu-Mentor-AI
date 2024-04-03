@@ -62,3 +62,24 @@ export async function login({ email, password }) {
       throw error; // Re-throw the error for React Query to handle
     }
 }
+
+export async function loginStudent({ studentemail, studentpassword }) {
+  const response = await axios.post("http://localhost:8080/student/login", {
+    email: studentemail,
+    password: studentpassword,
+  });
+
+  const token = response.data.token;
+  localStorage.setItem('token', token);
+  document.cookie = `token=${token}; path=/; samesite=strict; secure`;
+
+  if (response.status === 300) {
+    if (response.data.isVerified === false) {
+      return { isVerified: false };
+    }
+  }
+
+  localStorage.setItem("user", JSON.stringify(response.data.user));
+
+  return { isVerified: true, data: response.data };
+}

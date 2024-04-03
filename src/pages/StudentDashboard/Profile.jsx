@@ -57,7 +57,7 @@ const ImageContainer = styled.div`
   position: relative;
   display: inline-block;
   border-radius: 50%; /* Match the border-radius with the image */
-  overflow: hidden;
+  /* overflow: hidden; */
   &:hover::after {
     content: '📷';
     position: absolute;
@@ -341,8 +341,8 @@ const otherData = async (data) => {
                 ref={fileInputRef}
                 onChange={handleImageUpload}
               />
-            {Photo ? <img src={handleImageSrc(Photo)} /> : 
-             <img src={"/public/default-user.jpg"}/> }
+            {Photo ? <img style={{overflow:'hidden',borderRadius: '50%',height: '100px', width: '100px'}} src={handleImageSrc(Photo)} /> : 
+             <img style={{overflow:'hidden',borderRadius: '50%',height: '100px', width: '100px'}} src={"/public/default-user.jpg"}/> }
             <LevelBadge>New Student</LevelBadge>
             </ImageContainer>
             {/* Profile Name */}
