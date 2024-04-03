@@ -5,6 +5,7 @@ import './Lessons.css';
 import NewReq from './NewReq';
 import TrialLessons from './TrialLessons';
 import CancellReq from './CancelReq';
+import OpenCourse from './OpenCourse';
 
 const lessonsData = [
   {
@@ -83,9 +84,9 @@ const tutors = [
 const NewComponent = () => {
   return (
     <>
-    <Row type="horizontal">
-      <Heading as="head1">New Requests</Heading>
-    </Row>
+      <Row type="horizontal">
+        <Heading as="head1">New Requests</Heading>
+      </Row>
       {tutors.map((tutor, index) => (
         <NewReq key={index} tutor={tutor} />
       ))}
@@ -94,8 +95,9 @@ const NewComponent = () => {
 };
 
 function Lessons() {
+  const [openCourse, setOpenCourse] = useState(false);
 
-  const [activeTab, setActiveTab] = useState('lessons'); 
+  const [activeTab, setActiveTab] = useState('lessons');
   const [activeLessonsCount, setActiveLessonsCount] = useState(0);
   const [newRequestsCount, setNewRequestsCount] = useState(0);
   const [trialLessonsCount, setTrialLessonsCount] = useState(0);
@@ -109,60 +111,69 @@ function Lessons() {
   }, []);
 
   const handleTabClick = (tabName) => {
-    setActiveTab(tabName); 
+    setActiveTab(tabName);
+  };
+
+  const handleCourseClick = () => {
+    setOpenCourse(true);
   };
 
   return (
     <>
-     <div className="tabing">
-        <div className={activeTab === 'lessons' ? 'start' : ''} onClick={() => handleTabClick('lessons')}>
-          Active Lessons {activeLessonsCount > 0 && `(${activeLessonsCount})`}
-        </div>
-        <div className={activeTab === 'new' ? 'start' : ''} onClick={() => handleTabClick('new')}>
-          New Requests {newRequestsCount > 0 && `(${newRequestsCount})`}
-        </div>
-        <div className={activeTab === 'trial' ? 'start' : ''} onClick={() => handleTabClick('trial')}>
-          Trial Lessons {trialLessonsCount > 0 && `(${trialLessonsCount})`}
-        </div>
-        <div className={activeTab === 'cancel' ? 'start' : ''} onClick={() => handleTabClick('cancel')}>
-          Cancel Requests {cancelledCount > 0 && `(${cancelledCount})`}
-        </div>
-      </div>
-    {activeTab === 'lessons' && (
-        <>
-    <Row type="horizontal">
-      <Heading as="head1">Active Lessons</Heading>
-    </Row>
-     <div className="active-container">
-       {lessonsData.map((lesson, index) => (
-         <div className="lesson-card" key={index}>
-           <div className="student-lesson-header">{lesson.title}</div>
-           <div className="student-lesson-body">
-             <h3>{lesson.instructor}</h3>
-             <p>{lesson.code} Credits: {lesson.credits}</p>
-             <p>{lesson.status}</p>
-             <p>Projected Grade: {lesson.grade}</p>
-             <p>Attendance: {lesson.attendance} {lesson.term}</p>
-           </div>
-         </div>
-       ))}
-     </div>
-   </>
-    
-    )
-   }
-   {activeTab === 'new' && (
-        <NewComponent />
-      )}
+      {!openCourse ? (
+         <>
+          <div className="tabing">
+            <div className={activeTab === 'lessons' ? 'start' : ''} onClick={() => handleTabClick('lessons')}>
+              Active Lessons {activeLessonsCount > 0 && `(${activeLessonsCount})`}
+            </div>
+            <div className={activeTab === 'new' ? 'start' : ''} onClick={() => handleTabClick('new')}>
+              New Requests {newRequestsCount > 0 && `(${newRequestsCount})`}
+            </div>
+            <div className={activeTab === 'trial' ? 'start' : ''} onClick={() => handleTabClick('trial')}>
+              Trial Lessons {trialLessonsCount > 0 && `(${trialLessonsCount})`}
+            </div>
+            <div className={activeTab === 'cancel' ? 'start' : ''} onClick={() => handleTabClick('cancel')}>
+              Cancel Requests {cancelledCount > 0 && `(${cancelledCount})`}
+            </div>
+          </div>
+          {activeTab === 'lessons' && (
+            <>
+              <Row type="horizontal">
+                <Heading as="head1">Active Lessons</Heading>
+              </Row>
+              <div className="active-container">
+                {lessonsData.map((lesson, index) => (
+                  <div className="lesson-card" key={index} onClick={handleCourseClick}>
+                    <div className="student-lesson-header">{lesson.title}</div>
+                    <div className="student-lesson-body">
+                      <h3>{lesson.instructor}</h3>
+                      <p>{lesson.code} Credits: {lesson.credits}</p>
+                      <p>{lesson.status}</p>
+                      <p>Projected Grade: {lesson.grade}</p>
+                      <p>Attendance: {lesson.attendance} {lesson.term}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
 
-{activeTab === 'trial' && (
-        <TrialLessons/>
-      )}
+          )
+          }
+          {activeTab === 'new' && (
+            <NewComponent />
+          )}
 
-      {activeTab === 'cancel' && (
-        <CancellReq/>
-      )}
+          {activeTab === 'trial' && (
+            <TrialLessons />
+          )}
 
+          {activeTab === 'cancel' && (
+            <CancellReq />
+          )}
+        </>
+      ) : (
+        <OpenCourse setOpenCourse={setOpenCourse}/>
+      )}
     </>
   );
 }
