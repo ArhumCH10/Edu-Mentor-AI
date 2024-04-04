@@ -6,7 +6,7 @@ import { IoReturnUpBackOutline } from "react-icons/io5";
 import PropTypes from 'prop-types';
 import { makeStyles } from "@material-ui/core/styles";
 import { Table } from "react-bootstrap"; import { IoCloudDownloadSharp } from "react-icons/io5";
-
+import React from 'react';
 const useStyles = makeStyles(() => ({
 
     tab: {
@@ -61,6 +61,13 @@ const OpenCourse = ({ setOpenCourse }) => {
             { id: 7, date: "2024-03-28", status: "Present" },
             { id: 8, date: "2024-03-28", status: "Present" },
             { id: 9, date: "2024-04-01", status: "Leave" },
+        ]
+    };
+    const gradebookData = {
+        course: "Programming for Big Data",
+        courseCode: "SEGE4963-S24-BS-SE-F20-T9",
+        assessments: [
+            { type: "Quiz", MaxMarks: 15.0, obtainMarks: 8.0 },
         ]
     };
     return (
@@ -132,7 +139,8 @@ const OpenCourse = ({ setOpenCourse }) => {
                     </div>
 
                 </div>
-            )}  {value === 1 && (
+            )}
+            {value === 1 && (
                 <div style={{ padding: "20px" }}>
                     <p style={{ marginBottom: "12px" }}>
                         Intro to Machine Learning (SECP4073-S24-BS-SE-F20-T9)
@@ -178,41 +186,103 @@ const OpenCourse = ({ setOpenCourse }) => {
                         </Table>
                     </div>
                 </div>
-            )} {value === 3 && (
-                <div   >
-                    <div className="row ">
-                        <div className="col-3 " style={{border:"2px solid"}}>
-                            <div className="row">
-                                <b>Course :</b>
-                                <span>{attendanceData.course}</span>
+            )}
+            {value === 2 && (
+                <div style={{ padding: "20px" }}>
+                    <p style={{ marginBottom: "12px" }}>
+                        {gradebookData.course} {(gradebookData.courseCode)}
+                    </p>
+                    <div>
+                        <Table striped hover>
+                            <thead style={{ backgroundColor: "#112B4F", color: "white" }}>
+                                <tr>
+                                    <th>Assessment Type</th>
+                                    <th>Obtained Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {gradebookData.assessments.length > 0 ? (
+                                    gradebookData.assessments.map((grade, index) => (
+                                        <React.Fragment key={index}>
+                                            <tr data-bs-toggle="collapse" href={`#collapse${index}`}>
+                                                <td>{grade.type}</td>
+                                                <td>{(grade.obtainMarks/grade.MaxMarks)*100}</td>
+                                            </tr>
+                                            <tr>
+                                                <Table striped hover  className="collapse multi-collapse" id={`collapse${index}`}>
+                                                    <thead style={{ backgroundColor: "#112B4F", color: "white" }}>
+                                                        <tr>
+                                                            <th>Assessment</th>
+                                                            <th>Max Marks</th>
+                                                            <th>Obtain Marks</th>
+                                                            <th>Percentage </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                            <tr key={index}>
+                                                                <td>{grade.type}</td>
+                                                                <td>{grade.MaxMarks}</td>
+                                                                <td>{grade.obtainMarks}</td>
+                                                                <td>{((grade.obtainMarks / grade.MaxMarks) * 100).toFixed(2)}%</td>
+                                                            </tr>
+                                                    </tbody>
+                                                </Table>
+                                                {/* <td colSpan="2">
+                                                    <div>
+                                                        <p>Total Marks: {grade.weightage}</p>
+                                                        <p>Obtained Marks: {grade.obtainedMarks}</p>
+                                                        <p>Percentage: {((grade.obtainedMarks / grade.weightage) * 100).toFixed(2)}%</p>
+                                                    </div>
+                                                </td> */}
+                                            </tr>
+                                        </React.Fragment>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="2">No data found</td>
+                                    </tr>
+                                )}
+                            </tbody>
 
+                        </Table>
+                    </div>
+                </div>
+
+            )}
+
+            {value === 3 && (
+                <div style={{ padding: "20px" }} >
+                    <div className="row " style={{ padding: "20px" }}>
+                        <div className="col-4" >
+                            <div className="row" style={{ display: "inline", alignItems: "center" }}>
+                                <b  >Course:</b>
+                                <span>{attendanceData.course}</span> <br />
                             </div>
-                            <div className="row">
-                                <b>Course Code :</b>
-                                <span>{attendanceData.courseCode}</span>
-
+                            <div className="row" style={{ display: "inline", alignItems: "center" }}>
+                                <b style={{ marginLeft: "12px", padding: "3px" }}>Course Code:</b>
+                                <span  >{attendanceData.courseCode}</span>
                             </div>
                         </div>
-                        <div className="Col-3"  style={{border:"2px solid"}}>
-                            <div className="row">
-                                <b>Number of classes Conducted :</b>
-                                <span>{attendanceData.classesConducted}</span>
+                        <div className="col-4" >
+                            <div className="row" style={{ display: "inline", alignItems: "center" }}>
+                                <b>Number of classes Conducted:</b>
+                                <span>{attendanceData.classesConducted}</span> <br />
 
                             </div>
-                            <div className="row">
-                                <b>Number of classes Attended :</b>
+                            <div className="row" style={{ display: "inline", alignItems: "center" }}>
+                                <b style={{ marginLeft: "8px" }}>Number of classes Attended:</b>
                                 <span>{attendanceData.classesAttended}</span>
 
                             </div>
                         </div>
-                        <div className="col-3"  style={{border:"2px solid"}}>
-                            <div className="row">
-                                <b>Academic Term :</b>
-                                <span>{attendanceData.academicTerm}</span>
+                        <div className="col-4"  >
+                            <div className="row" style={{ display: "inline", alignItems: "center" }}>
+                                <b >Academic Term:</b>
+                                <span>{attendanceData.academicTerm}</span> <br />
 
                             </div>
-                            <div className="row">
-                                <b>Attendance Percentage:</b>
+                            <div className="row" style={{ display: "inline", alignItems: "center" }}>
+                                <b style={{ marginLeft: "8px" }}>Attendance Percentage:</b>
                                 <span>{attendanceData.attendancePercentage}</span>
 
                             </div>
@@ -225,7 +295,7 @@ const OpenCourse = ({ setOpenCourse }) => {
                                     <tr>
                                         <th>Sr. no</th>
                                         <th>Date</th>
-                                        <th>Status</th> 
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody style={{ color: "black" }}>
@@ -233,7 +303,7 @@ const OpenCourse = ({ setOpenCourse }) => {
                                         <tr key={record.id}>
                                             <td>{record.id}</td>
                                             <td>{record.date}</td>
-                                            <td>{record.status}</td> 
+                                            <td>{record.status}</td>
                                         </tr>
                                     ))}
                                 </tbody>
