@@ -70,6 +70,11 @@ const OpenCourse = ({ setOpenCourse }) => {
             { type: "Quiz", MaxMarks: 15.0, obtainMarks: 8.0 },
         ]
     };
+    const announcement ={
+        course: "Programming for Big Data",
+        courseCode: "SEGE4963-S24-BS-SE-F20-T9",
+        annouce: []
+    };
     return (
         <div className="row" style={{ marginLeft: "-40px" }}>
 
@@ -85,6 +90,10 @@ const OpenCourse = ({ setOpenCourse }) => {
                         aria-label="Course Tabs"
                         className={classes.tabs}
                     >
+                        <Tab
+                            style={{ color: "var(--color-grey-700)", fontWeight: "bold", fontSize: "15px" }}
+                            label="Announcement"
+                        />
                         <Tab
                             style={{ color: "var(--color-grey-700)", fontWeight: "bold", fontSize: "15px" }}
                             label="Course Material"
@@ -105,7 +114,47 @@ const OpenCourse = ({ setOpenCourse }) => {
                     </Tabs>
                 </AppBar>
 
-            </div>{value === 0 && (
+            </div>
+            {value === 0 && (
+                <div style={{ padding: "20px" }}>
+                    <p style={{ marginBottom: "12px" }}>
+                        Intro to Machine Learning (SECP4073-S24-BS-SE-F20-T9)
+                    </p>
+                    <div>
+                        <Table striped hover>
+                            <thead style={{ backgroundColor: "#112B4F", color: "white" }}>
+                                <tr>
+                                    <th className="uk-width-1-10">Sr No.</th>
+                                    <th className="uk-width-1-10">Subject</th>
+                                    <th className="uk-width-7-10">Date</th>
+                                    <th className="uk-width-7-10">Description</th>
+                                    <th className="uk-width-1-10">Attachment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {announcement.annouce.length > 0 ? (
+                                    announcement.annouce.map((announcement,index   ) => (
+                                        <tr key={index} className="table-child-row">
+                                            <td className="uk-width-1-10">{index + 1}</td>
+                                            <td className="uk-width-1-10">{announcement.subject}</td>
+                                            <td className="uk-width-7-10">{announcement.date}</td>
+                                            <td className="uk-width-7-10">{announcement.description}</td>
+                                            <td className="uk-width-1-10">{announcement.link?<a data-uk-tooltip="{pos:'top'}" title="Download" id="downlaod_file" href={announcement.link}>
+                                                    < IoCloudDownloadSharp style={{ marginLeft: '20px' }} />
+    
+                                                </a>:""}</td>
+                                        </tr>
+                                    ))):( 
+                                    <tr>
+                                        <td colSpan="7">No data found</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </Table>
+                    </div>
+                </div>
+            )}
+            {value === 1 && (
                 <div style={{ padding: "20px" }}  >
                     <p style={{ marginBottom: "12px" }}>
                         Intro to Machine Learning (SECP4073-S24-BS-SE-F20-T9)
@@ -140,7 +189,7 @@ const OpenCourse = ({ setOpenCourse }) => {
 
                 </div>
             )}
-            {value === 1 && (
+            {value === 2 && (
                 <div style={{ padding: "20px" }}>
                     <p style={{ marginBottom: "12px" }}>
                         Intro to Machine Learning (SECP4073-S24-BS-SE-F20-T9)
@@ -187,7 +236,7 @@ const OpenCourse = ({ setOpenCourse }) => {
                     </div>
                 </div>
             )}
-            {value === 2 && (
+            {value === 3 && (
                 <div style={{ padding: "20px" }}>
                     <p style={{ marginBottom: "12px" }}>
                         {gradebookData.course} {(gradebookData.courseCode)}
@@ -250,7 +299,7 @@ const OpenCourse = ({ setOpenCourse }) => {
 
             )}
 
-            {value === 3 && (
+            {value === 4 && (
                 <div style={{ padding: "20px" }} >
                     <div className="row " style={{ padding: "20px" }}>
                         <div className="col-4" >
