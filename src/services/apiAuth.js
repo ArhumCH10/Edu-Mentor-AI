@@ -63,7 +63,7 @@ export async function login({ email, password }) {
     }
 }
 
-export async function loginStudent({ studentemail, studentpassword }) {
+export async function loginStudent({ studentemail, studentpassword, handleShowVerifyModal  }) {
   const response = await axios.post("http://localhost:8080/student/login", {
     email: studentemail,
     password: studentpassword,
@@ -72,14 +72,12 @@ export async function loginStudent({ studentemail, studentpassword }) {
   const token = response.data.token;
   localStorage.setItem('token', token);
   document.cookie = `token=${token}; path=/; samesite=strict; secure`;
-
-  if (response.status === 300) {
-    if (response.data.isVerified === false) {
-      return { isVerified: false };
-    }
+  
+  if (response.status === 200 && response.data.isVerified === false) {
+    console.log("Not verified");
+    handleShowVerifyModal();
+    return  { isVerified: false, data: response.data };
   }
-
   localStorage.setItem("user", JSON.stringify(response.data.user));
-
   return { isVerified: true, data: response.data };
 }

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { loginStudent } from "../../../services/apiAuth";
 
-export function useSignin({ setSignUpEmail, setSignUpPassword,handleShowScheduleModal }) {
+export function useSignin({ setSignUpEmail, setSignUpPassword,handleShowScheduleModal}) {
     const navigate = useNavigate();
   
     const { mutate } = useMutation({
@@ -16,10 +16,7 @@ export function useSignin({ setSignUpEmail, setSignUpPassword,handleShowSchedule
           handleShowScheduleModal();
           navigate("/tutors-search/*");
         } else {
-          toast.error("Verification pending. Please verify your account.");
-          setTimeout(() => {
-            navigate("/verify");
-          }, 3000);
+          toast.success("Verification Code sent to the email");
         }
       },
       onError: (err) => {

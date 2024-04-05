@@ -93,7 +93,7 @@ function LoginPage() {
         localStorage.setItem('token', token);
         document.cookie = `token=${token}; path=/; samesite=strict; secure`;
 
-      if (response.status === 300 && response.data.isVerified === false) {
+      if (response.status === 200 && response.data.isVerified === false) {
         // Show toast notification for verification pending
         toast.error("Verification pending. Please verify your account.");
 

@@ -18,10 +18,9 @@ import { PiStudentDuotone } from "react-icons/pi";
 import { IoSearch } from "react-icons/io5";
 //import { Backend_URI } from '../../Config/Constant';
 import ReactPlayer from 'react-player';
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
 import TutorSearchFooter from "./TutorSearchFooter";
 import ReactPaginate from 'react-paginate';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSearchTutors } from './useSearchTutors';
@@ -30,8 +29,8 @@ import { Backend_URI } from '../../../Config/Constant'
 import { Modal, Form } from "react-bootstrap";
 import ScheduleModal  from "./ScheduleModal";
 import { useSignin } from "./useSignin";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import EnterCode from "./EnterCode";
 
 
 const StyledSlider = styled(ReactSlider)`
@@ -153,89 +152,55 @@ function TutorsSearch() {
 
     };
 
-    const [loadingState, setLoadingstate] = useState(false);
-    const [validationError, setValidationError] = useState("");
     const [verifyshowModal, setVerifyshowModal] = useState(false);
   
-    const [formValues, setFormValues] = useState({
-      code1: "",
-      code2: "",
-      code3: "",
-      code4: "",
-      code5: "",
-      code6: "",
-    });
   
-    const inputRefs = {
-      code1: useRef(null),
-      code2: useRef(null),
-      code3: useRef(null),
-      code4: useRef(null),
-      code5: useRef(null),
-      code6: useRef(null),
-    };
+    // const handleData = async (e) => {
+    //   e.preventDefault();
+    //   const concatenatedValue = Object.values(formValues).join("");
+    //   console.log("Code Value:", concatenatedValue);
+    //   setLoadingstate(true);
+    //   const email = localStorage.getItem("email"); // Retrieve email from local storage
   
-    const handleInputChange = (e, inputName) => {
-      const { value } = e.target;
-      setFormValues((prevValues) => ({
-        ...prevValues,
-        [inputName]: value,
-      }));
+    //   try {
+    //     const response = await axios.post(
+    //       "http://localhost:8080/student/verify",
+    //       {
+    //         concatenatedValue: concatenatedValue,
+    //         email: email, // Include email in the request payload
+    //       },
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //         },
+    //       }
+    //     );
+    //     console.log("API Response:", response);
+    //     setLoadingstate(false);
   
-      // Focus on the next input field if there is one
-      const currentIndex = Number(inputName.charAt(inputName.length - 1));
-      if (currentIndex < 6) {
-        const nextInputName = `code${currentIndex + 1}`;
-        inputRefs[nextInputName].current.focus();
-      }
-    };
+    //     if (response.status === 200) {
+    //       console.log("email Verification successful");
+    //       console.log("API Response:", response.data);
+    //       localStorage.setItem("user", JSON.stringify(response.data.user));
   
-    const handleData = async (e) => {
-      e.preventDefault();
-      const concatenatedValue = Object.values(formValues).join("");
-      console.log("Code Value:", concatenatedValue);
-      setLoadingstate(true);
-      const email = localStorage.getItem("email"); // Retrieve email from local storage
+    //       navigate("/tutors-search/*");
+    //     } else if (response.status === 400) {
+    //       console.error("Validation error response:", response.data);
   
-      try {
-        const response = await axios.post(
-          "http://localhost:8080/student/verify",
-          {
-            concatenatedValue: concatenatedValue,
-            email: email, // Include email in the request payload
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log("API Response:", response);
-        setLoadingstate(false);
+    //       if (response.data && response.data.error) {
+    //         setValidationError(response.data.error);
+    //       } else {
+    //         setValidationError("Invalid Code");
+    //       }
   
-        if (response.status === 200) {
-          console.log("email Verification successful");
-          console.log("API Response:", response.data);
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-  
-          navigate("/tutors-search/*");
-        } else if (response.status === 400) {
-          console.error("Validation error response:", response.data);
-  
-          if (response.data && response.data.error) {
-            setValidationError(response.data.error);
-          } else {
-            setValidationError("Invalid Code");
-          }
-  
-          console.error("Verification failed with status code:", response.status);
-        }
-      } catch (error) {
-        setLoadingstate(false);
-        setValidationError("Invalid Code");
-        console.error("verification error:", error);
-      }
-    };
+    //       console.error("Verification failed with status code:", response.status);
+    //     }
+    //   } catch (error) {
+    //     setLoadingstate(false);
+    //     setValidationError("Invalid Code");
+    //     console.error("verification error:", error);
+    //   }
+    // };
 
     const handleSelectChange = async (selectedOption) => {
         const selectedValue = selectedOption.value;
@@ -323,7 +288,7 @@ function TutorsSearch() {
     const [minPrice, setMinPrice] = useState(1);
     const [maxPrice, setMaxPrice] = useState(100);
     const [isRangeModal, setRangeModal] = useState(false);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
 
     const OpenRangeModal = () => {
@@ -500,6 +465,7 @@ function TutorsSearch() {
 
     const handleShowScheduleModal = () => {
         setCloseScheduleModal(true); 
+        setVerifyshowModal(false);
         
         if (showLoginModal) {
             setShowLoginModal(false);
@@ -509,6 +475,7 @@ function TutorsSearch() {
         }
     }
     const handleCloseScheduleModal = () => setCloseScheduleModal(false);
+    const handleShowVerifyModal = () => setVerifyshowModal(true);
 
     const handleShowSignUpModal = () => {
         setSignUpShowModal(true);
@@ -544,15 +511,20 @@ function TutorsSearch() {
         if (response.status === 200) {
             // Show success toast and navigate to verify page
             toast.success("Verification code sent on email");
-            localStorage.setItem("email", studentemail);
+            localStorage.setItem("email", studentemail.value);
+            setSignUpShowModal(false);
+            setSignUpStudentEmail('');
+            setSignUpStudentPassword('');
+            setSignUpStudentName('');
             setVerifyshowModal(true);
           }
         } catch (error) {
             if (error.response.status === 409) {
                 // Show toast message for already registered as a student
-                toast.error("This email is already registered");
-                console.log("Email already registered");
-              } else if (error.response.status === 400) {
+                toast.error("User already registered");
+                console.log("User already registered");
+              }
+              else if (error.response.status === 400) {
                 // Show toast message for already registered as a teacher
                 toast.error("This email is already registered as a teacher");
                 console.log("Email already registered as teacher");
@@ -572,14 +544,14 @@ function TutorsSearch() {
         setShowLoginModal(true);
     }
     const handleCloseLoginModal = () => setShowLoginModal(false);
-    const { mutate: login } = useSignin({ setSignUpEmail, setSignUpPassword, handleShowScheduleModal });
+    const { mutate: login } = useSignin({ setSignUpEmail, setSignUpPassword, handleShowScheduleModal});
     const token = localStorage.getItem('token');
 
     const handleLogin = (e) => {
         e.preventDefault();
         const { email, password } = e.target.elements; 
         setShowLoginModal(false);
-        login({ studentemail: email.value, studentpassword: password.value})
+        login({ studentemail: email.value, studentpassword: password.value, handleShowVerifyModal })
             .catch((error) => {
                 console.error("Mutation failed:", error);
             });
@@ -589,7 +561,7 @@ function TutorsSearch() {
         <>
         <ToastContainer />
             <div className="CovertNavStatic">
-                {token ? <AlternativeNavbar currentImageIndex={0}/> :
+                {token && token != 'undefined' ? <AlternativeNavbar currentImageIndex={0}/> :
                 <NavBar currentImageIndex={0} />
                 }
             </div>
@@ -817,86 +789,29 @@ function TutorsSearch() {
                                                     </div>
                                                 </div>
                                                 <div className="row">
-                                                    {!token ?
+                                                    {token && token != 'undefined'?
+                                               <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                               Book a trial
+                                           </button> : 
                                                     <button className="btn" onClick={handleShowSignUpModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
-                                                        Book a trial
-                                                    </button> : 
-                                                      <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
-                                                      Book a trial
-                                                  </button>
+                                                          Book a trial
+                                                      </button> 
                                                     }
+                                                 
 
-                   <Modal show={verifyshowModal} onHide={handleCloseVerifyModal} centered className="modal-signup">
-
-                 <Modal.Body>
-                 <div className="m-5 d-flex justify-content-center align-items-center vh-100">
-      {loadingState ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Box sx={{ display: "flex" }}>
-            <CircularProgress />
-          </Box>
-        </div>
-      ) : (
-        <div
-          style={{
-            width: "20rem",
-            border: "1px solid grey",
-            padding: "20px 15px",
-            borderRadius: "10px",
-            boxShadow: "5px 10px 18px #888888",
-            marginBottom: "350px",
-          }}
-        >
-          <form onSubmit={handleData}>
-            <h4
-              className="text-center mb-4"
-              style={{ color: "#233D7B", fontWeight: "bold" }}
-            >
-              Enter your code
-            </h4>
-            <p className="text-center mb-4">
-              Please enter the Code received on your email for verification.
-            </p>
-            <div className="d-flex mb-3">
-              {Array.from({ length: 6 }, (_, i) => (
-                <input
-                  key={i}
-                  type="tel"
-                  name={`code${i + 1}`}
-                  maxLength="1"
-                  pattern="[0-9]"
-                  value={formValues[`code${i + 1}`]}
-                  onChange={(e) => handleInputChange(e, `code${i + 1}`)}
-                  className="form-control"
-                  style={{ margin: "0px 5px" }}
-                  required
-                  ref={inputRefs[`code${i + 1}`]}
-                />
-              ))}
-            </div>
-            <button
-              type="submit"
-              className="w-100 btn btn-primary"
-              style={{ background: "#318F3A" }}
-            >
-              Verify account
-            </button>
-            {validationError && (
-              <div className="alert alert-danger mt-3">{validationError}</div>
-            )}
-          </form>
-        </div>
-      )}
-    </div>
-                </Modal.Body>
-                 </Modal>
-                                                    
+<Modal size="lg"    style={{
+        maxHeight: '70vh', // Adjust as needed
+        width: '70%', // Adjust as needed
+        overflow: 'hidden',
+        position: 'fixed',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+      }} show={verifyshowModal} onHide={handleCloseVerifyModal} >
+    <Modal.Body>
+        <EnterCode handleShowScheduleModal={handleShowScheduleModal}/>
+    </Modal.Body>
+</Modal>                                                    
                                                     <Modal show={SignUpshowModal} onHide={handleCloseSignUpModal} centered className="modal-signup">
 
                                                         <Modal.Body>
@@ -1021,18 +936,19 @@ function TutorsSearch() {
 
                                                         </Modal.Body>
                                                     </Modal>
+                                                    
                                                     <ScheduleModal availability={index.availability} showScheduleModal={showScheduleModal} handleCloseScheduleModal={handleCloseScheduleModal} profilePhoto={index.profilePhoto} />
                                                 </div>
                                                 
                                                 <div className="row">
-                                                {!token ?
+                                                {token && token != 'undefined'?
+                                                <button onClick={handleShowScheduleModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                Send Message
+                                            </button>
+                                                    :
                                                     <button onClick={handleShowSignUpModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
                                                         Send Message
                                                     </button>
-                                                    :
-                                                    <button onClick={handleShowScheduleModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
-                                                    Send Message
-                                                </button>
                                                  }
                                                 </div>
                                             </div>
