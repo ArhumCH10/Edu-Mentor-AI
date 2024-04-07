@@ -29,6 +29,7 @@ import Payment from "./pages/StudentDashboard/Payment";
 import Settings from "./pages/StudentDashboard/Settings";
 import TutorProfile from "./pages/mainPage/Tutor-Search/Tutor-Profile/TutorProfile";
 import VerificationPage from "./pages/EmailVerificationStudent/VerificationPage";
+import CheckoutPageStudent from "./pages/CheckoutPage/CheckoutPageStudent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +55,8 @@ export default function App() {
               <Route path="/sign-up" element={<SignUpMain />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verify" element={<VerificationPage />} />
+              <Route path="/checkout-page" element={<CheckoutPageStudent />} />
+
 
               <Route
                 path="/dashboardlinks/*"
