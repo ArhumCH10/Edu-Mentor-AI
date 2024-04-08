@@ -2,8 +2,8 @@ import styled, { css } from "styled-components";
 
 const sizes = {
     extraSmall: css`
-    font-size: 1rem;
-    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
     text-transform: uppercase;
     font-weight: 600;
     text-align: center;

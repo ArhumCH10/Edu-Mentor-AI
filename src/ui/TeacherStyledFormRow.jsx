@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 const FormRow = styled.div`
   display: grid;
   align-items: center;
-  grid-template-columns: 12rem 1fr 1.2fr;
-  gap: 2rem;
+  grid-template-columns: 10rem 10fr 1fr;
+  gap: 0rem;
   padding: 0.7rem 0;
 
   &:first-child {

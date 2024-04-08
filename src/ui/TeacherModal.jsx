@@ -13,7 +13,11 @@ const StyledModal = styled.div`
   box-shadow: 0 2.4rem 3.2rem rgba(0, 0, 0, 0.12);
   padding: 2rem 3rem;
   transition: all 0.5s;
+  width: auto; /* Adjust width as needed */
+  max-height: 90vh; /* Adjust based on your preference */
+  overflow-y: auto; /* Enables scrolling */
 `;
+
 
 const Overlay = styled.div`
   position: fixed;

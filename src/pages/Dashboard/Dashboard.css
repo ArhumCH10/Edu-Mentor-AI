@@ -274,23 +274,59 @@
   border-radius: 30px 0 0 10px;
   background-color: white;
   padding: 10px;
-  overflow: auto;
-  height: 30vh;
+  overflow: hidden; 
+  height: 30vh; 
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column; 
+}
+
+.About-navbar {
+  display: flex;
+  box-shadow: 2px 10px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0px;
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.About-nav-item {
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #ffffff;
+  margin-bottom: 0px;
+  margin-left: 10px;
+}
+
+.About-nav-item:hover {
+  cursor: pointer;
+}
+
+.About-nav-item.About-active {
+  font-weight: 500;
+  text-decoration: underline;
 
 }
 
-.About::-webkit-scrollbar {
+.About-content {
+  padding: 10px;
+  overflow: hidden;
+  overflow-y: auto;
+  height: 28vh;
+  flex-grow: 1;
+}
+
+.About-content::-webkit-scrollbar {
   width: 5px;
 }
 
-.About::-webkit-scrollbar-thumb {
+.About-content::-webkit-scrollbar-thumb {
   background-color: #888;
   border-radius: 5px;
 }
 
-.About::-webkit-scrollbar-track {
+.About-content::-webkit-scrollbar-track {
   background-color: #f1f1f1;
 }
 

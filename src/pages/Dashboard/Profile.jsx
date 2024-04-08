@@ -19,6 +19,9 @@ import Input from "../../ui/TeacherInput";
 import { useAbout } from '../TeacherSignUpProcess/useAbout';
 import FileInput from '../../ui/FileInput';
 import { useVideo } from '../TeacherSignUpProcess/useVideo';
+import TeacherTextarea from '../../ui/TeacherTextarea';
+import { useDescription } from '../TeacherSignUpProcess/useDescription';
+import { useEducation } from '../TeacherSignUpProcess/useEducation';
 
 // const LevelBadge = styled.div`
 //   position: absolute;
@@ -79,20 +82,43 @@ const EditIcon = styled.span`
   }
 `;
 
+const EditIconAbout = styled.span`
+  position: absolute;
+  top: 9rem;
+  right: 3rem;
+  cursor: pointer;
+  /* You can use a real edit icon here */
+  &:after {
+    content: "✏️";
+  }
+`;
+
+const EditIconResume = styled.span`
+  position: absolute;
+  top: 21rem;
+  right: 3rem;
+  cursor: pointer;
+  /* You can use a real edit icon here */
+  &:after {
+    content: "✏️";
+  }
+`;
+
 export default function Profile() {
   const userData = useUser();
   const photoUrl = useGetPhoto(); 
   const [photo, setPhoto] = useState(""); 
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
+  const [activeAboutTab, setActiveAboutTab] = useState('IntroduceYourself');
   const [showForm, setShowForm] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [showResume, setShowResume] = useState(false);
   const videoData = useGetVideo();
   const [fullUsername, setFullUsername] = useState('');
-  const [aboutMeParagraph, setAboutMeParagraph] = useState('');
   const [teachLesson, setTeachLesson] = useState('');
   const [educations, setEducations] = useState([]);
-  const [teachingExperience, setTeachingExperience] = useState('');
   const [certificates, setCertificates] = useState([]);
   //const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isVideo, setIsVideo] = useState('');
@@ -100,8 +126,79 @@ export default function Profile() {
   const { mutate } = usePhoto(setLoading);
   const { mutate: aboutMutation } = useAbout(setLoading);
   const { mutate: videoMutation } = useVideo(setLoading);
+  const { mutate: educationMutation } = useEducation(setLoading);
+  const { mutate: descriptionMutation } = useDescription(setLoading);
   const [isThubmnail, setIsThumbnail] = useState('');
   const fileInputRef = useRef();
+  const [introduceYourself, setIntroduceYourself] = useState("");
+  const [teaching, setTeaching] = useState("");
+  const [motivateStudents, setMotivateStudents] = useState("");
+  const [catchyHeadline, setCatchyHeadline] = useState("");
+
+  const handleAboutTabClick = (tabName) => {
+    setActiveAboutTab(tabName);
+  };
+
+  const [degrees, setDegrees] = useState([]);
+
+  useEffect(() => {
+    setDegrees(educations);
+  }, [educations]);  
+
+  const addDegree = () => {
+    setDegrees([...degrees, {
+      universityName: "",
+      degreeName: "",
+      degreeType: "",
+      specialization: "",
+      yearsOfStudyFrom: "",
+      file: null,
+    }]);
+  };
+
+
+  const handleChange = (index, field, value) => {
+    setDegrees((currentDegrees) => {
+      const updatedDegrees = [...currentDegrees];
+      updatedDegrees[index][field] = value;
+      return updatedDegrees;
+    });
+  };
+  
+  const handleFileChange = (index, event) => {
+    const selectedFile = event.target.files[0];
+    setDegrees((currentDegrees) => {
+      const updatedDegrees = [...currentDegrees];
+      updatedDegrees[index].file = selectedFile;
+      return updatedDegrees;
+    });
+  };  
+
+  useEffect(() => {
+    if (userData?.userData?.userData) {
+      setIntroduceYourself(userData.userData.userData.profileDescription?.introduceYourself || "");
+      setTeaching(userData.userData.userData.profileDescription?.teachingExperience || "");
+      setMotivateStudents(userData.userData.userData.profileDescription?.motivateStudents || "");
+      setCatchyHeadline(userData.userData.userData.profileDescription?.catchyHeadline || "");
+    }
+  }, [userData]);
+
+
+  const renderAboutContent = () => {
+    switch (activeAboutTab) {
+      case 'IntroduceYourself':
+        return <div>{introduceYourself|| 'No introduction provided.'}</div>;
+      case 'TeachingExperience':
+        return <div>{teaching || 'No teaching experience provided.'}</div>;
+      case 'MotivateStudents':
+        return <div>{motivateStudents || 'No motivational message provided.'}</div>;
+      case 'CatchyHeadline':
+        return <div>{catchyHeadline || 'No catchy headline provided.'}</div>;
+      default:
+        return null;
+    }
+  };
+
   //const [speciality, setSpeciality] = useState('');
 
  // const videoRef = useRef(null);
@@ -142,6 +239,15 @@ export default function Profile() {
     setShowForm(false);
   };
 
+  const handleAboutModal = () => {
+    setShowAbout(false);
+  };
+
+  const handleResumeModal = () => {
+    setShowResume(false);
+  };
+
+
   const handleVideoModal = () => {
     setShowVideo(false);
   };
@@ -164,22 +270,119 @@ export default function Profile() {
     }
   }
 
-  function onVideoSubmit(data) {
-    const { video, thumbnail } = data;
-    const videoFile = video.target.files[0];
-    console.log("video: ", videoFile);
+  function onAboutSubmit(data) {
+    const { introduce,
+      teaching,
+      headline,
+      motivate } = data;
 
-    const thumbnailFile = thumbnail.target.files[0];
+      setIntroduceYourself(introduce);
+      setTeaching(teaching);
+      setMotivateStudents(motivate);
+      setCatchyHeadline(headline);
+
     try {
-      videoMutation({
-        data: videoFile,
-        thumbnail: thumbnailFile
-      });
-      handleVideoModal(); 
+      descriptionMutation({
+        introduceYourself:  introduce,
+        teachingExperience: teaching,
+        motivateStudents: motivate,
+        catchyHeadline: headline,
+      }
+      
+    );
+      handleAboutModal(); 
     } catch (error) {
       console.error("Mutation failed:", error);
     }
   }
+
+  function onEducationSubmit(data) {
+    const dataArray = Array.isArray(data) ? data : [data];
+    console.log(dataArray);
+  
+    if (Array.isArray(dataArray) && dataArray.length > 0) {
+      // Initialize an empty array to hold the transformed degree data
+      const transformedDataArray = [];
+  
+      // Determine the number of degrees by finding the highest index in the keys
+      const numDegrees = Math.max(...Object.keys(dataArray[0])
+        .filter(key => key.includes('-')) // Filter keys that include a hyphen (indicating an indexed field)
+        .map(key => parseInt(key.split('-')[1], 10)) // Extract the numeric index
+      ) + 1; // +1 because indexes are 0-based
+  
+      // Iterate through each degree index to group the related fields
+      for (let i = 0; i < numDegrees; i++) {
+        const degreeData = {
+          universityName: dataArray[0][`universityName-${i}`],
+          degreeName: dataArray[0][`degreeName-${i}`],
+          degreeType: dataArray[0][`degreeType-${i}`],
+          specialization: dataArray[0][`specialization-${i}`],
+          yearsOfStudyFrom: dataArray[0][`yearsOfStudyFrom-${i}`],
+          file: dataArray[0][`file-${i}`] ? dataArray[0][`file-${i}`][0] : null,
+        };
+        transformedDataArray.push(degreeData);
+      }
+  
+      // Now, 'transformedDataArray' should have an entry for each degree
+      console.log(transformedDataArray);
+      const degreesPayload = transformedDataArray.map((degree) => ({
+        ...degree,
+        file: degree.file
+          ? {
+              name: degree.file.name,
+              size: degree.file.size,
+              type: degree.file.type,
+            }
+          : null,
+      }));
+  
+      const updatedUserData = {
+        ...userData,
+        degrees: userData.degrees
+          ? [...userData.degrees, ...degreesPayload]
+          : degreesPayload,
+      };
+  
+      localStorage.setItem("userData", JSON.stringify(updatedUserData));
+
+    try {
+       transformedDataArray.forEach(cert => {
+        educationMutation({
+          university: cert.universityName,
+          degree: cert.degreeName,
+          degreeType: cert.degreeType,
+          specialization: cert.specialization,
+          yearsOfStudyFrom: cert.yearsOfStudyFrom,
+          educationPhoto: cert.file,
+        });
+      });
+      handleResumeModal(); 
+    } catch (error) {
+      console.error("Mutation failed:", error);
+    }
+  }else {
+    console.error("Expected 'data' to be an array, received:", typeof data);
+  }
+  }
+
+  function onVideoSubmit(data) {
+    const video = data.video[0]; 
+    const thumbnail = data.thumbnail[0]; 
+  
+    if (video && thumbnail) {
+        try {
+            videoMutation({
+                data: video,
+                thumbnail: thumbnail
+            });
+            handleVideoModal(); 
+        } catch (error) {
+            console.error("Mutation failed:", error);
+        }
+    } else {
+        console.error("Video or thumbnail is missing or empty.");
+    }
+} 
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -216,10 +419,6 @@ export default function Profile() {
       const { firstName, lastName } = userData.userData.userData;
       const username = `${firstName} ${lastName}`;
       setFullUsername(username);
-      const { introduceYourself, teachingExperience, motivateStudents, catchyHeadline } = userData.userData.userData.profileDescription;
-      const about_me = `${introduceYourself}${motivateStudents}${catchyHeadline}`;
-      setAboutMeParagraph(about_me);
-      setTeachingExperience(teachingExperience);
       const { subjectsTaught } = userData.userData.userData;
       const Discription = `Teaches ${subjectsTaught} lesson`;
       setTeachLesson(Discription);
@@ -270,7 +469,7 @@ export default function Profile() {
       case 'Education':
         return (
           <div className='Resume-content' >
-            {educations.map((edu, index) => {
+            {degrees.map((edu, index) => {
               return (
                 <div key={index} className="row">
                   <div className="col-2">
@@ -291,7 +490,7 @@ export default function Profile() {
       case 'WorkExperience':
         return (
           <div className='Resume-content'>
-            {teachingExperience ? (<div>{teachingExperience}</div>) : (<div>N/A</div>)}
+            {teaching ? (<div>{teaching}</div>) : (<div>N/A</div>)}
           </div>
         );
       case 'Certifications':
@@ -421,7 +620,7 @@ export default function Profile() {
            <Input
                type="text"
                id="firstName"
-              //  defaultValue={Name}
+              defaultValue={userData.userData.userData.firstName}
                {...register("firstName", {
                  required: "This Field is Required",
                })}
@@ -432,7 +631,7 @@ export default function Profile() {
            <Input
                type="text"
                id="lastName"
-              //  defaultValue={Name}
+              defaultValue={userData.userData.userData.lastName}
                {...register("lastName", {
                  required: "This Field is Required",
                })}
@@ -443,7 +642,7 @@ export default function Profile() {
            <Input
                type="text"
                id="subject"
-              //  defaultValue={Country}
+              defaultValue={userData.userData.userData.subjectsTaught}
                {...register("subject", {
                  required: "This Field is Required",
                })}
@@ -498,12 +697,16 @@ export default function Profile() {
         <div className="Portfolio-video" >
         <EditIcon onClick={() => setShowVideo((show) => !show)} />
           <h4 style={{ marginLeft: 10 }}>Portfolio Video</h4>
-          <ReactPlayer
-          url={`${Backend_URI}/${isVideo}`}  // Replace 'isVideo' with your video URL
-          controls
-          height={230}
-          width={350}
-        />
+          {isVideo && (
+    <ReactPlayer
+      url={`${Backend_URI}/${isVideo}`}
+      light={`${Backend_URI}/${isThubmnail}`} 
+      controls
+      height={230}
+      width={350}
+    />
+  )}
+  {!isVideo && <p>No video uploaded</p>}
            {showVideo && <Modal onClose={handleVideoModal}>
            <Form onSubmit={handleSubmit(onVideoSubmit)}>
            <FormRow>
@@ -536,17 +739,110 @@ export default function Profile() {
        </Modal>}
           
         </div>
-        <div className="About ">
-          <h4 >About</h4>
-          <div style={{ whiteSpace: 'pre-line' }}>
-            <small>
-              {aboutMeParagraph}
-            </small>
-          </div>
-        </div>
+        <div className="About">
+          <div>
+  <h4>About</h4>
+  <EditIconAbout onClick={() => setShowAbout((show) => !show)} />
+  <div className="About-navbar">
+    <div
+      className={`About-nav-item ${activeAboutTab === 'IntroduceYourself' ? 'About-active' : ''}`}
+      onClick={() => handleAboutTabClick('IntroduceYourself')}
+    >
+      Introduce Yourself
+    </div>
+    <div
+      className={`About-nav-item ${activeAboutTab === 'TeachingExperience' ? 'About-active' : ''}`}
+      onClick={() => handleAboutTabClick('TeachingExperience')}
+    >
+      Teaching Experience
+    </div>
+    <div
+      className={`About-nav-item ${activeAboutTab === 'MotivateStudents' ? 'About-active' : ''}`}
+      onClick={() => handleAboutTabClick('MotivateStudents')}
+    >
+      Motivate Students
+    </div>
+    <div
+      className={`About-nav-item ${activeAboutTab === 'CatchyHeadline' ? 'About-active' : ''}`}
+      onClick={() => handleAboutTabClick('CatchyHeadline')}
+    >
+      Catchy Headline
+    </div>
+  </div>
+  <div className="About-content">
+    {renderAboutContent()}
+  </div>
+  </div>
+</div>
+
+{showAbout && <Modal onClose={handleAboutModal}>
+           
+           <Form onSubmit={handleSubmit(onAboutSubmit)}>
+            {activeAboutTab === 'IntroduceYourself' &&
+           <StyledFormRow labelName='Introduce Yourself' error={errors?.introduce?.message}>
+           <TeacherTextarea
+               type="text"
+               id="introduce"
+              defaultValue={introduceYourself}
+               {...register("introduce", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+            }
+
+           {activeAboutTab === 'TeachingExperience' &&
+           <StyledFormRow labelName='Enter Teaching Experience' error={errors?.teaching?.message}>
+           <TeacherTextarea
+               type="text"
+               id="teaching"
+              defaultValue={teaching}
+               {...register("teaching", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+            }
+     
+        {activeAboutTab === 'CatchyHeadline' &&
+           <StyledFormRow labelName='Write a Catchy Headline' error={errors?.headline?.message}>
+           <TeacherTextarea
+               type="text"
+               id="headline"
+              defaultValue={catchyHeadline}
+               {...register("headline", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+            }
+
+{activeAboutTab === 'MotivateStudents' &&
+           <StyledFormRow labelName='Motivate your Students' error={errors?.motivate?.message}>
+           <TeacherTextarea
+               type="text"
+               id="motivate"
+              defaultValue={motivateStudents}
+               {...register("motivate", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+            }
+     
+           <FormRow>
+             <Button onClick={handleAboutModal} variation="secondary" type="reset">
+               Cancel
+             </Button>
+             <Button>Submit</Button>
+             </FormRow>
+           </Form>
+       </Modal>}
+      
         <div className="Resume ">
           <div>
             <h4>Resume</h4>
+            <EditIconResume onClick={() => setShowResume((show) => !show)} />
             <div className="Resume-navbar">
               <div
                 className={`Resume-nav-item ${activeTab === 'Education' ? 'Resume-active' : ''}`}
@@ -602,6 +898,138 @@ export default function Profile() {
             </div>
           </div>
         </div>
+        {showResume && <Modal onClose={handleResumeModal}>
+           
+            {activeTab === 'Education' &&
+           <Form onSubmit={handleSubmit(onEducationSubmit)}>         
+              {degrees.map((degree, index) => (
+                <div key={index}>
+                  <StyledFormRow labelName='University Name' error={errors?.[`universityName-${index}`]?.message}>
+                  <Input
+               type="text"
+               id={`universityName-${index}`}
+              defaultValue={degree.university || ""}
+              onChange={(e) =>
+                handleChange(index, "universityName", e.target.value)
+              }
+               {...register(`universityName-${index}`, {
+                 required: "This Field is Required",
+               })}
+             />
+                </StyledFormRow>
+  
+                  <StyledFormRow labelName='Degree Name' error={errors?.[`degreeName-${index}`]?.message}>
+                  <Input
+               type="text"
+               id={`degreeName-${index}`}
+              defaultValue={degree.degree || ""}
+              onChange={(e) =>
+                handleChange(index, "degreeName", e.target.value)
+              }
+               {...register(`degreeName-${index}`, {
+                 required: "This Field is Required",
+               })}
+             />
+                 </StyledFormRow>
+    
+                  <StyledFormRow labelName='Degree Type' error={errors?.[`degreeType-${index}`]?.message}>
+                  <Input
+               type="text"
+               id={`degreeType-${index}`}
+              defaultValue={degree.degreeType || ""}
+              onChange={(e) =>
+                handleChange(index, "degreeType", e.target.value)
+              }
+               {...register(`degreeType-${index}`, {
+                 required: "This Field is Required",
+               })}
+             />
+              </StyledFormRow>
+    
+                  <StyledFormRow labelName='Specialization' error={errors?.[`specialization-${index}`]?.message}>
+                  <Input
+               type="text"
+               id={`specialization-${index}`}
+              defaultValue={degree.specialization || ""}
+              onChange={(e) =>
+                handleChange(index, "specialization", e.target.value)
+              }
+               {...register(`specialization-${index}`, {
+                 required: "This Field is Required",
+               })}
+             />    
+                     </StyledFormRow>
+    
+                  <StyledFormRow labelName='Years of Study' error={errors?.[`yearsOfStudyFrom-${index}`]?.message}>
+                  <Input
+               type="text"
+               id={`yearsOfStudyFrom-${index}`}
+              defaultValue={degree.yearsOfStudyFrom || ""}
+              onChange={(e) =>
+                handleChange(index, "yearsOfStudyFrom", e.target.value)
+              }
+               {...register(`yearsOfStudyFrom-${index}`, {
+                 required: "This Field is Required",
+               })}
+             /> 
+                     </StyledFormRow>
+    
+                     <StyledFormRow labelName='Upload Degree Certificate' error={errors?.[`file-${index}`]?.message}>
+              <FileInput
+             id={`file-${index}`}
+    type="file"
+    accept="image/*"
+    onChange={(event) => handleFileChange(index, event)}
+    {...register(`file-${index}`, {
+      required: "This field is required",
+    })}
+  />
+</StyledFormRow>
+
+                </div>
+              ))}
+              <Button variation="different" size="extraSmall"
+                onClick={() => addDegree()}
+              >
+                Add a New Degree
+              </Button>
+
+<FormRow>
+<Button onClick={handleResumeModal} variation="secondary" type="reset">
+  Cancel
+</Button>
+<Button>Submit</Button>
+</FormRow>
+</Form>
+            }
+
+           {activeAboutTab === 'TeachingExperience' &&
+           <StyledFormRow labelName='Enter Teaching Experience' error={errors?.teaching?.message}>
+           <TeacherTextarea
+               type="text"
+               id="teaching"
+              defaultValue={teaching}
+               {...register("teaching", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+            }
+     
+        {activeAboutTab === 'CatchyHeadline' &&
+           <StyledFormRow labelName='Write a Catchy Headline' error={errors?.headline?.message}>
+           <TeacherTextarea
+               type="text"
+               id="headline"
+              defaultValue={catchyHeadline}
+               {...register("headline", {
+                 required: "This Field is Required",
+               })}
+             />
+           </StyledFormRow>
+            }
+       </Modal>}
+
         <div className="Feedback ">
           <h2>
             What students say
