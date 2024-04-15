@@ -1,4 +1,6 @@
 import { Bar } from 'react-chartjs-2';
+import Heading from "../../ui/Heading";
+import Row from "../../ui/Row";
 import { Card, CardContent } from '@mui/material';
 
 const data = {
@@ -23,7 +25,9 @@ const options = {
 const SpendingChart = () => (
     <Card sx={{ background: 'var(--color-grey-0)' }}>
     <CardContent>
-    <h2>Spending Over Time</h2>
+    <Row type="horizontal">
+    <Heading style={{color: 'var(--color-grey-800)'}} as="head1">All Spendings</Heading>
+  </Row>
     <Bar data={data} options={options} />
     </CardContent>
     </Card>

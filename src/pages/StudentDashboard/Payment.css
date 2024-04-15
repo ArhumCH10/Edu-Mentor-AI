@@ -2,8 +2,20 @@
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 16px;
-    margin-top: 35px;
+    margin-top: 20px;
+    margin-left: 30px;
     width: 100%; /* Three cards per row, adjust as needed */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--color-grey-0);
+  }
+
+  .classes-overview{
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 5px;
+    color: var(--color-grey-800);
+    margin-top: 15px;
+    width: 100%; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background: var(--color-grey-0);
   }

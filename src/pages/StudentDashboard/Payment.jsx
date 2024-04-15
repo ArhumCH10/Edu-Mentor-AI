@@ -1,12 +1,11 @@
 import Heading from "../../ui/Heading";
 import Row from "../../ui/Row";
 import TransactionHistory from './TransactionHistory';
-import TotalExpenditure from './TotalExpenditure';
+import FinancialOverview from './FinancialOverview';
 import SpendingChart from './SpendingChart';
-import BudgetTool from './BudgetTool';
+import PaymentMethod from './PaymentMethodsManagement';
 import ClassesOverview from './ClassesOverview';
 import SubscriptionManagement from './SubscriptionManagement';
-import Notifications from './Notifications';
 import { Container, Grid } from '@mui/material';
 import './Payment.css';
 
@@ -18,25 +17,25 @@ function Payment() {
     </Row>
     <Container maxWidth="lg">
       <Grid container spacing={4}>
-      <div className="payment-card">
-        <Grid item xs={12}>
-          <TransactionHistory />
-        </Grid>
-        </div>
          <Grid item xs={12} md={6}>
-          <TotalExpenditure />
           <SpendingChart />
+          <FinancialOverview />
         </Grid>
         <Grid item xs={12} md={6}>
-          <BudgetTool />
+           <PaymentMethod/>
+          <div className="classes-overview">
           <ClassesOverview />
+          </div>
         </Grid>
        <Grid item xs={12}>
           <SubscriptionManagement />
         </Grid>
-         <Grid item xs={12}>
-          <Notifications />
+
+        <div className="payment-card">
+        <Grid item xs={12}>
+          <TransactionHistory />
         </Grid>
+        </div>
       </Grid>
     </Container>
     
