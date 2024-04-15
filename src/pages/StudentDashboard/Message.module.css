@@ -52,12 +52,61 @@
     padding: 10px;
   }
   
-  .messageInput {
-    flex-grow: 1;
-    margin-right: 10px;
+  .message-input {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--color-blue-500);
   }
   
-  .sendButton {
-    /* Add button styling */
+  .message-input input {
+    flex-grow: 1;
+    border-radius: 15px;
+    border: none;
+    padding: 10px;
+    margin: 0 10px;
+    color: black;
   }
+  
+  .message-input button {
+    background-color: var(--color-green-600);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 15px;
+    cursor: pointer;
+  }
+  
+  /* Styling for emoji and attachment buttons */
+  .emoji-button, .attachment-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+  }
+  
+  /* Adjust the send button to have margin only on the left side */
+  .send-button {
+    margin-left: 10px;
+  }
+  
+  /* Icons placeholders - you will need to replace these with actual icons */
+  .EmojiIcon, .AttachmentIcon {
+    display: inline-block;
+    width: 20px; /* Your icon width */
+    height: 20px; /* Your icon height */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  /* Example placeholders, you should use actual icon images */
+  .EmojiIcon {
+    background-image: url('path-to-your-emoji-icon.png'); /* Update with the path to your emoji icon */
+  }
+  
+  .AttachmentIcon {
+    background-image: url('path-to-your-attachment-icon.png'); /* Update with the path to your attachment icon */
+  }
+  
   

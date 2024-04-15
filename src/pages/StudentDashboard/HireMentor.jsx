@@ -5,7 +5,7 @@ function HireMentor() {
   return (
     <>
     <Row type="horizontal">
-      <Heading as="h1">Hire your Mentor</Heading>
+      <Heading as="head1">Hire your Mentor</Heading>
     </Row>
     </>
   );

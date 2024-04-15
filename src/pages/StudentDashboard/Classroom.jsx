@@ -64,7 +64,7 @@ function Classroom() {
   return (
     <>
     <Row type="horizontal">
-      <Heading as="h1">My Classroom</Heading>
+      <Heading as="head1">My Classroom</Heading>
     </Row>
 
       {tutors.map((tutor, index) => (

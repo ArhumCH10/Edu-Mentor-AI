@@ -4,13 +4,13 @@ import MainNav from './MainNav';
 
 const StyledSideBar = styled.aside`
   background-color: var(--color-blue-500);
-  padding: 1.2rem 0.4rem;
+  padding: 1rem 0.4rem;
   border-right: 1px solid var(--color-grey-100);
 
   grid-row: 1 / -1;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1rem;
 `;
 
 export default function SideBar() {

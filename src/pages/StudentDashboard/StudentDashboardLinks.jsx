@@ -5,6 +5,8 @@ import styled from "styled-components";
 import GlobalStyle from "../../styles/GlobalStyle";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
+
 const StyledBar = styled.div`
   display: grid;
   grid-template-columns: 26rem 1fr;
@@ -15,7 +17,7 @@ const StyledBar = styled.div`
 
 const Main = styled.main`
   background-color: var(--color-grey-50);
-  padding: 1rem 4rem 2.4rem;
+  padding: 1rem 2rem 2.4rem;
   overflow: scroll;
 `;
 
@@ -29,6 +31,7 @@ const Container = styled.div`
 
 export default function AppLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Check if the user object exists in local storage
@@ -39,13 +42,17 @@ export default function AppLayout() {
     }
   }, []);
 
+  const isMessagePage = () => {
+    return location.pathname.includes("/studentdashboard/chat");
+  };
+
   return (
     <StyledBar>
       <GlobalStyle />
       <Header />
       <SideBar />
 
-      <Main>
+      <Main style={{ overflow: isMessagePage() ? 'hidden' : 'auto' }}>
         <Container>
           <Outlet />
         </Container>
