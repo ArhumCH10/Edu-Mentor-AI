@@ -53,7 +53,7 @@ function Message() {
       <Heading as="head1">My Chats</Heading>
     </Row>
     <div className="row-horizontal">
-    <div className="sidebar">
+    <div className="message-sidebar">
     <input
             type="text"
             placeholder="Search..."
