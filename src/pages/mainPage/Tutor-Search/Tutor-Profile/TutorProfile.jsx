@@ -27,6 +27,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSignin } from "../useSignin";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const localizer = momentLocalizer(moment);
 import './TutorProfile.css';
@@ -62,12 +63,11 @@ const useStyles = makeStyles(() => ({
     },
 }));
 
-//const localizer = momentLocalizer(moment);
-
-
 const TutorProfile = () => {
     const [tutorProfileData, setTutorProfileData] = useState();
     const [isLoading, setIsLoading] = useState(true);
+
+    const navigate = useNavigate();
 
     const { mutate } = useTutorProfile(setTutorProfileData, setIsLoading);
     const aboutRef = useRef(null);
@@ -331,7 +331,17 @@ const TutorProfile = () => {
     }, [tutorProfileData]);
 
     const handleEventClick = (event) => {
-        console.log("Event clicked:", event);
+        const teacherId = tutorProfileData._id;
+        if (teacherId) {
+            const eventDataToSend = {
+                event: event,
+                tutorData: tutorProfileData,
+            };
+            console.log("eventDataToSend:", eventDataToSend);
+            navigate(`/checkout-page/${teacherId}`, { state: { eventData: eventDataToSend } });
+        } else {
+            console.error("Teacher ID is missing or undefined in the URL.");
+        }
     };
     
     const [signUpEmail, setSignUpEmail] = useState('');
