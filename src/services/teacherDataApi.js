@@ -62,7 +62,6 @@ export async function getUserData() {
 export async function photo({ fileStore }) {
     try {
         const token = localStorage.getItem("token");
-        console.log("Hello");
         const formData = new FormData();
         formData.append('photo', fileStore);
         console.log(fileStore);

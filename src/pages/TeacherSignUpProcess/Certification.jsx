@@ -48,8 +48,8 @@ const Certification = ({ activePage, setActivePage, setActiveComponent }) => {
         }))
       );
       setTeachingCertificates(true);
-      setLoading(false);
     }
+    setLoading(false);
   }, [userData]);
 
 

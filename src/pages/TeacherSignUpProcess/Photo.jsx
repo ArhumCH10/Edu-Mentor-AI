@@ -9,6 +9,30 @@ import StyledSpinner from "./startSpinner";
 
 //import toast from "react-hot-toast";
 
+//if we upload same picture after delete in run time than it will not take as input you have to change the file name 
+function blobToUrl(blobUrl) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', blobUrl);
+    xhr.responseType = 'blob';
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const blob = xhr.response;
+        const fileName = blobUrl.split('/').pop(); // Extract file name from blob URL
+        const file = new File([blob], fileName); // Create file object
+        resolve(file);
+      } else {
+        reject(new Error('Failed to fetch blob data'));
+      }
+    };
+    xhr.onerror = () => {
+      reject(new Error('Failed to fetch blob data'));
+    };
+    xhr.send();
+  });
+}
+
+
 const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const fileInputRef = useRef(null);
   const imgRef = useRef(null);
@@ -19,8 +43,8 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const { mutate } = usePhoto(setFlag,setLoading);
   const photoUrl = useGetPhoto();
   const formData = new FormData();
+  const [imagePreview, setImagePreview] = useState(null);
   console.log("photo",photoUrl);
-
 
   // Retrieve user object from local storage
   const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
@@ -34,40 +58,42 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const [fileStore, setfileStore] = useState([]);
 
   useEffect(() => {
-    // Set the image from user.photo or storedUserData.photo when the component mounts
-    setImage(user.photo || photoUrl || null);
-    setLoading(false)
+    if (user.photo) {
+      setImagePreview(user.photo);
+    } else if (photoUrl) {
+      setImage(photoUrl);
+      console.log('setImagePreview(photoUrl);');
+      setImagePreview(photoUrl);
+
+    }
   }, [user.photo, photoUrl]);
 
+  console.log("image",imagePreview);
+  
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-
+    console.log("file: ",file);
     setfileStore(file);
-    console.log("Selected file:", file);
 
     // if (!storedUserData.userData.firstName) {
     // return alert("Fill about me section first");
     //}
     formData.append("photo", file);
-    console.log("FormData before sending:", formData);
 
     if (file) {
       const imageUrl = URL.createObjectURL(file);
 
-      // Update the local state with the new image URL
       setImage(imageUrl);
+      setImagePreview(imageUrl);
 
-      // Update the stored user data in local storage with the new photo URL
       const updatedStoredUserData = {
         ...storedUserData,
         photo: imageUrl,
       };
-      console.log("imageURL : ", imageUrl);
 
-      // Update the Redux state with the new photo URL
       dispatch(updateUser(updatedStoredUserData));
+      console.log("worked");
 
-      // Save updatedStoredUserData to local storage
       localStorage.setItem("userData", JSON.stringify(updatedStoredUserData));
 
       setZoom(1);
@@ -85,7 +111,10 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
     // Update the Redux state and local state to remove the photo property
     dispatch(updateUser(updatedUserData));
     setImage(null);
+    setImagePreview(null);
 
+    // Remove the photo from formData as well
+  formData.delete("photo");
     // Save the updated user data to local storage
     localStorage.setItem("userData", JSON.stringify(updatedUserData));
   };
@@ -108,11 +137,13 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
 
   const handleButtonClick = () => {
     fileInputRef.current.click();
+    
+    console.log(fileInputRef);
   };
 
   const nextHandler = async  () => {
-    //console.log("image:", image);
-    //console.log("photoUrl:", photoUrl);
+    console.log("image:", image);
+    console.log("photoUrl:", photoUrl);
     // Check if an image is uploaded
     setLoading(true);
     if (!image) {
@@ -120,7 +151,6 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       setLoading(false);
       return;
     } else if (!photoUrl || !image) {
-      console.log("file data is",fileStore);
       try {
         mutate({
           fileStore: fileStore,
@@ -129,23 +159,17 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       } catch (error) {
         console.error("Mutation failed:", error);
       }
-      setLoading(false);
+      //setLoading(false);
     }
     else if (image.startsWith("blob:")) {
       
       setLoading(true);
       try {
-        // Convert Blob URL to data URL
-        // const response = await fetch(image);
-        // const blob = await response.blob();
-        // const dataUrl = await new Promise((resolve) => {
-        //   const reader = new FileReader();
-        //   reader.onloadend = () => resolve(reader.result);
-        //   reader.readAsDataURL(blob);
-        // });
-  
         // Use dataUrl in mutate
-        await mutate({
+        const file = await blobToUrl(image);
+        setfileStore(file);
+        console.log(fileStore);
+         mutate({
           fileStore: fileStore,
         });
   
@@ -241,7 +265,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
             {/* Display the image within a container div */}
             <img
               ref={imgRef}
-              src={photoUrl}
+              src={imagePreview}
               alt="Preview"
               style={{
                 maxWidth: "100%",

@@ -3,6 +3,7 @@ import FirstOne from "../pages/mainPage/FirstOne";
 import FourthOne from "../pages/mainPage/FourthOne";
 import NavBar from "./NavBar";
 import { useState, useEffect } from "react";
+import AlternativeNavbar from "./AlternativeNavbar";
 import toast from "react-hot-toast";
 import SecondOne from "../pages/mainPage/SecondOne";
 import ThirdOne from "../pages/mainPage/ThirdOne";
@@ -22,6 +23,7 @@ const totalImages = images.length;
 export default function MainLayout() {
 
   const location = useLocation();
+  const token = localStorage.getItem('token');
   const [toastShown, setToastShown] = useState(false);
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -62,7 +64,11 @@ export default function MainLayout() {
 
   return (
     <>
-      <NavBar currentImageIndex={currentImageIndex} />
+            <div className="CovertNavStatic">
+                {token && token != 'undefined' ? <AlternativeNavbar currentImageIndex={currentImageIndex}/> :
+                <NavBar currentImageIndex={currentImageIndex} />
+                }
+            </div>
       <FirstOne currentImageIndex={currentImageIndex} images={images} />
       <SecondOne />
       <ThirdOne />
