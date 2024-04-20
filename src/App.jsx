@@ -55,7 +55,7 @@ export default function App() {
               <Route path="/sign-up" element={<SignUpMain />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verify" element={<VerificationPage />} />
-              <Route path="/checkout-page" element={<CheckoutPageStudent />} /> 
+              <Route path="/checkout-page/*" element={<CheckoutPageStudent />} /> 
 
 
               <Route

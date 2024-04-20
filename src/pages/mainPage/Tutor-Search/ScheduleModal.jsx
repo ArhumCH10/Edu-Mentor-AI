@@ -4,11 +4,14 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Backend_URI } from '../../../Config/Constant'
+import { useNavigate } from "react-router-dom";
+
 const localizer = momentLocalizer(moment);
 
 
-const ScheduleModal = ({ availability, showScheduleModal, handleCloseScheduleModal, profilePhoto }) => {
+const ScheduleModal = ({ availability, showScheduleModal, handleCloseScheduleModal, profilePhoto, tutorProfileData }) => {
 
+    const navigate = useNavigate();
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
@@ -96,7 +99,16 @@ const ScheduleModal = ({ availability, showScheduleModal, handleCloseScheduleMod
     };
 
     const handleEventClick = (event) => {
-        console.log("Event clicked:", event);
+        const teacherId = tutorProfileData._id;
+        if (teacherId) {
+            const eventDataToSend = {
+                event: event,
+                tutorData: tutorProfileData,
+            };
+            navigate(`/checkout-page/${teacherId}`, { state: { eventData: eventDataToSend } });
+        } else {
+            console.error("Teacher ID is missing or undefined in the URL.");
+        }
     };
 
     return (
@@ -191,5 +203,6 @@ export default ScheduleModal;
 ScheduleModal.propTypes = {
     availability: PropTypes.array.isRequired,
     showScheduleModal: PropTypes.bool.isRequired,
-    profilePhoto: PropTypes.string, handleCloseScheduleModal: PropTypes.func.isRequired
+    profilePhoto: PropTypes.string, handleCloseScheduleModal: PropTypes.func.isRequired,
+    tutorProfileData: PropTypes.object.isRequired
 };

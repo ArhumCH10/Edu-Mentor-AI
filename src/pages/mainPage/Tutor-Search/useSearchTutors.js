@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 export function useSearchTutors(setSkeltonLoading,setTutorArray, email) {
     const fetchTutors = email ? fetchTutorsSearchByEmailAPI : fetchTutorsSearchAPI;
-    console.log("email:", email,fetchTutors);
+    
     const { mutate } = useMutation(fetchTutors, {
         onSuccess: (data) => {
             setTutorArray(data);
