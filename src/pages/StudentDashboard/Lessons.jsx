@@ -4,6 +4,7 @@ import Row from "../../ui/Row";
 import './Lessons.css';
 import NewReq from './NewReq';
 import TrialLessons from './TrialLessons';
+import { usePaymentStudent } from '../../services/usePaymentStudent';
 import CancellReq from './CancelReq';
 import OpenCourse from './OpenCourse';
 
@@ -96,17 +97,18 @@ const NewComponent = () => {
 
 function Lessons() {
   const [openCourse, setOpenCourse] = useState(false);
-
+  const { data: classes} = usePaymentStudent();
   const [activeTab, setActiveTab] = useState('lessons');
   const [activeLessonsCount, setActiveLessonsCount] = useState(0);
   const [newRequestsCount, setNewRequestsCount] = useState(0);
   const [trialLessonsCount, setTrialLessonsCount] = useState(0);
   const [cancelledCount, setCancelledCount] = useState(0);
+  
 
   useEffect(() => {
     setActiveLessonsCount(lessonsData.filter(lesson => lesson.status === 'Active Class').length);
     setNewRequestsCount(tutors.filter(tutor => tutor.status === 'New tutor').length);
-    setTrialLessonsCount(2);
+    setTrialLessonsCount(classes.filter(lesson => lesson.lessonType === 'Trial').length);
     setCancelledCount(4);
   }, []);
 

@@ -20,7 +20,7 @@ const Heading = styled.h3`
 
 export default function UserAvatar() {
   const [userName, setUserName] = useState("");
-  const [userLevel, setUserLevel] = useState(0); // State to store the user level
+  const [userLevel, setUserLevel] = useState(4); // State to store the user level
 
   useEffect(() => {
     // Get the user object from local storage

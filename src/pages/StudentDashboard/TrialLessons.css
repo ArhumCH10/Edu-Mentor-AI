@@ -17,10 +17,17 @@
   }
   
   .triallesson-header {
-    background-color: #949e00; /* Header background color */
-    color: #fff; /* Text color for the header */
+    background-color: #949e00;
+    color: #fff;
     padding: 10px 15px;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between; /* Align items at the start and end */
+  }
+  
+  .triallesson-date {
+    display: flex;
+    align-items: center; /* Align items vertically */
   }
   
   .student-lesson-body {
