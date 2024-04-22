@@ -13,11 +13,11 @@ export default function TrialLessons() {
   return (
     <>
     <h2 className="lesson-title">Trial Lessons</h2>
-      <div className="trial-container">
+      <div className="lessons-container">
         {status === 'success' && (
           <>
             {classes.map((lesson, index) => (
-              <div className="student-lesson-card" key={index}>
+              <div className="lesson-card" key={index}>
                 <div className="triallesson-header">
                  <div>
                  {lesson.subjectsTaught.toUpperCase()} class
@@ -31,7 +31,7 @@ export default function TrialLessons() {
                     })}
                  </div>
                 </div>
-                <div className="student-lesson-body">
+                <div className="lesson-body">
                   <h3>{lesson.studentName}</h3>
                   <p><strong> Time:</strong> {formatTimeSlot(lesson.lessonTime, lesson.lessonTimeDuration)}</p>
                   <p><strong>{lesson.lessonType} class</strong></p>

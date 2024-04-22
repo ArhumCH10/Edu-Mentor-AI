@@ -4,6 +4,7 @@ import './Lessons.css';
 import NewRequest from './NewRequest';
 import TrialLessons from './TrialLessons';
 import Clicked from './Clicked';
+import { usePaymentTeacher } from '../../services/usePaymentTeacher';
 import Cancelled from './Cancelled';
 import { useNavigate } from 'react-router-dom';
 
@@ -112,7 +113,7 @@ const CancelComponent = () => {
 };
 
 export default function Lessons() {
-
+  const { data: classes} = usePaymentTeacher();
   const [activeTab, setActiveTab] = useState('lessons'); 
   const [activeLessonsCount, setActiveLessonsCount] = useState(0);
   const [newRequestsCount, setNewRequestsCount] = useState(0);
@@ -123,7 +124,7 @@ export default function Lessons() {
   useEffect(() => {
     setActiveLessonsCount(lessonsData.filter(lesson => lesson.status === 'Active Class').length);
     setNewRequestsCount(tutors.filter(tutor => tutor.status === 'New Student').length);
-    setTrialLessonsCount(2);
+    setTrialLessonsCount(classes.filter(lesson => lesson.lessonType === 'Trial').length);
     setClickedCount(3);
     setCancelledCount(4);
   }, []);

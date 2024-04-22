@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import Heading from "../../ui/Heading";
 import Row from "../../ui/Row";
 import styles from '../Dashboard/Cancelled.module.css'; 
@@ -5,6 +6,7 @@ import PropTypes from 'prop-types';
 import './Classroom.css';
 import { usePaymentStudent } from '../../services/usePaymentStudent';
 import Timer from './Timer';
+import { Spinner } from "react-bootstrap";
 
 const StarRating = ({ rating }) => {
   const totalStars = 5;
@@ -33,7 +35,7 @@ function Classroom() {
   const { data: classes,  isLoading, isError } = usePaymentStudent();
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <Spinner/>;
   }
 
 
@@ -42,7 +44,13 @@ if (isError) {
 }
 
 if (!classes || classes.length === 0) {
-  return <p>No classes found.</p>;
+  return(
+  <>
+  <Row type="horizontal">
+  <Heading as="head1">My Classroom</Heading>
+</Row>
+   <p>No classes found.</p>;
+   </>)
 }
 
   return (
@@ -81,8 +89,7 @@ if (!classes || classes.length === 0) {
             <div className="tutor-favorite">
               {/* Heart icon placeholder */}
             </div>
-            <button className="accept">Start Class</button>
-            <button className="send-message">Cancel Class</button>
+            <TimerButton startTime={tutor.lessonDate} />
           </div>
         </div>
         </div>
@@ -92,3 +99,38 @@ if (!classes || classes.length === 0) {
 }
 
 export default Classroom;
+
+const TimerButton = ({ startTime }) => {
+  const [isEnabled, setIsEnabled] = useState(false);
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const currentTime = new Date();
+      const eventTime = new Date(startTime);
+      const difference = eventTime - currentTime;
+
+      if (difference <= 0) {
+        setIsEnabled(true);
+      } else {
+    
+        setIsEnabled(false);
+      }
+    };
+
+    updateTimer();
+    const intervalId = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [startTime]);
+
+  return (
+    <>
+      <button className="accept" disabled={!isEnabled}>Start Class</button>
+      <button className="send-message">Cancel Class</button>
+      </>
+  );
+};
+
+TimerButton.propTypes = {
+  startTime: PropTypes.string.isRequired,
+};
