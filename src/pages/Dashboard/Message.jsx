@@ -18,95 +18,57 @@ export default function Message() {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [conversations, setConversations] = useState([]);
+  const [message,setMessages] = useState([
+    {
+      position: "right",
+      type: "text",
+      text: `Hi, Ghous! How are you?`,
+      date: new Date(),
+    },
+    {
+      position: "left",
+      type: "text",
+      text: `Hello! I'm good, thanks!`,
+      date: new Date(),
+    },
+  ]
+);
 
+  const fetchMessages = async (conversationId) => {
+    try {
+      const userId = JSON.parse(localStorage.getItem("userData")).userData._id;
+      const url = `http://localhost:8080/messages/${conversationId}?userId=${userId}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
+      const data = await response.json();
+      console.log(data);
+      setMessages(data); 
+      return data;
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      throw error;
+    } finally{
+      setMessageListLoading(false);
+    }
+  };
+  
   const onSelectChat = (chat) => {
-    setSelectedChat(chat);
+    if (chat.id !== selectedChat?.id) {
+      setMessageListLoading(true);
+      setSelectedChat(chat);
+      fetchMessages(chat.id);
+    }
   };
-
-
-
-  // const [chatList, setChatList] = useState(List);
-
-  const getDummyConversation = (user) => {
-    return [
-      {
-        position: "right",
-        type: "text",
-        text: `Hi, ${user.title}! How are you?`,
-        date: new Date(),
-      },
-      {
-        position: "left",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "right",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "left",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "right",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "left",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "right",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "left",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "right",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "left",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "right",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      {
-        position: "right",
-        type: "text",
-        text: `Hello! I'm good, thanks!`,
-        date: new Date(),
-      },
-      // Add more messages as needed
-    ];
-  };
-
   const latestMsgRef = useRef();
   const [chatListLoading, setchatListLoading] = useState(true);
+  const [messageListLoading, setMessageListLoading] = useState(true);
 
   useEffect(() => {
     if (latestMsgRef.current) {
@@ -117,12 +79,54 @@ export default function Message() {
     const emoji = emojiObject.emoji;
     setInputValue((prevValue) => prevValue + emoji);
     setShowEmojiPicker(false);
-    console.log("Emoji selected:", emoji);
   };
 
-  const handleSend = () => {
-    console.log("Message sent!");
-  };
+ const handleSend = async () => {
+  try {
+    if (!selectedChat) {
+      console.log('please select a chat');
+      toast.error('Please select a chat');
+      return;
+    }
+
+    if (!inputValue.trim()) {
+      console.log("Input value is empty");
+      toast.error('Please enter a message');
+      return;
+    }
+    const senderId = JSON.parse(localStorage.getItem("userData")).userData._id;
+    
+    const messageData = {
+      conversationId: selectedChat.id, 
+      senderId: senderId, 
+      message: inputValue.trim() 
+    };
+    const response = await fetch('http://localhost:8080/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(messageData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to send message');
+    }
+    setInputValue('');
+    const newMessage = {
+      position: "right",
+      type: "text",
+      text: inputValue.trim(),
+      date: new Date(),
+    };
+    setMessages(prevMessages => [...prevMessages, newMessage]);
+    toast.success('Message sent successfully');
+  } catch (error) {
+    console.error('Error sending message:', error);
+    toast.error('Failed to send message. Please try again later.');
+  }
+};
+
   const handleEmojiPickerClick = (e) => {
     e.stopPropagation();
   };
@@ -169,7 +173,7 @@ export default function Message() {
 
   }, []);
   const filteredChatList = conversations.map(conversation => ({
-
+    id: conversation._id,
     title: conversation.studentName,
     subtitle: 'Message placeholder',
     avatar: `http://localhost:8080/uploads/${conversation.studentProfilePicture}`,
@@ -204,7 +208,7 @@ export default function Message() {
               />
             ) : (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                No Contact Found
+                <strong>No Contact Found</strong>
               </div>
             )
           )}
@@ -236,7 +240,9 @@ export default function Message() {
                 </div>
               </div>
               <div className="row MsgList" ref={latestMsgRef} >
-                <MessageList className="message-list" lockable={false} dataSource={getDummyConversation(selectedChat)} />
+                {messageListLoading ? (<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Spinner />
+                 </div>):(<MessageList className="message-list" lockable={false} dataSource={message} />)}
               </div>
               <div className="row row-message-input" >
                 <div className="col " style={{ position: "relative" }} ref={emojiPickerRef} >
@@ -280,7 +286,7 @@ export default function Message() {
                     onChange={(e) => setInputValue(e.target.value)}
                     rightButtons={[
                       <Button
-                        key="emojiButton"
+                        key="sendButton"
                         color="white"
                         backgroundColor="#007BFF"
                         text="Send"

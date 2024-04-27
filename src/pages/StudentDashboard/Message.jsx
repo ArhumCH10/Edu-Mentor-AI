@@ -32,9 +32,36 @@ function Message() {
   const [searchQuery, setSearchQuery] = useState('');
   const [conversations, setConversations] = useState([]);
   const handleChatClick = (chatId) => {
-    setSelectedChatId(chatId);
+    if(chatId !== selectedChatId){
+      setSelectedChatId(chatId);
+      fetchMessages(chatId)
+    }
   };
 
+  const fetchMessages = async (conversationId) => {
+    try {
+      const userDataString = localStorage.getItem('user');
+    const userData = JSON.parse(userDataString);
+    const userId = userData._id;
+      const url = `http://localhost:8080/messages/${conversationId}?userId=${userId}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+      }
+      const data = await response.json();
+      console.log(data);
+      setMessages(data); 
+      return data;
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      throw error;
+    } 
+  };
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -65,7 +92,7 @@ function Message() {
 
 
   const filteredMessages = conversations.map(conversation => ({
-    id: conversation._id, // Assuming _id is the ID of the conversation
+    id: conversation._id, 
     name: `${conversation.teacherFirstName} ${conversation.teacherLastName} `,
     time: 'Time placeholder',
     messagePreview: 'Message placeholder',
@@ -73,9 +100,9 @@ function Message() {
   })).filter(message => message.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
 
+  const [messages, setMessages] = useState([]);
 
   const selectedChatMessages = filteredMessages.filter((message) => message.id === selectedChatId);
-
   return (
     <>
       <Row type="horizontal">
@@ -113,8 +140,8 @@ function Message() {
         <div className="message-window-container">
           {selectedChatId ? (
             <MessageWindow
-              messages={selectedChatMessages}
-              activeConversation={selectedChatMessages.length > 0 ? selectedChatMessages[0].name : null}
+              messages={messages} selectedChatId={selectedChatId} setMessages={setMessages}
+              activeConversation={messages.length > 0 ? selectedChatMessages[0].name : null}
               lastSeen="April 10, 10:45 AM"
             />
           ) : (
