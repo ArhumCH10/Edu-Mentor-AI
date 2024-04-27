@@ -3,78 +3,29 @@ import { useState, useEffect, useRef } from "react";
 import { MessageList, Input, ChatList, Button } from "react-chat-elements";
 import EmojiPicker from 'emoji-picker-react';
 import "react-chat-elements/dist/main.css";
+import { toast } from 'react-toastify';
+import { Spinner } from "react-bootstrap";
+
+
 
 
 export default function Message() {
 
 
-  const chatList = [
-    {
-      title: "Ali",
-      subtitle: "Last message from Friend 1",
-      avatar: "https://placekitten.com/50/50",
-    },
-    {
-      title: "Tayyaba",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/52/50",
-    },
-    {
-      title: "Arhum",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/51/50",
-    },
-    {
-      title: "Ayesha",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/53/50",
-    },
-    {
-      title: "Bilal",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/54/50",
-    },
-    {
-      title: "Ayesha",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/55/50",
-    },
-    {
-      title: "Wajeeha",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/56/50",
-    },
-    {
-      title: "Iqra",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/57/50",
-    },
-    {
-      title: "Misha",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/58/50",
-    },
-    {
-      title: "Alizah",
-      subtitle: "Last message from Friend 2",
-      avatar: "https://placekitten.com/59/50",
-    },
-    // Add more chat rooms as needed
-  ];
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [inputValue, setInputValue] = useState("");
+  const [conversations, setConversations] = useState([]);
 
   const onSelectChat = (chat) => {
     setSelectedChat(chat);
   };
 
-  const filteredChatList = chatList.filter((chat) =>
-    chat.title.toLowerCase().includes(searchKeyword.toLowerCase())
-  );
 
+
+  // const [chatList, setChatList] = useState(List);
 
   const getDummyConversation = (user) => {
     return [
@@ -155,6 +106,7 @@ export default function Message() {
   };
 
   const latestMsgRef = useRef();
+  const [chatListLoading, setchatListLoading] = useState(true);
 
   useEffect(() => {
     if (latestMsgRef.current) {
@@ -192,9 +144,42 @@ export default function Message() {
   }, [showEmojiPicker]);
 
   const emojiPickerRef = useRef();
+  useEffect(() => {
+    const teacherId = JSON.parse(localStorage.getItem("userData")).userData._id;
+
+    const fetchConversations = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/teacher/${teacherId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversations');
+        }
+        const data = await response.json();
+        setConversations(data);
+
+      } catch (error) {
+        toast.error(error);
+        console.error(error);
+
+      } finally {
+        setchatListLoading(false);
+      }
+    };
+
+    fetchConversations();
+
+  }, []);
+  const filteredChatList = conversations.map(conversation => ({
+
+    title: conversation.studentName,
+    subtitle: 'Message placeholder',
+    avatar: `http://localhost:8080/uploads/${conversation.studentProfilePicture}`,
+    alt: 'default-user.jpg',
+    date: new Date(),
+  })).filter(message => message.title.toLowerCase().includes(searchKeyword.toLowerCase()));
 
   return (
     <>
+
       <Header />
       <div className="row msg-page-container">
         <div className="chatList">
@@ -205,27 +190,49 @@ export default function Message() {
             onChange={(e) => setSearchKeyword(e.target.value)}
 
           />
+          {chatListLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Spinner />
+            </div>
+          ) : (
+            conversations.length > 0 ? (
+              <ChatList
+                className="chat-list"
+                dataSource={filteredChatList}
+                onClick={(chat) => onSelectChat(chat)}
+                activeChat={selectedChat}
+              />
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                No Contact Found
+              </div>
+            )
+          )}
 
-          <ChatList
-            className="chat-list"
-            dataSource={filteredChatList}
-            onClick={(chat) => onSelectChat(chat)}
-            activeChat={selectedChat}
-          />
         </div>
         <div style={{ flex: 1 }}>
           {selectedChat ?
             <>
-              <div className="row">
-                <div
+              <div className="row" style={{ borderBottom: "2px solid #ccc" }}>
+                <div className="avatar col-1">
+                  {selectedChat.avatar ? (
+                    <img height={40} width={40} src={selectedChat.avatar} alt="Profile" />
+                  ) : (
+                    selectedChat.title
+                  )}
+                </div>
+                <div className=" col-5"
                   style={{
-                    borderBottom: "1px solid #ccc",
+                    paddingTop: '7px',
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
                     paddingBottom: "10px",
                     marginBottom: "10px",
                     position: "relative"
                   }}
                 >
-                  <strong>{selectedChat.title}</strong>
+                  <strong >{selectedChat.title}</strong>
                 </div>
               </div>
               <div className="row MsgList" ref={latestMsgRef} >
@@ -284,7 +291,12 @@ export default function Message() {
                 </div>
               </div>
             </>
-            : <h1>Select a chat to start messaging</h1>
+            :
+            <div className="nochat-container" style={{ marginTop: '30px' }}>
+              <img className="chatting-pic" src="/public/chat.png" />
+              <p className="text-pic">Pick up where you left off</p>
+              <p className="down-pic">Select a conversation and chat away.</p>
+            </div>
           }
         </div>
 

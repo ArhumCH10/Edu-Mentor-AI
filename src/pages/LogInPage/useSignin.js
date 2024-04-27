@@ -15,6 +15,7 @@ export function useSignin() {
       toast.success("Login Successfully");
       loginFrontend();
       if (data.isRegistered) {
+        localStorage.setItem("user", JSON.stringify(data));
         navigate('/dashboardlinks', { replace: true });
       } else {
           navigate('/tutor-signup', { replace: true });
