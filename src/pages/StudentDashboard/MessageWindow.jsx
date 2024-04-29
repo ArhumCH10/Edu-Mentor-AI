@@ -4,8 +4,12 @@ import "./MessageSidebar.css";
 import EmojiPicker from "emoji-picker-react";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { MessageList } from "react-chat-elements";
+import { toast } from 'react-toastify';
 
-const MessageWindow = ({ messages, activeConversation, lastSeen }) => {
+
+
+const MessageWindow = ({ messages, activeConversation, selectedChatId, lastSeen,setMessages }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const emojiPickerRef = useRef();
@@ -35,21 +39,68 @@ const MessageWindow = ({ messages, activeConversation, lastSeen }) => {
     };
   }, [showEmojiPicker]);
 
+  const handleSend = async () => {
+    try {
+      if (!selectedChatId) {
+        console.log('please select a chat');
+        toast.error('Please select a chat');
+        return;
+      }
+
+      if (!inputValue.trim()) {
+        console.log("Input value is empty");
+        toast.error('Please enter a message');
+        return;
+      }
+      const userDataString = localStorage.getItem('user');
+      const userData = JSON.parse(userDataString);
+      const senderId = userData._id;
+      const messageData = {
+        conversationId: selectedChatId,
+        senderId: senderId,
+        message: inputValue.trim()
+      };
+      const response = await fetch('http://localhost:8080/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(messageData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+      setInputValue('');
+      const newMessage = {
+        position: "right",
+        type: "text",
+        text: inputValue.trim(),
+        date: new Date(),
+      };
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+      toast.success('Message sent successfully');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message. Please try again later.');
+    }
+  };
   return (
     <div className="message-window">
       <div className="message-header">
         <h2>{activeConversation}</h2>
         <div className="last-seen">
-    {lastSeen ? `Last seen: ${lastSeen}` : 'Not available'}
-  </div>
+          {lastSeen ? `Last seen: ${lastSeen}` : 'Not available'}
+        </div>
       </div>
       <div className="message-body">
-        {messages.map((msg) => (
+        <MessageList className="message-list" lockable={false} dataSource={messages} />
+        {/* {messages.map((msg) => (
           <div key={msg.id} className={`message-item ${msg.isOwn ? "own" : ""}`}>
             <div className="message-content">{msg.content}</div>
             <div className="message-time">{msg.time}</div>
           </div>
-        ))}
+        ))} */}
       </div>
       <div className="message-input">
         <button onClick={toggleEmojiPicker} type="button" className="emoji-button">
@@ -64,7 +115,7 @@ const MessageWindow = ({ messages, activeConversation, lastSeen }) => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />
-        <button type="button" className="send-button">
+        <button type="button" className="send-button" onClick={handleSend} >
           Send
         </button>
         <div className={`emoji-picker-container ${showEmojiPicker ? 'show' : ''}`} ref={emojiPickerRef}>
@@ -88,8 +139,10 @@ MessageWindow.propTypes = {
       isOwn: PropTypes.bool,
     })
   ).isRequired,
-  activeConversation: PropTypes.string,
-  lastSeen: PropTypes.string,
+  activeConversation: PropTypes.string.isRequired,
+  setMessages: PropTypes.func.isRequired,
+  selectedChatId: PropTypes.string.isRequired,
+  lastSeen: PropTypes.string.isRequired,
 };
 
 export default MessageWindow;

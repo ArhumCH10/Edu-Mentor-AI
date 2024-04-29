@@ -30,7 +30,7 @@ import ScheduleModal from "./ScheduleModal";
 import { useSignin } from "./useSignin";
 import axios from "axios";
 import EnterCode from "./EnterCode";
-
+import { useNavigate } from "react-router-dom";
 
 const StyledSlider = styled(ReactSlider)`
     width: 100%;
@@ -546,6 +546,7 @@ function TutorsSearch() {
     const { mutate: login } = useSignin({ setSignUpEmail, setSignUpPassword, handleShowScheduleModal });
     const verified = JSON.parse(localStorage.getItem("verified"));
 
+    const token = localStorage.getItem('token');
     const handleLogin = (e) => {
         e.preventDefault();
         const { email, password } = e.target.elements;
@@ -555,6 +556,37 @@ function TutorsSearch() {
                 console.error("Mutation failed:", error);
             });
     };
+    const navigate = useNavigate();
+    const handleOpenChat = async (teacherId)=>{
+        const userDataString = localStorage.getItem('user');
+        const userData = JSON.parse(userDataString);
+        const studentId = userData._id;
+        try {
+            setSkeltonLoading(true);
+            const response = await fetch('http://localhost:8080/createConversation', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ teacherId, studentId }),
+            });
+      
+            if (response.ok) {
+              const data = await response.json();
+              // Assuming the conversation ID is returned in the response
+              const conversationId = data._id;
+              // Navigate to the chat page with the conversation ID
+                navigate(`/studentdashboard/chat/${conversationId}`);
+
+            } 
+          } catch (error) {
+            toast.error('Error creating conversation:',error);
+
+            console.error('Error creating conversation:', error);
+          } finally {
+            setSkeltonLoading(false);
+          }
+    }
 
     return (
         <>

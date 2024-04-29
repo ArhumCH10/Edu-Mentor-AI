@@ -77,7 +77,7 @@ export default function App() {
                 <Route path="timetable" element={<TimeTable />} />
                 <Route path="classroom" element={<Classroom />} />
                 <Route path="lessons" element={<Lessons />} />
-                <Route path="chat" element={<Message />} />
+                <Route path="chat/*" element={<Message />} />
                 <Route path="hirementor" element={<HireMentor />} />
                 <Route path="statistics" element={<Statistics />} />
                 <Route path="payment" element={<Payment />} />
