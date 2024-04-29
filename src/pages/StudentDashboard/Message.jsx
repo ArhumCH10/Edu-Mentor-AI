@@ -7,6 +7,7 @@ import MessageWindow from "./MessageWindow";
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { Spinner } from "react-bootstrap";
+import { io } from 'socket.io-client';
 
 const ChatItem = ({ name, messagePreview, timeAgo, profilePic, onClick, activeChat }) => (
   <div className={`chat-item ${activeChat ? 'active-chat' : ''}`} onClick={onClick}>
@@ -31,18 +32,68 @@ function Message() {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [conversations, setConversations] = useState([]);
+  const [recieverId, setRecieverId] = useState(null)
   const handleChatClick = (chatId) => {
-    if(chatId !== selectedChatId){
+    if (chatId !== selectedChatId) {
       setSelectedChatId(chatId);
-      fetchMessages(chatId)
+      fetchMessages(chatId);
+      const convo = conversations.find(chat => chat._id === chatId);
+      //console.log('convo:',convo);
+      if (convo) {
+        const userDataString = localStorage.getItem('user');
+        const userData = JSON.parse(userDataString);
+        const userId = userData._id;
+        const receiverId = convo.members.find(member => member !== userId);
+        //const receiverId = convo.members[1]; because i have designed members array as 0 is teacherId and 1 is STudentId
+        //console.log('recieverIdnull :',recieverId);
+        //console.log('recieverId: ',receiverId);
+        setRecieverId(receiverId);
+      }
     }
   };
+
+  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    setSocket(io('http://localhost:8000'));
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      const userDataString = localStorage.getItem('user');
+      const userData = JSON.parse(userDataString);
+      const userId = userData._id;
+      socket.emit('addUser', userId);
+      socket.on('getUser', users => {
+        console.log('Socket GetUser online List', users);
+      })
+      socket.on('getMessage', data => {
+        console.log(data);
+        const newMessage = {
+          position: "left",
+          type: data.type,
+          text: data.text,
+          date: new Date(data.date),
+        };
+        setMessages(prevMessages => [...prevMessages, newMessage]);
+      });
+      socket.on('sendItself',data=>{
+        console.log(data);
+        const newMessage = {
+          position: "right",
+          type: data.type,
+          text: data.text,
+          date: new Date(data.date),
+        };
+        setMessages(prevMessages => [...prevMessages, newMessage]);
+      });
+    }
+  }, [socket]);
 
   const fetchMessages = async (conversationId) => {
     try {
       const userDataString = localStorage.getItem('user');
-    const userData = JSON.parse(userDataString);
-    const userId = userData._id;
+      const userData = JSON.parse(userDataString);
+      const userId = userData._id;
       const url = `http://localhost:8080/messages/${conversationId}?userId=${userId}`;
       const response = await fetch(url, {
         method: 'GET',
@@ -55,12 +106,12 @@ function Message() {
       }
       const data = await response.json();
       console.log(data);
-      setMessages(data); 
+      setMessages(data);
       return data;
     } catch (error) {
       console.error('Error fetching messages:', error);
       throw error;
-    } 
+    }
   };
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -92,7 +143,7 @@ function Message() {
 
 
   const filteredMessages = conversations.map(conversation => ({
-    id: conversation._id, 
+    id: conversation._id,
     name: `${conversation.teacherFirstName} ${conversation.teacherLastName} `,
     time: 'Time placeholder',
     messagePreview: 'Message placeholder',
@@ -118,8 +169,8 @@ function Message() {
             className="search-input"
           />
           {loading ? <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-        <Spinner />
-      </div> :
+            <Spinner />
+          </div> :
             <ul className="chat-list">
               {
                 filteredMessages.map((message) => (
@@ -140,9 +191,10 @@ function Message() {
         <div className="message-window-container">
           {selectedChatId ? (
             <MessageWindow
-              messages={messages} selectedChatId={selectedChatId} setMessages={setMessages}
+              messages={messages} selectedChatId={selectedChatId} recieverId={recieverId}
               activeConversation={messages.length > 0 ? selectedChatMessages[0].name : null}
               lastSeen="April 10, 10:45 AM"
+              socket={socket}
             />
           ) : (
             <div className="nochat-container">

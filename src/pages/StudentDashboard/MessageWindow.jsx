@@ -9,15 +9,26 @@ import { toast } from 'react-toastify';
 
 
 
-const MessageWindow = ({ messages, activeConversation, selectedChatId, lastSeen,setMessages }) => {
+const MessageWindow = ({ messages, activeConversation, selectedChatId, lastSeen ,socket,recieverId}) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const emojiPickerRef = useRef();
+  const emojiPickerRef = useRef(); 
+  const messageBodyRef = useRef(null);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    if (messageBodyRef.current) {
+      messageBodyRef.current.scrollTop = messageBodyRef.current.scrollHeight;
+    }
+  };
   const handleEmojiClick = (emojiObject) => {
     setInputValue(prevInputValue => prevInputValue + emojiObject.emoji);
     // Removed the setShowEmojiPicker(false) to keep the emoji picker open
   };
+
 
   const toggleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -39,6 +50,7 @@ const MessageWindow = ({ messages, activeConversation, selectedChatId, lastSeen,
     };
   }, [showEmojiPicker]);
 
+ 
   const handleSend = async () => {
     try {
       if (!selectedChatId) {
@@ -55,30 +67,40 @@ const MessageWindow = ({ messages, activeConversation, selectedChatId, lastSeen,
       const userDataString = localStorage.getItem('user');
       const userData = JSON.parse(userDataString);
       const senderId = userData._id;
-      const messageData = {
-        conversationId: selectedChatId,
-        senderId: senderId,
-        message: inputValue.trim()
-      };
-      const response = await fetch('http://localhost:8080/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(messageData),
-      });
+      //in route i just made conversationID, senderId and message=text in backend for database
+      // const messageData = {
+      //   conversationId: selectedChatId,
+      //   senderId: senderId,
+      //   text: inputValue.trim(),
+      //   type: "text",
+      //   date: new Date(),
+      // };
+      // const response = await fetch('http://localhost:8080/messages', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(messageData),
+      // });
 
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
+      // if (!response.ok) {
+      //   throw new Error('Failed to send message');
+      // }
       setInputValue('');
-      const newMessage = {
-        position: "right",
-        type: "text",
-        text: inputValue.trim(),
-        date: new Date(),
-      };
-      setMessages(prevMessages => [...prevMessages, newMessage]);
+      socket?.emit('sendMessage', { 
+        conversationId : selectedChatId, 
+        senderId : senderId, 
+        recieverId:recieverId,
+        text: inputValue.trim(), 
+        type: 'text', 
+        date: new Date() });
+      // const newMessage = {
+      //   position: "right",
+      //   type: "text",
+      //   text: inputValue.trim(),
+      //   date: new Date(),
+      // };
+      // setMessages(prevMessages => [...prevMessages, newMessage]);
       toast.success('Message sent successfully');
     } catch (error) {
       console.error('Error sending message:', error);
@@ -93,7 +115,7 @@ const MessageWindow = ({ messages, activeConversation, selectedChatId, lastSeen,
           {lastSeen ? `Last seen: ${lastSeen}` : 'Not available'}
         </div>
       </div>
-      <div className="message-body">
+      <div className="message-body" ref={messageBodyRef} style={{ scrollBehavior: 'smooth' ,height: 'calc(60vh - 20px)', maxHeight: '500px'}}>
         <MessageList className="message-list" lockable={false} dataSource={messages} />
         {/* {messages.map((msg) => (
           <div key={msg.id} className={`message-item ${msg.isOwn ? "own" : ""}`}>
@@ -114,6 +136,11 @@ const MessageWindow = ({ messages, activeConversation, selectedChatId, lastSeen,
           placeholder="Type a message"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSend();
+            }
+          }}
         />
         <button type="button" className="send-button" onClick={handleSend} >
           Send
@@ -140,9 +167,10 @@ MessageWindow.propTypes = {
     })
   ).isRequired,
   activeConversation: PropTypes.string.isRequired,
-  setMessages: PropTypes.func.isRequired,
   selectedChatId: PropTypes.string.isRequired,
   lastSeen: PropTypes.string.isRequired,
+  recieverId: PropTypes.string.isRequired,
+  socket: PropTypes.object.isRequired,
 };
 
 export default MessageWindow;

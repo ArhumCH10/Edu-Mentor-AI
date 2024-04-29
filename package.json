@@ -65,6 +65,7 @@
     "react-youtube": "^10.1.0",
     "recharts": "^2.10.4",
     "recordrtc": "^5.6.2",
+    "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.8",
     "tough-cookie": "^4.1.3"
   },
