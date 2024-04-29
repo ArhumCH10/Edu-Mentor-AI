@@ -44,7 +44,6 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   const photoUrl = useGetPhoto();
   const formData = new FormData();
   const [imagePreview, setImagePreview] = useState(null);
-  console.log("photo",photoUrl);
 
   // Retrieve user object from local storage
   const storedUserData = JSON.parse(localStorage.getItem("userData")) || {};
@@ -68,7 +67,6 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
     }
   }, [user.photo, photoUrl]);
 
-  console.log("image",imagePreview);
   
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -92,8 +90,7 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       };
 
       dispatch(updateUser(updatedStoredUserData));
-      console.log("worked");
-
+   
       localStorage.setItem("userData", JSON.stringify(updatedStoredUserData));
 
       setZoom(1);
@@ -142,15 +139,13 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
   };
 
   const nextHandler = async  () => {
-    console.log("image:", image);
-    console.log("photoUrl:", photoUrl);
     // Check if an image is uploaded
     setLoading(true);
     if (!image) {
       alert("Please upload a photo before proceeding to the next page");
       setLoading(false);
       return;
-    } else if (!photoUrl || !image) {
+    } else if (!photoUrl || !imagePreview) {
       try {
         mutate({
           fileStore: fileStore,
@@ -161,14 +156,13 @@ const Photo = ({ activePage, setActivePage, setActiveComponent }) => {
       }
       //setLoading(false);
     }
-    else if (image.startsWith("blob:")) {
+    else if (imagePreview.startsWith("blob:")) {
       
       setLoading(true);
       try {
         // Use dataUrl in mutate
-        const file = await blobToUrl(image);
+        const file = await blobToUrl(imagePreview);
         setfileStore(file);
-        console.log(fileStore);
          mutate({
           fileStore: fileStore,
         });

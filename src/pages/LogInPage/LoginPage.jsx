@@ -106,10 +106,16 @@ function LoginPage() {
 
       // Store user object in local storage
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem('verified', true);
 
       toast.success("Login Successfully");
       navigate("/studentdashboard");
     } catch (error) {
+      if (error.response && error.response.status === 400) {
+        toast.error("Invalid email or password.");
+      } else if (error.response && error.response.status === 401) {
+        toast.error("User not Registered");
+      }
       if (
         error.response &&
         error.response.status === 300 &&

@@ -9,6 +9,8 @@ export default function LogOut() {
   const HandleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("verified");
+    localStorage.removeItem("isDarkMode");
     toast.success("Logout Successfully");
     navigate("/login");
   };

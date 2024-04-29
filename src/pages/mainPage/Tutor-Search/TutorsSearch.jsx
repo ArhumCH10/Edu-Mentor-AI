@@ -544,6 +544,8 @@ function TutorsSearch() {
     }
     const handleCloseLoginModal = () => setShowLoginModal(false);
     const { mutate: login } = useSignin({ setSignUpEmail, setSignUpPassword, handleShowScheduleModal });
+    const verified = JSON.parse(localStorage.getItem("verified"));
+
     const token = localStorage.getItem('token');
     const handleLogin = (e) => {
         e.preventDefault();
@@ -590,7 +592,7 @@ function TutorsSearch() {
         <>
             <ToastContainer />
             <div className="CovertNavStatic">
-                {token && token != 'undefined' ? <AlternativeNavbar currentImageIndex={0} /> :
+            {verified &&  verified != 'null' ? <AlternativeNavbar currentImageIndex={0} /> :
                     <NavBar currentImageIndex={0} />
                 }
             </div>
@@ -817,7 +819,7 @@ function TutorsSearch() {
                                                     </div>
                                                 </div>
                                                 <div className="row">
-                                                    {token && token != 'undefined' ?
+                                                {verified &&  verified != 'null' ?
                                                         <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
                                                             Book a trial
                                                         </button> :
@@ -969,8 +971,8 @@ function TutorsSearch() {
                                                 </div>
 
                                                 <div className="row">
-                                                    {token && token != 'undefined' ?
-                                                        <button onClick={() => handleOpenChat(index._id)}  className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                    {verified &&  verified != 'null' ?
+                                                        <button onClick={handleShowScheduleModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
                                                             Send Message
                                                         </button>
                                                         :

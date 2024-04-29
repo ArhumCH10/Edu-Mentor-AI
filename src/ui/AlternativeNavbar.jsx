@@ -63,6 +63,8 @@ function AlternativeNavbar({ currentImageIndex }) {
   const handleLogout = async () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("verified");
+    localStorage.removeItem("isDarkMode");
     toast.success("Logout Successfully");
     navigate("/tutors-search/*");
     };

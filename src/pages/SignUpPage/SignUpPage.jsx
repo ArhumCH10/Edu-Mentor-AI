@@ -102,15 +102,7 @@ function SignUpPage({ role, setRole }) {
       // Reset the form if needed
       reset();
 
-      if (response.status === 409) {
-        // Show toast message for already registered as a student
-        toast.error("This email is already registered");
-        console.log("Email already registered");
-      } else if (response.status === 400) {
-        // Show toast message for already registered as a teacher
-        toast.error("This email is already registered as a teacher");
-        console.log("Email already registered as teacher");
-      } else if (response.status === 200) {
+     if (response.status === 200) {
         // Show success toast and navigate to verify page
         toast.success("Verification code sent on email");
         localStorage.setItem("email", studentemail);
@@ -119,6 +111,18 @@ function SignUpPage({ role, setRole }) {
     } catch (error) {
       // Handle errors if the request fails
       console.error("Error sending data to backend:", error);
+      if (error.response && error.response.status === 409) {
+        // Show toast message for already registered as a student
+        toast.error("This email is already registered");
+        console.log("Email already registered");
+      } else if (error.response && error.response.status === 400) {
+        // Show toast message for already registered as a teacher
+        toast.error("This email is already registered as a teacher");
+        console.log("Email already registered as teacher");
+      }
+      else if (error.response && error.response.status === 401) {
+        toast.error("Password must contain at least one capital letter and one special character.");
+      }
     }
   };
 

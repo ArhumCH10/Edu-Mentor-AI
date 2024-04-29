@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import './Classroom.css';
 import { usePaymentStudent } from '../../services/usePaymentStudent';
 import Timer from './Timer';
-import { Spinner } from "react-bootstrap";
+import StyledSpinner from "../TeacherSignUpProcess/startSpinner";
 
 const StarRating = ({ rating }) => {
   const totalStars = 5;
@@ -32,10 +32,10 @@ StarRating.propTypes = {
 };
 
 function Classroom() {
-  const { data: classes,  isLoading, isError } = usePaymentStudent();
+  const { data: classes,  isLoading, isError, status} = usePaymentStudent();
 
   if (isLoading) {
-    return <Spinner/>;
+    return <StyledSpinner/>;
   }
 
 
@@ -43,13 +43,15 @@ if (isError) {
   return <p>Error fetching data. Please try again later.</p>;
 }
 
-if (!classes || classes.length === 0) {
+if (!classes || classes.length === 0 || status !== 'success') {
   return(
   <>
   <Row type="horizontal">
   <Heading as="head1">My Classroom</Heading>
 </Row>
-   <p>No classes found.</p>;
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+  <p>No classes found.</p>
+</div>
    </>)
 }
 

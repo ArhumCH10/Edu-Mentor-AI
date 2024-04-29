@@ -1,5 +1,6 @@
 import './TrialLessons.css'; 
 import { usePaymentTeacher } from '../../services/usePaymentTeacher';
+import StyledSpinner from "../TeacherSignUpProcess/startSpinner";
 
 function formatTimeSlot(startTime, durationMinutes) {
   const endTime = new Date(new Date(`1970/01/01 ${startTime}`).getTime() + durationMinutes * 60000);
@@ -8,7 +9,21 @@ function formatTimeSlot(startTime, durationMinutes) {
 }
   
 export default function TrialLessons() {
-  const { data: classes, status } = usePaymentTeacher();
+  const { data: classes, status, isLoading } = usePaymentTeacher();
+
+  if (isLoading) {
+    return <StyledSpinner/>;
+  }
+
+  if (!classes || classes.length === 0 || status !== 'success') {
+    return(
+    <>
+   <h2 className="lesson-title">Trial Lessons</h2>
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+  <p>No classes found.</p>
+</div>
+     </>)
+  }
   
   return (
     <>
