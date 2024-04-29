@@ -4,6 +4,7 @@ import Row from "../../ui/Row";
 import './Timetable.css';
 import { usePaymentStudent } from '../../services/usePaymentStudent';
 import toast from 'react-hot-toast';
+import StyledSpinner from "../TeacherSignUpProcess/startSpinner";
 
 // Function to generate a consistent color based on the code
 const generateColor = (description) => {
@@ -20,7 +21,7 @@ function convertTo24Hour(time) {
 }
 
 function TimeTable() {
-  const { data: classes, status } = usePaymentStudent();
+  const { data: classes, status, isLoading } = usePaymentStudent();
   const [schedule, setSchedule] = useState({});
   const times = ['08:00-08:55', '09:00-09:55', '10:00-10:55', '11:00-11:55', '12:00-12:55', 
                  '13:00-13:55', '14:00-14:55', '15:00-15:55', '16:00-16:55', '17:00-17:55', 
@@ -77,6 +78,10 @@ function TimeTable() {
   }, [classes, status]);
 
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+
+  if (isLoading) {
+    return <StyledSpinner/>;
+  }
 
   return (
     <>

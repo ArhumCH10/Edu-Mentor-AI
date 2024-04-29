@@ -19,6 +19,9 @@ export async function signup({ email, password }) {
       } else if (error.response && error.response.status === 401) {
         toast.error("Password must contain at least one capital letter and one special character.");
       }
+      else if (error.response && error.response.status === 402) {
+        toast.error("Email already registered as Student.");
+      }
   
       throw error; // Re-throw the error for React Query to handle
     }

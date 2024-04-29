@@ -429,7 +429,7 @@ const TutorProfile = () => {
     }
     const handleCloseLoginModal = () => setShowLoginModal(false);
     const { mutate: login } = useSignin({ setSignUpEmail, setSignUpPassword, handleShowScheduleModal });
-    const token = localStorage.getItem('token');
+    const verified = JSON.parse(localStorage.getItem("verified"));
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -445,7 +445,7 @@ const TutorProfile = () => {
         <>
         <ToastContainer />
         <div className="CovertNavStatic">
-        {token && token != 'undefined' ? <AlternativeNavbar currentImageIndex={0}/> :
+        {verified && verified != 'null' ? <AlternativeNavbar currentImageIndex={0}/> :
                 <NavBar currentImageIndex={0} />
                 }
             </div>
@@ -661,7 +661,7 @@ const TutorProfile = () => {
                                     </div>
                                 </div>
                                 <div className="row">
-                                {token && token != 'undefined'?
+                                {verified && verified != 'null'?
                                    <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginLeft: '1.8rem', marginTop: '1rem', border: '2px solid black', padding: '8px', borderRadius: '10px', width: '83%' }}>
                                    <HiBolt /> Book a trial
                                </button>
@@ -672,7 +672,7 @@ const TutorProfile = () => {
                               }
                                 </div>
                                 <div className="row">
-                                {token && token != 'undefined'?
+                                {verified && verified != 'null'?
                                                                      <button className="btn hov-btn" onClick={handleShowScheduleModal} style={{ background: 'white', border: '2px solid black', marginLeft: '1.8rem', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '83%' }}>
                                                                      <BiMessageSquareDetail /> Send Message
                                                                  </button>

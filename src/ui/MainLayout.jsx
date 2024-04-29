@@ -23,7 +23,7 @@ const totalImages = images.length;
 export default function MainLayout() {
 
   const location = useLocation();
-  const token = localStorage.getItem('token');
+  const verified = JSON.parse(localStorage.getItem("verified"));
   const [toastShown, setToastShown] = useState(false);
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -65,7 +65,7 @@ export default function MainLayout() {
   return (
     <>
             <div className="CovertNavStatic">
-                {token && token != 'undefined' ? <AlternativeNavbar currentImageIndex={currentImageIndex}/> :
+                {verified &&  verified != 'null' ? <AlternativeNavbar currentImageIndex={currentImageIndex}/> :
                 <NavBar currentImageIndex={currentImageIndex} />
                 }
             </div>

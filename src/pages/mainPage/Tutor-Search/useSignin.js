@@ -14,6 +14,7 @@ export function useSignin({ setSignUpEmail, setSignUpPassword,handleShowSchedule
           setSignUpEmail('');
           setSignUpPassword('');
           handleShowScheduleModal();
+          localStorage.setItem('verified', true);
           navigate("/tutors-search/*");
         } else {
           toast.success("Verification Code sent to the email");
