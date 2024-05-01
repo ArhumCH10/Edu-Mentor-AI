@@ -546,7 +546,7 @@ function TutorsSearch() {
     const { mutate: login } = useSignin({ setSignUpEmail, setSignUpPassword, handleShowScheduleModal });
     const verified = JSON.parse(localStorage.getItem("verified"));
 
-    // const token = localStorage.getItem('token');
+   // const token = localStorage.getItem('token');
     const handleLogin = (e) => {
         e.preventDefault();
         const { email, password } = e.target.elements;
@@ -972,7 +972,7 @@ function TutorsSearch() {
 
                                                 <div className="row">
                                                     {verified &&  verified != 'null' ?
-                                                        <button onClick={handleShowScheduleModal} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                        <button onClick={handleOpenChat} className="btn hov-btn" style={{ background: 'white', border: '2px solid #ccc', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
                                                             Send Message
                                                         </button>
                                                         :
