@@ -124,10 +124,13 @@ export default function Lessons() {
   useEffect(() => {
     setActiveLessonsCount(lessonsData.filter(lesson => lesson.status === 'Active Class').length);
     setNewRequestsCount(tutors.filter(tutor => tutor.status === 'New Student').length);
-    setTrialLessonsCount(classes.filter(lesson => lesson.lessonType === 'Trial').length);
-    setClickedCount(3);
+    if (classes) {
+      setTrialLessonsCount(classes.filter(lesson => lesson.lessonType === 'Trial').length); 
+    }
+    setClickedCount(3); 
     setCancelledCount(4);
-  }, []);
+  }, [classes]); // Make sure to add classes in the dependency array to re-run the effect when classes changes
+  
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName); 

@@ -10,6 +10,7 @@ function formatTimeSlot(startTime, durationMinutes) {
   
 export default function TrialLessons() {
   const { data: classes, status, isLoading } = usePaymentTeacher();
+  console.log(classes);
 
   if (isLoading) {
     return <StyledSpinner/>;
