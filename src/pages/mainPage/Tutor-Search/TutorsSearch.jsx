@@ -30,7 +30,6 @@ import ScheduleModal from "./ScheduleModal";
 import { useSignin } from "./useSignin";
 import axios from "axios";
 import EnterCode from "./EnterCode";
- import { useNavigate } from "react-router-dom";
 
 const StyledSlider = styled(ReactSlider)`
     width: 100%;
