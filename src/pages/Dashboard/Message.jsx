@@ -6,46 +6,103 @@ import "react-chat-elements/dist/main.css";
 import { toast } from 'react-toastify';
 import { Spinner } from "react-bootstrap";
 import { io } from 'socket.io-client';
+import axios from 'axios';
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+
 
 export default function Message() {
 
   const [socket, setSocket] = useState(null);
   useEffect(() => {
     setSocket(io('http://localhost:8000'));
-  },[]);
+  }, []);
 
-useEffect (() => {
-  if(socket){
-    socket.emit('addUser', JSON.parse(localStorage.getItem("userData")).userData._id);
-    
-    socket.on('getUser', users =>{
-      console.log('Socket GetUser online List',users);
-    })
-   socket.on('getMessage', data => {
-        console.log(data);
-        const newMessage = {
-          position: "left",
-          type: data.type,
-          text: data.text,
-          date: new Date(data.date),
-        };
-        setMessages(prevMessages => [...prevMessages, newMessage]);
+  useEffect(() => {
+    if (socket) {
+      socket.emit('addUser', JSON.parse(localStorage.getItem("userData")).userData._id);
+
+      socket.on('getUser', users => {
+        console.log('Socket GetUser online List', users);
+      })
+      socket.on('getMessage', msgdata => {
+        console.log(msgdata);
+        const { type } = msgdata;
+        if (type === 'text') {
+
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        } else if (type === 'photo') {
+          const { data } = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
+        else if (type === 'file') {
+          const { data } = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
       });
-    socket.on('sendItself',data=>{
-      console.log(data);
-      const newMessage = {
-        position: "right",
-        type: data.type,
-        text: data.text,
-        date: new Date(data.date),
-      };
-      setMessages(prevMessages => [...prevMessages, newMessage]);
-    });
-  }
-}, [socket]);
+      socket.on('sendItself', msgdata => {
+        console.log(msgdata);
+        const { type } = msgdata;
+        if (type === 'text') {
+
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        } else if (type === 'photo') {
+          const { data } = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
+        else if (type === 'file') {
+          const { data } = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
+      });
+    }
+  }, [socket]);
 
   const userId = JSON.parse(localStorage.getItem("userData")).userData._id;
- 
+
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -53,7 +110,7 @@ useEffect (() => {
   const [inputValue, setInputValue] = useState("");
   const [conversations, setConversations] = useState([]);
   const [recieverId, setRecieverId] = useState(null);
-  const [message,setMessages] = useState([
+  const [message, setMessages] = useState([
     {
       position: "right",
       type: "text",
@@ -67,11 +124,11 @@ useEffect (() => {
       date: new Date(),
     },
   ]
-);
+  );
 
   const fetchMessages = async (conversationId) => {
     try {
-      
+
       const url = `http://localhost:8080/messages/${conversationId}?userId=${userId}`;
       const response = await fetch(url, {
         method: 'GET',
@@ -84,12 +141,12 @@ useEffect (() => {
       }
       const data = await response.json();
       console.log(data);
-      setMessages(data); 
+      setMessages(data);
       return data;
     } catch (error) {
       console.error('Error fetching messages:', error);
       throw error;
-    } finally{
+    } finally {
       setMessageListLoading(false);
     }
   };
@@ -119,7 +176,7 @@ useEffect (() => {
     fetchConversations();
 
   }, []);
-  
+
   const onSelectChat = (chat) => {
     //console.log("chat:",chat);
     //console.log("selectedChat:",selectedChat);
@@ -127,12 +184,12 @@ useEffect (() => {
       setMessageListLoading(true);
       setSelectedChat(chat);
       fetchMessages(chat.id);
-       const conversationId = chat.id;
+      const conversationId = chat.id;
       // console.log('conversationId: ',conversationId);
       // console.log('conversationIdcsdcmsdcds: ',conversations);
       const convo = conversations.find(chat => chat._id === conversationId);
       //console.log('convo:',convo);
-      if (convo ) {
+      if (convo) {
         const receiverId = convo.members.find(member => member !== userId);
         //const receiverId = convo.members[1]; because i have designed members array as 0 is teacherId and 1 is STudentId
         //console.log('recieverIdnull :',recieverId);
@@ -144,6 +201,8 @@ useEffect (() => {
   const latestMsgRef = useRef();
   const [chatListLoading, setchatListLoading] = useState(true);
   const [messageListLoading, setMessageListLoading] = useState(true);
+  const [file, setFile] = useState(null);
+  const [messageType, setMessageType] = useState("text");
 
   useEffect(() => {
     if (latestMsgRef.current) {
@@ -156,54 +215,111 @@ useEffect (() => {
     setShowEmojiPicker(false);
   };
 
- const handleSend = async () => {
-  try {
-    if (!selectedChat) {
-      console.log('please select a chat');
-      toast.error('Please select a chat');
-      return;
-    }
 
-    if (!inputValue.trim()) {
-      console.log("Input value is empty");
-      toast.error('Please enter a message');
-      return;
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    const fileType = e.target.files[0].type.split('/')[0];
+    if (fileType === 'image') {
+      setMessageType('photo');
+    } else {
+      setMessageType('file');
     }
-    const senderId = JSON.parse(localStorage.getItem("userData")).userData._id;
-    socket?.emit('sendMessage', { 
-      conversationId : selectedChat.id, 
-      senderId : senderId, 
-      recieverId:recieverId,
-      text: inputValue.trim(), 
-      type: 'text', 
-      date: new Date() });
-    
-    // const messageData = {
-    //   recipientId: selectedChat.id, 
-    //   senderId: senderId, 
-    //   text: inputValue.trim() ,
-    //   type: "text",
-    //   date: new Date(),
-    // };
-    //socket.emit('sendMessage', messageData);
-    setInputValue('');
-    // const newMessage = {
-    //   position: "right",
-    //   type: "text",
-    //   text: inputValue.trim(),
-    //   date: new Date(),
-    // };
-   // setMessages(prevMessages => [...prevMessages, newMessage]);
-    toast.success('Message sent successfully');
-  } catch (error) {
-    console.error('Error sending message:', error);
-    toast.error('Failed to send message. Please try again later.');
-  }
-};
-// socket.on('messageReceived', (newMessage) => {
-//   console.log('messageRecieved:',newMessage);
-//   setMessages(prevMessages => [...prevMessages, newMessage]);
-// });
+  };
+  const handleSend = async () => {
+    try {
+      if (!selectedChat) {
+        console.log('please select a chat');
+        toast.error('Please select a chat');
+        return;
+      }
+
+      if (!inputValue.trim()) {
+        console.log("Input value is empty");
+        toast.error('Please enter a message');
+        return;
+      }
+      const senderId = JSON.parse(localStorage.getItem("userData")).userData._id;
+
+      let messageData;
+
+      if (messageType === 'text') {
+        messageData = {
+          conversationId: selectedChat.id,
+          recieverId: recieverId,
+          senderId,
+          type: 'text',
+          text: inputValue.trim(),
+          date: new Date()
+        };
+      } else if (messageType === 'file' || messageType === 'photo' || messageType === 'video') {
+        // Upload the file to the server
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post('http://localhost:8080/sendMessageUploads', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        messageData = {
+          conversationId: selectedChat.id,
+          recieverId: recieverId,
+          senderId,
+          type: messageType,
+          text: inputValue.trim(),
+          data: {
+            uri: response.data.filePath,
+            status: {
+              click: false,
+              loading: 0,
+            },
+          },
+          date: new Date()
+        };
+      }
+      //setLocalMessages([...localMessages, messageData]);
+
+
+      socket?.emit('sendMessage', messageData);
+      setInputValue('');
+      setFile(null);
+      setMessageType('text')
+
+      // socket?.emit('sendMessage', { 
+      //   conversationId : selectedChat.id, 
+      //   senderId : senderId, 
+      //   recieverId:recieverId,
+      //   text: inputValue.trim(), 
+      //   type: 'text', 
+      //   date: new Date() });
+
+      // const messageData = {
+      //   recipientId: selectedChat.id, 
+      //   senderId: senderId, 
+      //   text: inputValue.trim() ,
+      //   type: "text",
+      //   date: new Date(),
+      // };
+      //socket.emit('sendMessage', messageData);
+      setInputValue('');
+      // const newMessage = {
+      //   position: "right",
+      //   type: "text",
+      //   text: inputValue.trim(),
+      //   date: new Date(),
+      // };
+      // setMessages(prevMessages => [...prevMessages, newMessage]);
+      toast.success('Message sent successfully');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message. Please try again later.');
+    }
+  };
+  // socket.on('messageReceived', (newMessage) => {
+  //   console.log('messageRecieved:',newMessage);
+  //   setMessages(prevMessages => [...prevMessages, newMessage]);
+  // });
 
   const handleEmojiPickerClick = (e) => {
     e.stopPropagation();
@@ -235,6 +351,29 @@ useEffect (() => {
     alt: 'default-user.jpg',
     date: new Date(),
   })).filter(message => message.title.toLowerCase().includes(searchKeyword.toLowerCase()));
+
+
+  const handleDownload = (message) => {
+    if (message.type === 'file' && message.data && message.data.uri || message.type === 'photo' || message.type === 'video') {
+      console.log('message Download: ', message);
+
+      fetch(message.data.uri)
+        .then(response => response.blob())
+        .then(blob => {
+          const link = document.createElement('a');
+          const url = window.URL.createObjectURL(blob);
+
+          link.href = url;
+          link.download = message.data.uri.split('/').pop();
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error downloading file:', error));
+    }
+  };
 
   return (
     <>
@@ -295,10 +434,10 @@ useEffect (() => {
                 </div>
               </div>
 
-              <div className="message-body"  ref={latestMsgRef} style={{scrollBehavior: 'smooth',height: 'calc(60vh - 20px)', maxHeight: '500px'}} >
+              <div className="message-body" ref={latestMsgRef} style={{ scrollBehavior: 'smooth', height: 'calc(60vh - 20px)', maxHeight: '500px' }} >
                 {messageListLoading ? (<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-              <Spinner />
-                 </div>):(<MessageList className="message-list" style={{ maxWidth: '80%',overflow: 'hidden' }}  dataSource={message} />)}
+                  <Spinner />
+                </div>) : (<MessageList className="message-list" style={{ maxWidth: '80%', overflow: 'hidden' }} dataSource={message} onDownload={(e) => handleDownload(e)} />)}
               </div>
               <div className="row row-message-input" >
                 <div className="col " style={{ position: "relative" }} ref={emojiPickerRef} >
@@ -333,6 +472,10 @@ useEffect (() => {
                     </div>
                   )}
                 </div>
+                <button type="button" className="attachment-button">
+                  <input type="file" onChange={handleFileChange} style={{ display: 'none' }} />
+                  <AttachFileIcon onClick={() => document.querySelector('.attachment-button input').click()} />
+                  </button>
                 <div className="col-11">
                   <Input
                     className="custom-input"
@@ -340,7 +483,7 @@ useEffect (() => {
                     multiline={false}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    
+
                     rightButtons={[
                       <Button
                         key="sendButton"

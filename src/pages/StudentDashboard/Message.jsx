@@ -66,25 +66,79 @@ function Message() {
       socket.on('getUser', users => {
         console.log('Socket GetUser online List', users);
       })
-      socket.on('getMessage', data => {
-        console.log(data);
-        const newMessage = {
-          position: "left",
-          type: data.type,
-          text: data.text,
-          date: new Date(data.date),
-        };
-        setMessages(prevMessages => [...prevMessages, newMessage]);
+      socket.on('getMessage', msgdata => {
+        console.log(msgdata);
+        const {type} = msgdata;
+        if(type === 'text'){
+
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }else if(type === 'photo' ){
+          const {data} = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
+        else if(type === 'file'){
+          const {data} = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
       });
-      socket.on('sendItself',data=>{
-        console.log(data);
-        const newMessage = {
-          position: "right",
-          type: data.type,
-          text: data.text,
-          date: new Date(data.date),
-        };
-        setMessages(prevMessages => [...prevMessages, newMessage]);
+      socket.on('sendItself',msgdata=>{
+        console.log(msgdata);
+        const {type} = msgdata;
+        if(type === 'text'){
+
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }else if(type === 'photo' ){
+          const {data} = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
+        else if(type === 'file'){
+          const {data} = msgdata;
+          data.uri = "http://localhost:8080" + data.uri;
+          const newMessage = {
+            position: "right",
+            type: msgdata.type,
+            text: msgdata.text,
+            data: data,
+            date: new Date(msgdata.date),
+          };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+        }
       });
     }
   }, [socket]);
