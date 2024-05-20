@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 import Select from "react-select";
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import NavBar from "../../../ui/NavBar";
 import AlternativeNavbar from "../../../ui/AlternativeNavbar";
 import './TutorSearch.css';

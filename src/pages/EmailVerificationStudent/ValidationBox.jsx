@@ -80,6 +80,8 @@ function ValidationBox() {
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         navigate("/studentdashboard");
+        localStorage.removeItem("email");
+
       } else if (response.status === 400) {
         console.error("Validation error response:", response.data);
 
