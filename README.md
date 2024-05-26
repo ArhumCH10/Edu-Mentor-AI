@@ -1,3 +1,6 @@
+For Backend go to this link - > 
+https://github.com/ArhumCH10/Edu-Mentor-AI--Back-end
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
