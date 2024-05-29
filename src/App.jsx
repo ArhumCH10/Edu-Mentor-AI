@@ -30,6 +30,7 @@ import Settings from "./pages/StudentDashboard/Settings";
 import TutorProfile from "./pages/mainPage/Tutor-Search/Tutor-Profile/TutorProfile";
 import VerificationPage from "./pages/EmailVerificationStudent/VerificationPage";
 import CheckoutPageStudent from "./pages/CheckoutPage/CheckoutPageStudent";
+import Quiz from "./pages/StudentDashboard/Quiz";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verify" element={<VerificationPage />} />
               <Route path="/checkout-page/*" element={<CheckoutPageStudent />} /> 
+              <Route path="/quiz/*" element={<Quiz />} /> 
 
 
               <Route
