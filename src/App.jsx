@@ -31,7 +31,7 @@ import TutorProfile from "./pages/mainPage/Tutor-Search/Tutor-Profile/TutorProfi
 import VerificationPage from "./pages/EmailVerificationStudent/VerificationPage";
 import CheckoutPageStudent from "./pages/CheckoutPage/CheckoutPageStudent";
 import Quiz from "./pages/StudentDashboard/Quiz";
-
+import Calling from "./pages/Dashboard/Calling"
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -58,6 +58,9 @@ export default function App() {
               <Route path="/verify" element={<VerificationPage />} />
               <Route path="/checkout-page/*" element={<CheckoutPageStudent />} /> 
               <Route path="/quiz/*" element={<Quiz />} /> 
+              <Route path="/meet/*" element={<Calling />} /> 
+
+             
 
 
               <Route
