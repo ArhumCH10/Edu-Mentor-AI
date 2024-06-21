@@ -14,7 +14,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import AdminLogin from "../src/pages/Admin/AdminLogin";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import { PrivateRoute } from "./AuthDashboardRoutes";
-import ForgetPasswordPage from "./pages/LogInPage/forgetPasswordPage";
+import ForgetPasswordPage from "./pages/LogInPage/ForgetPasswordPage";
 import StudentDashboardLinks from "./pages/StudentDashboard/StudentDashboardLinks";
 import { DarkModeProvider } from "./DarkModeChanger";
 import Dashboard from "./pages/StudentDashboard/Dashboard";

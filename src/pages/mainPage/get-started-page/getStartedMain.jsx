@@ -3,7 +3,7 @@ import { useState } from "react";
 import { IoReturnUpBackOutline } from "react-icons/io5";
 import { useSearchParams } from 'react-router-dom';
 import { useTotalTutor } from "../../../services/useTotalTutor";
-import { GetStarted } from "./getStarted";
+import { GetStarted } from "./GetStarted";
 import { Component1 } from './Component1';
 import { Component2 } from './Component2';
 import { Component3 } from './Component3';

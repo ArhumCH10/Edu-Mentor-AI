@@ -10,9 +10,11 @@ function CheckoutPageStudent() {
   const location = useLocation();
   const [teacherName, setTeacherName] = useState('');
   const [formattedStartDate, setFormattedStartDate] = useState('');
+  const [lessonTime, setLessonTime] = useState('');
   //const [formattedEndDate, setFormattedEndDate] = useState('');
   const [hourlyPrice, setHourlyPrice] = useState(0);
   const [tutorData, setTutorData] = useState({});
+  const [lessonDay, setLessonDay] = useState('');
 
   const transactionFee = 0.30;
 
@@ -24,7 +26,9 @@ function CheckoutPageStudent() {
    // const end = eventData?.event.Dateend;
 
    setFormattedStartDate(start ? new Date(start).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' ' + new Date(start).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }) : ''); 
-    //setFormattedEndDate(end ? new Date(end).toLocaleString() : '');
+   setLessonTime(start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));  
+   setLessonDay(start.toLocaleDateString('en-US', { weekday: 'long' }));
+   //setFormattedEndDate(end ? new Date(end).toLocaleString() : '');
    
     if (tutorData) {
       setTutorData(tutorData);
@@ -34,6 +38,9 @@ function CheckoutPageStudent() {
     }
   }, [location]);
 
+ 
+
+
   const makePayment = async (paymentAmount) => {
     const stripe = await loadStripe(
       "pk_test_51Obp44KAlnAzxnFUz8GK3HrpVPY0RkdVZQlKOn7tYAuf5t6LmioU2tdpYEy44MfglP2c4ih8yUiOmOdwJIgLfD7K00s65yhj9D"
@@ -41,11 +48,13 @@ function CheckoutPageStudent() {
     const storedUser = JSON.parse(localStorage.getItem("user"));
 
     const body = {
-      paymentAmount: paymentAmount, // Include the payment amount in the request body
+      paymentAmount: paymentAmount, 
       metadata:  {
         StudentUsername: storedUser.username,
         teacherEmail: tutorData.email,
         trialLessonDate: formattedStartDate, 
+        lessonTime: lessonTime,
+        lessonDay: lessonDay,
       },
     };
     
@@ -69,7 +78,7 @@ function CheckoutPageStudent() {
       const result = await stripe.redirectToCheckout({
         sessionId: session.session.id,
       });
-      console.log(result); // Add this line to inspect the response
+       console.log(result); // Add this line to inspect the response
 
     } catch (error) {
       console.error("Error making payment:", error);
