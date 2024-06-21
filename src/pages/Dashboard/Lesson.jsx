@@ -100,7 +100,7 @@ const TrialComponent = () => {
 const NewComponent = () => {
   return (
     <>
-      <h2 className="lesson-title">New Requests</h2>
+      <h2 className="lesson-title">Classes for today</h2>
       {tutors.map((tutor, index) => (
         <NewRequest key={index} tutor={tutor} />
       ))}
@@ -150,7 +150,7 @@ export default function Lessons() {
           Active Lessons {activeLessonsCount > 0 && `(${activeLessonsCount})`}
         </div>
         <div className={activeTab === 'new' ? 'start' : ''} onClick={() => handleTabClick('new')}>
-          New Requests {newRequestsCount > 0 && `(${newRequestsCount})`}
+          Classroom {newRequestsCount > 0 && `(${newRequestsCount})`}
         </div>
         <div className={activeTab === 'trial' ? 'start' : ''} onClick={() => handleTabClick('trial')}>
           Trial Lessons {trialLessonsCount > 0 && `(${trialLessonsCount})`}

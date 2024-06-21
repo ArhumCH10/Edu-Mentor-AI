@@ -234,6 +234,7 @@ function Profile() {
   const Education = data?.user?.education;
   const Language1 = data?.user?.language1;
   const Education1 = data?.user?.education1;
+  console.log(Name);
 
   const languages = [Language, Language1].filter(Boolean);
   const educations = [Education, Education1].filter(Boolean);
@@ -241,6 +242,7 @@ function Profile() {
   const handleImageUpload = async (event) => {
     const userData = JSON.parse(localStorage.getItem("user")); 
     const email = userData && userData.email;
+
   
     const file = event.target.files[0];
     if (file) {

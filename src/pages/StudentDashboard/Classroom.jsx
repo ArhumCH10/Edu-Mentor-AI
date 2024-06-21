@@ -3,7 +3,6 @@ import Heading from "../../ui/Heading";
 import Row from "../../ui/Row";
 import styles from '../Dashboard/Cancelled.module.css'; 
 import PropTypes from 'prop-types';
-import './Classroom.css';
 import { usePaymentStudent } from '../../services/usePaymentStudent';
 import Timer from './Timer';
 import StyledSpinner from "../TeacherSignUpProcess/startSpinner";
@@ -32,71 +31,84 @@ StarRating.propTypes = {
 };
 
 function Classroom() {
-  const { data: classes,  isLoading, isError, status} = usePaymentStudent();
+  const { data: classes, isLoading, isError, status } = usePaymentStudent();
+  const [expandedBios, setExpandedBios] = useState({});
 
   if (isLoading) {
-    return <StyledSpinner/>;
+    return <StyledSpinner />;
   }
 
+  if (isError) {
+    return <p>Error fetching data. Please try again later.</p>;
+  }
 
-if (isError) {
-  return <p>Error fetching data. Please try again later.</p>;
-}
+  if (!classes || classes.length === 0 || status !== 'success') {
+    return (
+      <>
+        <Row type="horizontal">
+          <Heading as="head1">My Classroom</Heading>
+        </Row>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <p>No classes found.</p>
+        </div>
+      </>
+    );
+  }
 
-if (!classes || classes.length === 0 || status !== 'success') {
-  return(
-  <>
-  <Row type="horizontal">
-  <Heading as="head1">My Classroom</Heading>
-</Row>
-<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-  <p>No classes found.</p>
-</div>
-   </>)
-}
+  const toggleBio = (index) => {
+    setExpandedBios((prevState) => ({
+      ...prevState,
+      [index]: !prevState[index]
+    }));
+  };
 
   return (
     <>
-    <Row type="horizontal">
-      <Heading as="head1">My Classroom</Heading>
-    </Row>
-
+      <Row type="horizontal">
+        <Heading as="head1">My Classroom</Heading>
+      </Row>
       {classes.map((tutor, index) => (
-     <div key={index} className="request-container">
-        <div  className="tutor-card">
-          <div className="tutor-image">
-            <img src={tutor.profilePhoto ? `http://localhost:8080/${tutor.profilePhoto}` : '/public/default-user.jpg'} alt={tutor.name} />
-          </div>
-          <div className="tutor-info">
-            <div className="tutor-rating">
-              <h3>{tutor.teacherName}</h3>
-              <img src='/public/pakistan.png' className={styles.buyerAvatar}/>
-              <div className="rating">
-                <StarRating rating={3.1} />
-                <span className="rating-number">3.1 (29)</span>
+        <div key={index} className="tutor-cards">
+          <div className="tutor-header">
+            <div className="tutor-info-wrapper">
+              <img
+                className="tutor-image"
+                src={tutor.profilePhoto ? `http://localhost:8080/${tutor.profilePhoto}` : '/public/default-user.jpg'}
+                alt={tutor.teacherName}
+              />
+              <div className="tutor-info">
+                <h3>{tutor.teacherName}</h3>
+                <img src='/public/pakistan.png' className={styles.buyerAvatar} alt="Pakistan flag" />
+                <div className="rating">
+                  <StarRating rating={3.1} />
+                  <span className="rating-number">3.1 (29)</span>
+                </div>
+              </div>
+              <div className="tutor-details">
+                <div className="tutor-level">Level 1</div>
+                <div className="class-duration">{tutor.lessonTimeDuration} mins lesson</div>
               </div>
             </div>
-            <p><span className="education-icon">🎓</span> {tutor.subjectsTaught} lesson</p><br/>
+            <div className="button-group">
+              <TimerButton startTime={tutor.lessonDate} />
+            </div>
+          </div>
+          <div className="tutor-body">
+            <p><span className="education-icon">🎓</span> {tutor.subjectsTaught} lesson</p>
             <p className="from-text">🗣️ &nbsp;Speaks: {tutor.languagesSpoken}</p>
             <div className="tutor-certification">
-                <span role="img" aria-label="sparkles">👤</span> {tutor.lessonType} class <Timer startTime={tutor.lessonDate} /> 
-              </div>
+              <span role="img" aria-label="sparkles">👤</span> {tutor.lessonType} class <Timer startTime={tutor.lessonDate} />
+            </div>
             <p className="tutor-bio">
-              {tutor.introduceYourself} <button className="read-more">Read more</button>
+              {expandedBios[index] ? tutor.introduceYourself : `${tutor.introduceYourself.substring(0, 100)}...`} 
+              <button onClick={() => toggleBio(index)} className="read-more">
+                {expandedBios[index] ? "Read less" : "Read more"}
+              </button>
             </p>
           </div>
-          <div className="tutor-session-info">
-            <div className="tutor-level">Level 1</div>
-            <div className="class-duration">{tutor.lessonTimeDuration} mins lesson</div>
-            <div className="tutor-favorite">
-              {/* Heart icon placeholder */}
-            </div>
-            <TimerButton startTime={tutor.lessonDate} />
-          </div>
-        </div>
         </div>
       ))}
-  </>
+    </>
   );
 }
 
@@ -114,7 +126,6 @@ const TimerButton = ({ startTime }) => {
       if (difference <= 0) {
         setIsEnabled(true);
       } else {
-    
         setIsEnabled(false);
       }
     };
@@ -129,7 +140,7 @@ const TimerButton = ({ startTime }) => {
     <>
       <button className="accept" disabled={!isEnabled}>Start Class</button>
       <button className="send-message">Cancel Class</button>
-      </>
+    </>
   );
 };
 

@@ -16,9 +16,10 @@ const fetchUser = async () => {
     const userData = JSON.parse(localStorage.getItem("user")); 
     const email = userData && userData.email;
   
-    const response = await axios.get(`http://localhost:8080/student/user?email=${email}`);
-
+    const response = await axios.get(`http://localhost:8080/students/user?email=${email}`);
+    console.log(response);
     return response.data;
+    
   } catch (error) {
     const message = error.response?.status === 404
       ? "Student Not Found."

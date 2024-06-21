@@ -15,10 +15,10 @@ const fetchPayment = async () => {
     try {
       const userData = JSON.parse(localStorage.getItem('user')); 
       const email = userData?.email; // Ensure email is correctly referenced; add optional chaining for safety
-    
+
       if (!email) throw new Error("Email not found. Please log in again."); // Check if email is not found
   
-      const response = await axios.get(`http://localhost:8080/student/payment?email=${email}`);
+      const response = await axios.get(`http://localhost:8080/students/payments?email=${email}`);
       return response.data;
     } catch (error) {
       // Check if the error is due to no payment information found (404)

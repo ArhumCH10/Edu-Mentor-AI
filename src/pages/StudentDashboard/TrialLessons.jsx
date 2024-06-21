@@ -60,7 +60,7 @@ export default function TrialLessons() {
                   <p>{lesson.subjectsTaught} lesson</p>
                   <div className="add">
                     <p>Price <strong>$ {lesson.amountPaid} <br/> </strong></p>
-                    <button className="student-view">View Lesson</button>
+                    <button className="student-view">Start Class</button>
                   </div>
                 </div>
               </div>

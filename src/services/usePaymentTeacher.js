@@ -16,7 +16,7 @@ const fetchPayment = async () => {
         const token = localStorage.getItem("token");
       if (!token) throw new Error("token not found. Please log in again."); // Check if email is not found
   
-      const response = await axios.get(`http://localhost:8080/teacher/payment?token=${token}`);
+      const response = await axios.get(`http://localhost:8080/teachers/payments?token=${token}`);
       return response.data;
     } catch (error) {
       // Check if the error is due to no payment information found (404)

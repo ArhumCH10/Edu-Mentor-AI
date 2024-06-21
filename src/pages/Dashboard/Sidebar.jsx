@@ -49,11 +49,6 @@ const Sidebar = () => {
       icon: <FaDollarSign  />
     },
     {
-      path: "/meet/",
-      name: "Calling",
-      icon: <FaDollarSign  />
-    },
-    {
       path: "/dashboardlinks/Settings",
       name: "Settings",
       icon: <IoIosSettings />
