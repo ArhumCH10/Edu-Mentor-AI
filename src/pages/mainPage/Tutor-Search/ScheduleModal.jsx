@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Backend_URI } from '../../../Config/Constant'
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const localizer = momentLocalizer(moment);
 
@@ -13,6 +14,50 @@ const ScheduleModal = ({ availability, showScheduleModal, handleCloseScheduleMod
 
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
+
+    const fetchConfirmLessons = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/confirmed-trial-lessons`);
+            const confirmedLessons = response.data;
+
+            const updatedEvents = events.map(event => {
+                const foundLesson = confirmedLessons.find(lesson =>
+                    moment(lesson.trialLessonDate).isSame(event.start, 'day')
+                );
+                if (foundLesson) {
+                    const { studentId, lessonType } = foundLesson;
+                    return {
+                        ...event,
+                        title: 'Booked Lesson',
+                        status: 'booked',
+                        className: 'booked-lesson',
+                        studentId: studentId,
+                        lessonType: lessonType,
+                    };
+                }
+                return event;
+            }).filter(event => !confirmedLessons.find(lesson =>
+                moment(lesson.trialLessonDate).isSame(event.start, 'day')
+            ));
+
+            console.log('confirmedLessons', confirmedLessons);
+            console.log('updatedEvents', updatedEvents);
+
+            setEvents(updatedEvents);
+        } catch (error) {
+            console.error('Error fetching confirmed trial lessons:', error);
+        } finally {
+            setFlag(false);
+        }
+    };
+
+
+    const [flag, setFlag] = useState(false);
+    useEffect(() => {
+        if (flag) {
+            fetchConfirmLessons();
+        }
+    }, [flag]);
 
     useEffect(() => {
         const generateEvents = () => {
@@ -51,6 +96,9 @@ const ScheduleModal = ({ availability, showScheduleModal, handleCloseScheduleMod
             });
 
             setEvents(newEvents);
+            if(newEvents){
+                setFlag(true)
+            }
         };
         generateEvents();
 

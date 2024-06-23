@@ -22,7 +22,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Spinner from '../../../TeacherSignUpProcess/startSpinner'
 import { Backend_URI } from '../../../../Config/Constant'
 import { Modal, Form } from "react-bootstrap";
-import ScheduleModal  from "../ScheduleModal";
+import ScheduleModal from "../ScheduleModal";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSignin } from "../useSignin";
@@ -84,7 +84,7 @@ const TutorProfile = () => {
 
     const [searchQuery] = useSearchParams();
 
-    const [verifyshowModal, setVerifyshowModal] = useState(false);  
+    const [verifyshowModal, setVerifyshowModal] = useState(false);
 
     let content = ` Hello there! I'm AutoBot`;
 
@@ -172,25 +172,57 @@ const TutorProfile = () => {
         }
     };
 
-    const currentDate = new Date();
-
-    const [event] = useState([
-
-        {
-            start: new Date(currentDate.getTime() + 3 * 60 * 60 * 1000),
-            end: new Date(currentDate.getTime() + 5 * 60 * 60 * 1000),
-        },
-        {
-            start: new Date(currentDate.getTime() + 6 * 60 * 60 * 1000),
-            end: new Date(currentDate.getTime() + 7 * 60 * 60 * 1000),
-        },
-    ]);
+    const [event] = useState();
 
     const [date, setDate] = useState(new Date());
 
     const onNavigate = (newDate) => {
         setDate(newDate);
     };
+
+    const fetchConfirmLessons = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/confirmed-trial-lessons`);
+            const confirmedLessons = response.data;
+
+            const updatedEvents = events.map(event => {
+                const foundLesson = confirmedLessons.find(lesson =>
+                    moment(lesson.trialLessonDate).isSame(event.start, 'day')
+                );
+                if (foundLesson) {
+                    const { studentId, lessonType } = foundLesson;
+                    return {
+                        ...event,
+                        title: 'Booked Lesson',
+                        status: 'booked',
+                        className: 'booked-lesson',
+                        studentId: studentId,
+                        lessonType: lessonType,
+                    };
+                }
+                return event;
+            }).filter(event => !confirmedLessons.find(lesson =>
+                moment(lesson.trialLessonDate).isSame(event.start, 'day')
+            ));
+
+            console.log('confirmedLessons', confirmedLessons);
+            console.log('updatedEvents', updatedEvents);
+
+            setEvents(updatedEvents);
+        } catch (error) {
+            console.error('Error fetching confirmed trial lessons:', error);
+        } finally {
+            setFlag(false);
+        }
+    };
+
+
+    const [flag, setFlag] = useState(false);
+    useEffect(() => {
+        if (flag) {
+            fetchConfirmLessons();
+        }
+    }, [flag]);
 
     useEffect(() => {
         const removeUnnecessary = () => {
@@ -261,13 +293,13 @@ const TutorProfile = () => {
             const newEvents = [];
             const today = moment();
             const twoMonthsLater = moment().add(2, 'months');
-    
+
             const datesUntilTwoMonthsLater = [];
             while (today.isBefore(twoMonthsLater)) {
                 datesUntilTwoMonthsLater.push(today.clone());
                 today.add(1, 'week');
             }
-    
+
             datesUntilTwoMonthsLater.forEach(date => {
                 tutorProfileData.availability.forEach(day => {
                     const dayOfWeek = date.clone().day(day.day);
@@ -285,14 +317,15 @@ const TutorProfile = () => {
                             newEvents.push({
                                 start: startDateTime.toDate(),
                                 end: endDateTime.toDate(),
-                               // title: `${startDateTime.format('LT')} – ${endDateTime.format('LT')}`,
+                                // title: `${startDateTime.format('LT')} – ${endDateTime.format('LT')}`,
                             });
                         }
                     });
                 });
             });
-    
+
             setEvents(newEvents);
+            setFlag(true);
         };
 
         if (tutorProfileData) {
@@ -330,20 +363,44 @@ const TutorProfile = () => {
 
     }, [tutorProfileData]);
 
-    const handleEventClick = (event) => {
-        const teacherId = tutorProfileData._id;
-        if (teacherId) {
-            const eventDataToSend = {
-                event: event,
-                tutorData: tutorProfileData,
-            };
-            console.log("eventDataToSend:", eventDataToSend);
-            navigate(`/checkout-page/${teacherId}`, { state: { eventData: eventDataToSend } });
-        } else {
-            console.error("Teacher ID is missing or undefined in the URL.");
-        }
-    };
+  const handleEventClick = (event) => {
+  if (!tutorProfileData || !tutorProfileData._id) {
+    console.error("Teacher ID is missing or undefined in the tutorProfileData.");
+    toast.error("Teacher ID is missing or undefined in the tutorProfileData.");
+    alert("Teacher ID is missing or undefined in the tutorProfileData.");
+   
+    return;
+  }
+
+  const teacherId = tutorProfileData._id;
+  const userString = localStorage.getItem('user');
+  let Id =null;
+  if(userString){
+      const userObject = JSON.parse(userString);
+      if(userObject){
+
+       Id = userObject._id;
+      }
+
+  }
+  const verifiedCheck = localStorage.getItem('verified');
+
+  if (!Id || !verifiedCheck) {
+    toast.error("Please log in first to schedule a trial lesson.");
+    console.log("Please log in first to schedule a trial lesson.");
     
+    return;
+  }
+
+  const eventDataToSend = {
+    event: event,
+    tutorData: tutorProfileData,
+  };
+  console.log("eventDataToSend:", eventDataToSend);
+  navigate(`/checkout-page/${teacherId}`, { state: { eventData: eventDataToSend } });
+};
+
+
     const [signUpEmail, setSignUpEmail] = useState('');
     const [signUpPassword, setSignUpPassword] = useState('');
     const [signUpStudentName, setSignUpStudentName] = useState('');
@@ -355,8 +412,8 @@ const TutorProfile = () => {
     const handleCloseVerifyModal = () => setVerifyshowModal(false);
 
     const handleShowScheduleModal = () => {
-        setCloseScheduleModal(true); 
-        
+        setCloseScheduleModal(true);
+
         if (showLoginModal) {
             setShowLoginModal(false);
         }
@@ -382,42 +439,42 @@ const TutorProfile = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const { name, studentemail, studentpassword } = event.target.elements; 
+        const { name, studentemail, studentpassword } = event.target.elements;
 
         try {
-          // Make a POST request to the backend
-          const response = await axios.post(
-            "http://localhost:8080/student/signup",
-            {
-              name: name.value,
-              email: studentemail.value,
-              password: studentpassword.value,
+            // Make a POST request to the backend
+            const response = await axios.post(
+                "http://localhost:8080/student/signup",
+                {
+                    name: name.value,
+                    email: studentemail.value,
+                    password: studentpassword.value,
+                }
+            );
+
+            console.log("Response from backend:", response.data);
+
+            if (response.status === 200) {
+                // Show success toast and navigate to verify page
+                toast.success("Verification code sent on email");
+                localStorage.setItem("email", studentemail);
+                setVerifyshowModal(true);
             }
-          );
-    
-          console.log("Response from backend:", response.data);
-    
-        if (response.status === 200) {
-            // Show success toast and navigate to verify page
-            toast.success("Verification code sent on email");
-            localStorage.setItem("email", studentemail);
-            setVerifyshowModal(true);
-          }
         } catch (error) {
             if (error.response.status === 409) {
                 // Show toast message for already registered as a student
                 toast.error("This email is already registered");
                 console.log("Email already registered");
-              } else if (error.response.status === 400) {
+            } else if (error.response.status === 400) {
                 // Show toast message for already registered as a teacher
                 toast.error("This email is already registered as a teacher");
                 console.log("Email already registered as teacher");
-              }
-              else if (error.response.status === 401) {
+            }
+            else if (error.response.status === 401) {
                 // Show toast message for already registered as a teacher
                 toast.error("Password must be at least 8 characters long and contain at least one capital letter and one special character.");
                 console.log("Email already registered as teacher");
-              }
+            }
         }
     };
 
@@ -433,9 +490,9 @@ const TutorProfile = () => {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        const { email, password } = e.target.elements; 
+        const { email, password } = e.target.elements;
         setShowLoginModal(false);
-        login({ studentemail: email.value, studentpassword: password.value})
+        login({ studentemail: email.value, studentpassword: password.value })
             .catch((error) => {
                 console.error("Mutation failed:", error);
             });
@@ -443,10 +500,10 @@ const TutorProfile = () => {
 
     return (
         <>
-        <ToastContainer />
-        <div className="CovertNavStatic">
-        {verified && verified != 'null' ? <AlternativeNavbar currentImageIndex={0}/> :
-                <NavBar currentImageIndex={0} />
+            <ToastContainer />
+            <div className="CovertNavStatic">
+                {verified && verified != 'null' ? <AlternativeNavbar currentImageIndex={0} /> :
+                    <NavBar currentImageIndex={0} />
                 }
             </div>
             {isLoading ? <Spinner /> :
@@ -555,6 +612,7 @@ const TutorProfile = () => {
                                                 style={{ height: 450 }}
                                                 onSelectEvent={handleEventClick}
                                             />
+                                            {/* is style ko change mat krna ya kahi or file me mat dalna */}
                                             <style>
                                                 {`
  .rbc-time-gutter {
@@ -631,7 +689,7 @@ const TutorProfile = () => {
                                 <div className="row" style={{ width: '100%', marginLeft: '18px', padding: '2px' }}>
                                     <ReactPlayer
                                         style={{ border: '2px solid black', borderRadius: '5px', padding: 0 }}
-                                         url="https://www.youtube.com/watch?v=rEGSx47bg80"
+                                        url="https://www.youtube.com/watch?v=rEGSx47bg80"
                                         //url={`${Backend_URI}/${tutorProfileData.video.data}`}
                                         controls
                                         height={230}
@@ -644,7 +702,7 @@ const TutorProfile = () => {
                                         config={{
                                             file: {
                                                 attributes: {
-                                                   // poster: `${Backend_URI}/${tutorProfileData.video.thumbnail}`
+                                                    // poster: `${Backend_URI}/${tutorProfileData.video.thumbnail}`
                                                 }
                                             }
                                         }}
@@ -661,168 +719,168 @@ const TutorProfile = () => {
                                     </div>
                                 </div>
                                 <div className="row">
-                                {verified && verified != 'null'?
-                                   <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginLeft: '1.8rem', marginTop: '1rem', border: '2px solid black', padding: '8px', borderRadius: '10px', width: '83%' }}>
-                                   <HiBolt /> Book a trial
-                               </button>
-                                    : 
-                                    <button className="btn" onClick={handleShowSignUpModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginLeft: '1.8rem', marginTop: '1rem', border: '2px solid black', padding: '8px', borderRadius: '10px', width: '83%' }}>
-                                    <HiBolt /> Book a trial
-                                    </button>
-                              }
+                                    {verified && verified != 'null' ?
+                                        <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginLeft: '1.8rem', marginTop: '1rem', border: '2px solid black', padding: '8px', borderRadius: '10px', width: '83%' }}>
+                                            <HiBolt /> Book a trial
+                                        </button>
+                                        :
+                                        <button className="btn" onClick={handleShowSignUpModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginLeft: '1.8rem', marginTop: '1rem', border: '2px solid black', padding: '8px', borderRadius: '10px', width: '83%' }}>
+                                            <HiBolt /> Book a trial
+                                        </button>
+                                    }
                                 </div>
                                 <div className="row">
-                                {verified && verified != 'null'?
-                                                                     <button className="btn hov-btn" onClick={handleShowScheduleModal} style={{ background: 'white', border: '2px solid black', marginLeft: '1.8rem', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '83%' }}>
-                                                                     <BiMessageSquareDetail /> Send Message
-                                                                 </button>
-                                    :
-                                    <button className="btn hov-btn" onClick={handleShowSignUpModal} style={{ background: 'white', border: '2px solid black', marginLeft: '1.8rem', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '83%' }}>
-                                    <BiMessageSquareDetail /> Send Message
-                                    </button>
-                               }
-                               
-                               <Modal size="lg"    style={{
-        maxHeight: '70vh', 
-        width: '70%', 
-        overflow: 'hidden',
-        position: 'fixed',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-      }} show={verifyshowModal} onHide={handleCloseVerifyModal} >
-    <Modal.Body>
-        <EnterCode handleShowScheduleModal={handleShowScheduleModal}/>
-    </Modal.Body>
-</Modal>               
-                  
- <Modal show={SignUpshowModal} onHide={handleCloseSignUpModal} centered className="modal-signup">
+                                    {verified && verified != 'null' ?
+                                        <button className="btn hov-btn" onClick={handleShowScheduleModal} style={{ background: 'white', border: '2px solid black', marginLeft: '1.8rem', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '83%' }}>
+                                            <BiMessageSquareDetail /> Send Message
+                                        </button>
+                                        :
+                                        <button className="btn hov-btn" onClick={handleShowSignUpModal} style={{ background: 'white', border: '2px solid black', marginLeft: '1.8rem', marginTop: '1rem', padding: '8px', borderRadius: '10px', width: '83%' }}>
+                                            <BiMessageSquareDetail /> Send Message
+                                        </button>
+                                    }
 
-                                                        <Modal.Body>
-                                                            <div className="modal-auth-content">
-                                                                <img src={tutorProfileData.profilePhoto ? `${Backend_URI}/${tutorProfileData.profilePhoto}` : 'UserDpNotFound.jpg'} alt="userProfile" style={{ margin: 'auto', borderRadius: '10% 1%' }} height={100} width={90} onError={(e) => {
-                                                                    e.target.src = `./UserDpNotFound.jpg`;
-                                                                    e.target.style.border = '1px solid #ccc';
+                                    <Modal size="lg" style={{
+                                        maxHeight: '70vh',
+                                        width: '70%',
+                                        overflow: 'hidden',
+                                        position: 'fixed',
+                                        left: '50%',
+                                        top: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                    }} show={verifyshowModal} onHide={handleCloseVerifyModal} >
+                                        <Modal.Body>
+                                            <EnterCode handleShowScheduleModal={handleShowScheduleModal} />
+                                        </Modal.Body>
+                                    </Modal>
 
-                                                                }} />
-                                                                <h4>
-                                                                    Sign up to start learning
-                                                                </h4>
-                                                                <span>
-                                                                    <small>
-                                                                        Only one step left to book your lesson with
-                                                                        &nbsp;{tutorProfileData.firstName} {tutorProfileData.lastName}
-                                                                    </small>
-                                                                </span>
-                                                            </div>
+                                    <Modal show={SignUpshowModal} onHide={handleCloseSignUpModal} centered className="modal-signup">
 
-                                                            <button className="google-signup-btn" >
-                                                                <img src="/google-icon.png" alt="Google Icon" className="google-icon" />
-                                                                Continue with Google
-                                                            </button>
+                                        <Modal.Body>
+                                            <div className="modal-auth-content">
+                                                <img src={tutorProfileData.profilePhoto ? `${Backend_URI}/${tutorProfileData.profilePhoto}` : 'UserDpNotFound.jpg'} alt="userProfile" style={{ margin: 'auto', borderRadius: '10% 1%' }} height={100} width={90} onError={(e) => {
+                                                    e.target.src = `./UserDpNotFound.jpg`;
+                                                    e.target.style.border = '1px solid #ccc';
 
-                                                            <Form onSubmit={handleSubmit}>
-                                                            <Form.Group controlId="name">
-                                                                    <Form.Label>Name</Form.Label>
-                                                                    <Form.Control
-                                                                        type="text"
-                                                                        className="w-100"
-                                                                        placeholder="Enter name"
-                                                                        value={signUpStudentName}
-                                                                        onChange={(e) => setSignUpStudentName(e.target.value)}
-                                                                        required
-                                                                    />
-                                                                </Form.Group>
-                                                                <Form.Group controlId="studentemail">
-                                                                    <Form.Label>Email</Form.Label>
-                                                                    <Form.Control
-                                                                        type="email"
-                                                                        className="w-100"
-                                                                        placeholder="Enter email"
-                                                                        value={signUpStudentEmail}
-                                                                        onChange={(e) => setSignUpStudentEmail(e.target.value)}
-                                                                        required
-                                                                    />
-                                                                </Form.Group>
-                                                                <Form.Group controlId="studentpassword">
-                                                                    <Form.Label>Password</Form.Label>
-                                                                    <Form.Control
-                                                                        type="password"
-                                                                        className="w-100"
-                                                                        placeholder="Enter password"
-                                                                        value={signUpStudentPassword}
-                                                                        onChange={(e) => setSignUpStudentPassword(e.target.value)}
-                                                                        required
-                                                                    />
-                                                                </Form.Group>
-                                                                <button type="submit" className="google-signup-btn" style={{ background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginTop: '10px' }}>
-                                                                    Submit
-                                                                </button>
-                                                            </Form>
-                                                            <div className="modal-auth-content">
-                                                                <small>
+                                                }} />
+                                                <h4>
+                                                    Sign up to start learning
+                                                </h4>
+                                                <span>
+                                                    <small>
+                                                        Only one step left to book your lesson with
+                                                        &nbsp;{tutorProfileData.firstName} {tutorProfileData.lastName}
+                                                    </small>
+                                                </span>
+                                            </div>
 
-                                                                    By clicking Continue or Sign up, you agree to <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Terms of Use</span>, including <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Subscription Terms</span> and <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Privacy Policy</span>.
-                                                                </small>
-                                                            </div>
-                                                            <div className="modal-auth-footer">
-                                                                <span>Already have an account?</span>
-                                                                <button onClick={handleShowLoginModal} className="modal-auth-footer-login-btn">Login</button>
-                                                            </div>
-                                                        </Modal.Body>
-                                                    </Modal>
+                                            <button className="google-signup-btn" >
+                                                <img src="/google-icon.png" alt="Google Icon" className="google-icon" />
+                                                Continue with Google
+                                            </button>
 
-                                                    <Modal show={showLoginModal} onHide={handleCloseLoginModal} centered className="modal-login">
-                                                        <Modal.Body>
-                                                            <div className="modal-auth-content">
+                                            <Form onSubmit={handleSubmit}>
+                                                <Form.Group controlId="name">
+                                                    <Form.Label>Name</Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        className="w-100"
+                                                        placeholder="Enter name"
+                                                        value={signUpStudentName}
+                                                        onChange={(e) => setSignUpStudentName(e.target.value)}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                                <Form.Group controlId="studentemail">
+                                                    <Form.Label>Email</Form.Label>
+                                                    <Form.Control
+                                                        type="email"
+                                                        className="w-100"
+                                                        placeholder="Enter email"
+                                                        value={signUpStudentEmail}
+                                                        onChange={(e) => setSignUpStudentEmail(e.target.value)}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                                <Form.Group controlId="studentpassword">
+                                                    <Form.Label>Password</Form.Label>
+                                                    <Form.Control
+                                                        type="password"
+                                                        className="w-100"
+                                                        placeholder="Enter password"
+                                                        value={signUpStudentPassword}
+                                                        onChange={(e) => setSignUpStudentPassword(e.target.value)}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                                <button type="submit" className="google-signup-btn" style={{ background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginTop: '10px' }}>
+                                                    Submit
+                                                </button>
+                                            </Form>
+                                            <div className="modal-auth-content">
+                                                <small>
 
-                                                                <h4>
-                                                                    Log in to start learning
-                                                                </h4>
-                                                                <div className="modal-auth-footer" style={{ border: 'none' }}>
-                                                                    <span>Don&quot;t have a account?</span>
-                                                                    <button className="modal-auth-footer-login-btn" onClick={handleShowSignUpModal}>Sign up</button>
-                                                                </div>
+                                                    By clicking Continue or Sign up, you agree to <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Terms of Use</span>, including <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Subscription Terms</span> and <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Privacy Policy</span>.
+                                                </small>
+                                            </div>
+                                            <div className="modal-auth-footer">
+                                                <span>Already have an account?</span>
+                                                <button onClick={handleShowLoginModal} className="modal-auth-footer-login-btn">Login</button>
+                                            </div>
+                                        </Modal.Body>
+                                    </Modal>
 
-                                                            </div>
+                                    <Modal show={showLoginModal} onHide={handleCloseLoginModal} centered className="modal-login">
+                                        <Modal.Body>
+                                            <div className="modal-auth-content">
 
-                                                            <button className="google-signup-btn" >
-                                                                <img src="/google-icon.png" alt="Google Icon" className="google-icon" />
-                                                                Continue with Google
-                                                            </button>
+                                                <h4>
+                                                    Log in to start learning
+                                                </h4>
+                                                <div className="modal-auth-footer" style={{ border: 'none' }}>
+                                                    <span>Don&quot;t have a account?</span>
+                                                    <button className="modal-auth-footer-login-btn" onClick={handleShowSignUpModal}>Sign up</button>
+                                                </div>
 
-                                                            <Form onSubmit={handleLogin}>
-                                                                <Form.Group controlId="email">
-                                                                    <Form.Label>Email</Form.Label>
-                                                                    <Form.Control
-                                                                        type="email"
-                                                                        className="w-100"
-                                                                        placeholder="Enter email"
-                                                                        value={signUpEmail}
-                                                                        onChange={(e) => setSignUpEmail(e.target.value)}
-                                                                        required
-                                                                    />
-                                                                </Form.Group>
-                                                                <Form.Group controlId="password">
-                                                                    <Form.Label>Password</Form.Label>
-                                                                    <Form.Control
-                                                                        type="password"
-                                                                        className="w-100"
-                                                                        placeholder="Enter password"
-                                                                        value={signUpPassword}
-                                                                        onChange={(e) => setSignUpPassword(e.target.value)}
-                                                                        required
-                                                                    />
-                                                                </Form.Group>
-                                                                <button type="submit" className="google-signup-btn" style={{ background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginTop: '10px' }}>
-                                                                    Login
-                                                                </button>
-                                                            </Form>
+                                            </div>
 
-                                                        </Modal.Body>
-                                                    </Modal>
+                                            <button className="google-signup-btn" >
+                                                <img src="/google-icon.png" alt="Google Icon" className="google-icon" />
+                                                Continue with Google
+                                            </button>
 
-                                                    <ScheduleModal availability={tutorProfileData.availability} showScheduleModal={showScheduleModal} handleCloseScheduleModal={handleCloseScheduleModal} profilePhoto={tutorProfileData.profilePhoto} />
+                                            <Form onSubmit={handleLogin}>
+                                                <Form.Group controlId="email">
+                                                    <Form.Label>Email</Form.Label>
+                                                    <Form.Control
+                                                        type="email"
+                                                        className="w-100"
+                                                        placeholder="Enter email"
+                                                        value={signUpEmail}
+                                                        onChange={(e) => setSignUpEmail(e.target.value)}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                                <Form.Group controlId="password">
+                                                    <Form.Label>Password</Form.Label>
+                                                    <Form.Control
+                                                        type="password"
+                                                        className="w-100"
+                                                        placeholder="Enter password"
+                                                        value={signUpPassword}
+                                                        onChange={(e) => setSignUpPassword(e.target.value)}
+                                                        required
+                                                    />
+                                                </Form.Group>
+                                                <button type="submit" className="google-signup-btn" style={{ background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginTop: '10px' }}>
+                                                    Login
+                                                </button>
+                                            </Form>
+
+                                        </Modal.Body>
+                                    </Modal>
+
+                                    <ScheduleModal availability={tutorProfileData.availability} showScheduleModal={showScheduleModal} handleCloseScheduleModal={handleCloseScheduleModal} profilePhoto={tutorProfileData.profilePhoto} />
                                 </div>
                                 <div className="row" style={{ marginTop: '1rem', marginLeft: '1.8rem' }}>
                                     <div className="col-1">
