@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; 
+// import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import toast from 'react-hot-toast';
-import './TrialLessons.css'; 
+import './TrialLessons.css';
 import { usePaymentTeacher } from '../../services/usePaymentTeacher';
 import StyledSpinner from "../TeacherSignUpProcess/startSpinner";
 
@@ -15,34 +15,77 @@ function formatTimeSlot(startTime, durationMinutes) {
 
 function Modal({ show, onClose, onSave }) {
   const [meetContent, setMeetContent] = useState('');
+  const [isTakingQuiz, setIsTakingQuiz] = useState(false);
+  const [outline, setOutline] = useState('');
 
   if (!show) {
     return null;
   }
 
   const handleSave = () => {
-    onSave(meetContent);
-  };
 
+    if (!meetContent.trim()) {
+      toast.error('Class Topic cannot be empty');
+      return;
+    }
+  
+    if (isTakingQuiz && !outline.trim()) {
+      toast.error('Outline cannot be empty for quiz');
+      return;
+    }
+   
+    if (isTakingQuiz) {
+      onSave(meetContent, outline);
+
+    }
+    else {
+      const nullOutline = null;
+      onSave(meetContent, nullOutline);
+    }
+    onClose();
+  };
+  const handleToggleQuiz = () => {
+    setIsTakingQuiz(!isTakingQuiz);
+    setOutline('');
+  };
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>Enter Class Topic</h2>
-          <button className="close" onClick={onClose}>&times;</button>
-        </div>
-        <div className="modal-body">
-          <div>
-            <label>Meet Content:</label>
-            <input
-              value={meetContent}
-              onChange={(e) => setMeetContent(e.target.value)}
-              style={{ width: '100%' }}
-            />
+    <div className="modal-wrapper">
+      <div className="modal">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2>Enter Class Topic</h2>
+            <button className="close" onClick={onClose}>&times;</button>
           </div>
-        </div>
-        <div className="modal-footer">
-          <button className="save" onClick={handleSave}>Save</button>
+          <div className="modal-body">
+            <div>
+              <label>Class Topic:</label>
+              <input
+                value={meetContent}
+                onChange={(e) => setMeetContent(e.target.value)}
+                style={{ width: '100%' }}
+                placeholder='Write Topic. . . '
+              />
+            </div>
+            <div style={{ marginTop: '10px' }}>
+              <button className="quiz-toggle" onClick={handleToggleQuiz}>
+                {isTakingQuiz ? 'Cancel Quiz' : 'Take Quiz'}
+              </button>
+              {isTakingQuiz && (
+                <div>
+                  <label>Outline: <small>Quiz will be make by it outline.</small></label>
+                  <textarea
+                    value={outline}
+                    onChange={(e) => setOutline(e.target.value)}
+                    style={{ width: '100%', minHeight: '100px', marginTop: '5px' }}
+                    placeholder='1 - 2 line for Today Topic outline . . . '
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="save" onClick={handleSave}>Save</button>
+          </div>
         </div>
       </div>
     </div>
@@ -59,8 +102,8 @@ export default function TrialLessons() {
   const { data: classes, status, isLoading } = usePaymentTeacher();
   const [showModal, setShowModal] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  const navigate = useNavigate();
-  
+  // const navigate = useNavigate();
+
 
   const handleJoinClassClick = (lesson) => {
     setSelectedLesson(lesson);
@@ -71,10 +114,14 @@ export default function TrialLessons() {
     setShowModal(false);
   };
 
-  const handleSaveMeetContent = async (meetContent) => {
+  const handleSaveMeetContent = async (meetContent, quizOutline) => {
+
     const roomID = randomID(5);
     const url = `/meet?roomID=${roomID}&meetContent=${encodeURIComponent(meetContent)}`;
-    const currentTime = new Date().toISOString(); 
+    const currentTime = new Date().toISOString();
+    let userData = JSON.parse(localStorage.getItem('userData'));
+    const userId = userData.userData._id;
+
     const lessonDetails = {
       classUrl: url,
       meetContent,
@@ -85,12 +132,22 @@ export default function TrialLessons() {
       lessonTimeDuration: selectedLesson.lessonTimeDuration,
       subjectsTaught: selectedLesson.subjectsTaught,
       amountPaid: selectedLesson.amountPaid,
-    };
+      teacherId: userId,
+      teacherProfilePic: '',
 
+    };
+    console.log(meetContent, quizOutline);
     try {
-      const response = await axios.post('http://localhost:8080/trial-classes', lessonDetails);
+      const response = await axios.post('http://localhost:8080/trial-classes', { lessonDetails, ...(quizOutline && { quizOutline }) });
       if (response.status === 201) {
-        navigate(url);
+        const userDataString = localStorage.getItem('userData');
+        const userDataObject = JSON.parse(userDataString);
+        const teacherId = userDataObject.userData._id;
+        const profilePhoto = 'http://localhost:8080/' + userDataObject.userData.profilePhoto || './default-user.jpg';
+        const teacherName = userDataObject.userData.firstName + userDataObject.userData.lastName;
+        const stateToNavigate = { userRole: 'teacher', name: teacherName, Id: teacherId, picture: profilePhoto };
+        console.log(stateToNavigate)
+        // navigate(url, { state: stateToNavigate })
         toast.success("Trial Class Started");
       } else {
         toast.error("Failed to start trial class. Please try again.");

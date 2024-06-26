@@ -106,9 +106,9 @@ function Lessons() {
   
 
   useEffect(() => {
-    setActiveLessonsCount(lessonsData.filter(lesson => lesson.status === 'Active Class').length);
-    setNewRequestsCount(tutors.filter(tutor => tutor.status === 'New tutor').length);
-    setTrialLessonsCount(classes.filter(lesson => lesson.lessonType === 'Trial').length);
+    setActiveLessonsCount(lessonsData?.filter(lesson => lesson.status === 'Active Class').length);
+    setNewRequestsCount(tutors?.filter(tutor => tutor.status === 'New tutor').length);
+    setTrialLessonsCount(classes?.filter(lesson => lesson.lessonType === 'Trial').length);
     setCancelledCount(4);
   }, []);
 

@@ -29,8 +29,10 @@ export default function HeaderMenu() {
 
     socket.on('notifyStudent', (data) => {
       if (data.studentName === storedUser.name) {
+        console.log(data.classDetails);
         setClassDetails(data.classDetails);
         setShowModal(true);
+
       }
     });
 
