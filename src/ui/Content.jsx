@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import Heading from "./Heading";
-import styled , { keyframes,css  } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import { useNavigate } from "react-router-dom";
-// import SearchBar from './SearchBar';
-// import Options from "./Options";
 
 const wordsList = ["Quickly", "Effortlessly", "Swiftly", "Instantly", "Easily"];
 const initialIndex = 0;
@@ -48,7 +46,6 @@ const ButtonWrapper = styled.a`
   &:hover {
     background: linear-gradient(to right, transparent, #00ff00);
     color: #000;
-    
   }
 
   .icon {
@@ -86,7 +83,7 @@ export default function Content() {
   useEffect(() => {
     const interval = setInterval(() => {
       setWordIndex((prevIndex) => (prevIndex + 1) % wordsList.length);
-    }, 3000); 
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);
@@ -113,8 +110,6 @@ export default function Content() {
           </svg>
         </span>
       </ButtonWrapper>
-      {/* <SearchBar /> */}
-      {/* <Options/> */}
     </StyledPage>
   );
 }

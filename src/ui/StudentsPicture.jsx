@@ -1,28 +1,38 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import PropTypes from "prop-types";
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 const StyledDesign = styled.div`
   position: absolute;
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  overflow: hidden; /* Hide overflow content */
+  overflow: hidden;
   height: 90vh;
-  top: auto; /* Reset top positioning */
-  bottom: -6.5vh; /* Position at the bottom and hide 10% of its height */
-  right: 0; /* Adjust right positioning as needed */
-  margin-bottom: 0; /* Offset the bottom margin to compensate for the hidden part */
+  top: auto;
+  bottom: -6.5vh;
+  right: 0;
+  margin-bottom: 0;
   overflow: hidden;
   margin-left: 3px;
+  animation: ${fadeIn} 2s ease-in-out;
 `;
 
 const Img = styled.img`
   height: 30.6rem;
   width: auto;
-  min-width: 100%; /* Ensure the image does not exceed the container's width */
+  min-width: 100%;
   transform: translateX(10%);
   overflow: hidden;
-  margin-top: 200px; /* Adjust this value to move the pictures down */
+  margin-top: 200px;
 `;
 
 export default function StudentsPicture({ currentImageIndex, images }) {

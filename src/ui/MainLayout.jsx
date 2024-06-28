@@ -1,16 +1,18 @@
-import FifthOne from "../pages/mainPage/FifthOne";
-import FirstOne from "../pages/mainPage/FirstOne";
-import FourthOne from "../pages/mainPage/FourthOne";
-import NavBar from "./NavBar";
 import { useState, useEffect } from "react";
-import AlternativeNavbar from "./AlternativeNavbar";
+import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Element } from "react-scroll";
+import NavBar from "./NavBar";
+import AlternativeNavbar from "./AlternativeNavbar";
+import FirstOne from "../pages/mainPage/FirstOne";
 import SecondOne from "../pages/mainPage/SecondOne";
 import ThirdOne from "../pages/mainPage/ThirdOne";
-import EightOne from "../pages/mainPage/EightOne";
-import SeventhOne from "../pages/mainPage/SeventhOne";
+import FourthOne from "../pages/mainPage/FourthOne";
+import FifthOne from "../pages/mainPage/FifthOne";
 import SixthOne from "../pages/mainPage/SixthOne";
-import { useNavigate, useLocation } from "react-router-dom";
+import SeventhOne from "../pages/mainPage/SeventhOne";
+import EightOne from "../pages/mainPage/EightOne";
+import styled, { keyframes } from "styled-components";
 
 const images = [
   "/firstpagepicturesStudents.png",
@@ -20,8 +22,22 @@ const images = [
 ];
 const totalImages = images.length;
 
-export default function MainLayout() {
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
+const AnimatedSection = styled.div`
+  animation: ${fadeIn} 1s ease-in-out;
+`;
+
+export default function MainLayout() {
   const location = useLocation();
   const verified = JSON.parse(localStorage.getItem("verified"));
   const [toastShown, setToastShown] = useState(false);
@@ -31,24 +47,18 @@ export default function MainLayout() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const isVerified = searchParams.get("isVerified");
-    
-    // Check if isVerified is true or false
+
     if (isVerified === "true" && !toastShown) {
       setTimeout(() => {
-        console.log("Showing toast");
         toast.success("Email Verified Successfully");
-        // Clear the query parameter after showing the toast
         navigate("/", { replace: true });
         setToastShown(true);
       }, 0);
     } else if (isVerified === "false" && !toastShown) {
       setTimeout(() => {
-        console.log("Showing error toast");
         toast.error("Email verification pending");
         setToastShown(true);
       }, 0);
-    } else {
-      console.log("No valid isVerified value found or toast already shown");
     }
   }, [location.search, navigate, toastShown]);
 
@@ -64,20 +74,53 @@ export default function MainLayout() {
 
   return (
     <>
-            <div className="CovertNavStatic">
-                {verified &&  verified != 'null' ? <AlternativeNavbar currentImageIndex={currentImageIndex}/> :
-                <NavBar currentImageIndex={currentImageIndex} />
-                }
-            </div>
-      <FirstOne currentImageIndex={currentImageIndex} images={images} />
-      <SecondOne />
-      <ThirdOne />
-      <FourthOne />
-      <FifthOne />
-      <SixthOne />
-      <SeventhOne />
-      <EightOne />
-
+      <div className="CovertNavStatic">
+        {verified && verified !== "null" ? (
+          <AlternativeNavbar currentImageIndex={currentImageIndex} />
+        ) : (
+          <NavBar currentImageIndex={currentImageIndex} />
+        )}
+      </div>
+      <Element name="firstOne">
+        <AnimatedSection>
+          <FirstOne currentImageIndex={currentImageIndex} images={images} />
+        </AnimatedSection>
+      </Element>
+      <Element name="secondOne">
+        <AnimatedSection>
+          <SecondOne />
+        </AnimatedSection>
+      </Element>
+      <Element name="thirdOne">
+        <AnimatedSection>
+          <ThirdOne />
+        </AnimatedSection>
+      </Element>
+      <Element name="fourthOne">
+        <AnimatedSection>
+          <FourthOne />
+        </AnimatedSection>
+      </Element>
+      <Element name="fifthOne">
+        <AnimatedSection>
+          <FifthOne />
+        </AnimatedSection>
+      </Element>
+      <Element name="sixthOne">
+        <AnimatedSection>
+          <SixthOne />
+        </AnimatedSection>
+      </Element>
+      <Element name="seventhOne">
+        <AnimatedSection>
+          <SeventhOne />
+        </AnimatedSection>
+      </Element>
+      <Element name="eighthOne">
+        <AnimatedSection>
+          <EightOne />
+        </AnimatedSection>
+      </Element>
     </>
   );
 }
