@@ -1,4 +1,3 @@
-import NavBar from "../../ui/NavBar";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSignup } from "./useSignup";
@@ -7,6 +6,8 @@ import PropTypes from "prop-types";
 import axios from "axios";
 import { ToastContainer } from "react-toastify";
 import toast from "react-hot-toast";
+import NavBar from "../../ui/NavBar";
+import { useSpring, animated } from 'react-spring';
 
 function SignUpPage({ role, setRole }) {
   const {
@@ -25,18 +26,17 @@ function SignUpPage({ role, setRole }) {
     setRole(role === "student" ? "tutor" : "student");
   };
 
-  const validateName = (value, setError, clearErrors) => {
+  const validateName = (value) => {
     if (!/^[a-zA-Z]+$/.test(value)) {
       setError("name", {
         type: "manual",
-        message:
-          "Please provide a valid name containing only alphabetic characters",
+        message: "Please provide a valid name containing only alphabetic characters",
       });
     } else {
       clearErrors("name");
     }
   };
-  // Validation functions
+
   const validateEmail = (value) => {
     if (!/\S+@\S+\.\S+/.test(value)) {
       setError("email", {
@@ -81,52 +81,36 @@ function SignUpPage({ role, setRole }) {
     }
   };
 
-  // Form submission handler for Student to be used by backend not the part of frontend
   const onSubmitStudent = async (formData) => {
     const { name, studentemail, studentpassword } = formData;
 
     try {
-      // Make a POST request to the backend
-      const response = await axios.post(
-        "http://localhost:8080/student/signup",
-        {
-          name: name,
-          email: studentemail,
-          password: studentpassword,
-        }
-      );
+      const response = await axios.post("http://localhost:8080/student/signup", {
+        name,
+        email: studentemail,
+        password: studentpassword,
+      });
 
-      // Handle the response as needed
       console.log("Response from backend:", response.data);
-
-      // Reset the form if needed
       reset();
 
-     if (response.status === 200) {
-        // Show success toast and navigate to verify page
+      if (response.status === 200) {
         toast.success("Verification code sent on email");
         localStorage.setItem("email", studentemail);
         navigate("/verify");
       }
     } catch (error) {
-      // Handle errors if the request fails
       console.error("Error sending data to backend:", error);
       if (error.response && error.response.status === 409) {
-        // Show toast message for already registered as a student
         toast.error("This email is already registered");
-        console.log("Email already registered");
       } else if (error.response && error.response.status === 400) {
-        // Show toast message for already registered as a teacher
         toast.error("This email is already registered as a teacher");
-        console.log("Email already registered as teacher");
-      }
-      else if (error.response && error.response.status === 401) {
+      } else if (error.response && error.response.status === 401) {
         toast.error("Password must contain at least one capital letter and one special character.");
       }
     }
   };
 
-  //for teacher
   const onSubmit = ({ email, password }) => {
     mutate(
       { email, password },
@@ -251,6 +235,13 @@ function SignUpPage({ role, setRole }) {
     },
   };
 
+  const formAnimation = useSpring({
+    opacity: 1,
+    transform: "translateY(0)",
+    from: { opacity: 0, transform: "translateY(50px)" },
+    config: { duration: 500 },
+  });
+
   return (
     <>
       <NavBar currentImageIndex={0} />
@@ -264,9 +255,7 @@ function SignUpPage({ role, setRole }) {
               marginTop: "2rem",
             }}
           >
-            {role === "student"
-              ? "We Will Transform the"
-              : "Start Earning Money On"}{" "}
+            {role === "student" ? "We Will Transform the" : "Start Earning Money On"}{" "}
           </h3>
           <h3 style={{ color: "white", zIndex: 2, margin: "auto" }}>
             {role === "student" ? "New you" : "your Schedule"}
@@ -302,7 +291,7 @@ function SignUpPage({ role, setRole }) {
             style={{ height: "20%", width: "20%", marginLeft: "24rem" }}
           />
           <div style={styles.formContainer}>
-            <div style={styles.paperContainer}>
+            <animated.div style={{ ...styles.paperContainer, ...formAnimation }}>
               <h2 style={styles.heading}>
                 {role === "student" ? "Student Online" : "Mentor Online"}
               </h2>
@@ -314,65 +303,47 @@ function SignUpPage({ role, setRole }) {
                   textDecoration: "underline",
                 }}
               >
-                {role === "student"
-                  ? "Signup as a tutor"
-                  : "Signup as a student"}
+                {role === "student" ? "Signup as a tutor" : "Signup as a student"}
               </h6>
               {role === "student" ? (
-                <>
-                  <form
-                    style={styles.formContent}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
-                    onSubmit={handleSubmit(onSubmitStudent)}
-                  >
-                    <input
-                      type="text"
-                      style={styles.formInput}
-                      placeholder="Enter your Name"
-                      {...register("name", {
-                        required: "This field is required",
-                      })}
-                      onBlur={(e) => validateName(e.target.value)} // it is not completed, Complete it Bilal
-                    />
-                    {errors.name && (
-                      <p style={{ color: "red" }}>{errors.name.message}</p>
-                    )}
-                    <input
-                      type="text"
-                      style={styles.formInput}
-                      placeholder="name@gmail.com"
-                      {...register("studentemail", {
-                        required: "This field is required",
-                      })}
-                      onBlur={(e) => validateEmailStudent(e.target.value)}
-                    />
-                    {errors.studentemail && (
-                      <p style={{ color: "red" }}>
-                        {errors.studentemail.message}
-                      </p>
-                    )}
-
-                    <input
-                      type="password"
-                      style={styles.formInput}
-                      placeholder="Your Password"
-                      {...register("studentpassword", {
-                        required: "This field is required",
-                      })}
-                      onBlur={(e) => validatePasswordStudent(e.target.value)}
-                    />
-                    {errors.studentpassword && (
-                      <p style={{ color: "red" }}>
-                        {errors.studentpassword.message}
-                      </p>
-                    )}
-
-                    <button type="submit" style={styles.submitBtn}>
-                      Sign Up as Student
-                    </button>
-                  </form>
-                </>
+                <form
+                  style={styles.formContent}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  onSubmit={handleSubmit(onSubmitStudent)}
+                >
+                  <input
+                    type="text"
+                    style={styles.formInput}
+                    placeholder="Enter your Name"
+                    {...register("name", { required: "This field is required" })}
+                    onBlur={(e) => validateName(e.target.value)}
+                  />
+                  {errors.name && <p style={{ color: "red" }}>{errors.name.message}</p>}
+                  <input
+                    type="text"
+                    style={styles.formInput}
+                    placeholder="name@gmail.com"
+                    {...register("studentemail", { required: "This field is required" })}
+                    onBlur={(e) => validateEmailStudent(e.target.value)}
+                  />
+                  {errors.studentemail && (
+                    <p style={{ color: "red" }}>{errors.studentemail.message}</p>
+                  )}
+                  <input
+                    type="password"
+                    style={styles.formInput}
+                    placeholder="Your Password"
+                    {...register("studentpassword", { required: "This field is required" })}
+                    onBlur={(e) => validatePasswordStudent(e.target.value)}
+                  />
+                  {errors.studentpassword && (
+                    <p style={{ color: "red" }}>{errors.studentpassword.message}</p>
+                  )}
+                  <button type="submit" style={styles.submitBtn}>
+                    Sign Up as Student
+                  </button>
+                </form>
               ) : (
                 <form
                   style={styles.formContent}
@@ -384,34 +355,24 @@ function SignUpPage({ role, setRole }) {
                     type="text"
                     style={styles.formInput}
                     placeholder="name@gmail.com"
-                    {...register("email", {
-                      required: "This field is required",
-                    })}
+                    {...register("email", { required: "This field is required" })}
                     onBlur={(e) => validateEmail(e.target.value)}
                   />
-                  {errors.email && (
-                    <p style={{ color: "red" }}>{errors.email.message}</p>
-                  )}
-
+                  {errors.email && <p style={{ color: "red" }}>{errors.email.message}</p>}
                   <input
                     type="password"
                     style={styles.formInput}
                     placeholder="Your Password"
-                    {...register("password", {
-                      required: "This field is required",
-                    })}
+                    {...register("password", { required: "This field is required" })}
                     onBlur={(e) => validatePassword(e.target.value)}
                   />
-                  {errors.password && (
-                    <p style={{ color: "red" }}>{errors.password.message}</p>
-                  )}
-
+                  {errors.password && <p style={{ color: "red" }}>{errors.password.message}</p>}
                   <button type="submit" style={styles.submitBtn}>
                     Sign Up as Mentor
                   </button>
                 </form>
               )}
-            </div>
+            </animated.div>
           </div>
           <img
             className="background-image"

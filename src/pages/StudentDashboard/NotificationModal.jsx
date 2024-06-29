@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect} from 'react';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-
 
 const fadeIn = keyframes`
   from {
@@ -44,20 +43,19 @@ const Modal = styled.div`
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: var(--backdrop-color);
 `;
 
 const ModalContent = styled.div`
-  background-color: #fafafa;
+  background-color: var(--color-grey-0);
   padding: 20px;
-  border: 1px solid #888;
+  border: 1px solid var(--color-grey-300);
   max-width: 80%;
-  box-shadow: 0 4px 8px rgba(0, 0.2, 0.5, 0.5);
-  border-radius: '20px';
-
+  box-shadow: var(--shadow-md);
+  border-radius: var(--border-radius-md);
+  color: var(--color-grey-900);
   animation: ${fadeIn} 0.3s ease-in-out, ${slideIn} 0.5s ease-in-out;
 `;
-
 
 const CloseButtonWrapper = styled.div`
   display: flex;
@@ -65,7 +63,7 @@ const CloseButtonWrapper = styled.div`
 `;
 
 const CloseButton = styled.span`
-  color: #aaa;
+  color: var(--color-grey-900);
   font-size: 28px;
   font-weight: bold;
   cursor: pointer;
@@ -80,7 +78,7 @@ const TeacherPicture = styled.img`
 `;
 
 const JoinButton = styled.button`
-  background-color: #4caf50;
+  background-color: var(--color-green-500);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -89,7 +87,7 @@ const JoinButton = styled.button`
   align-self: flex-end;
 
   &:hover {
-    background-color: #45a049;
+    background-color: var(--color-green-600);
   }
 `;
 
@@ -98,7 +96,7 @@ const Dots = styled.span`
   width: 5px;
   height: 5px;
   margin-left: 5px;
-  background-color: #333;
+  background-color: var(--color-grey-900);
   border-radius: 50%;
   animation: ${pulse} 1s infinite;
   animation-delay: ${props => props.delay};
@@ -120,13 +118,13 @@ const NotificationModal = ({ show, onClose, classDetails }) => {
       audio.play();
 
       audio.onended = () => {
-        onClose(); // jab song khatam ho jay auto closs modal
+        onClose(); // Close the modal when the audio ends
       };
     }
 
     return () => {
       if (audio) {
-        audio.pause(); // Stop the audio when cross button dabao gy
+        audio.pause(); // Stop the audio when the modal is closed
       }
     };
   }, [show]);
@@ -139,7 +137,6 @@ const NotificationModal = ({ show, onClose, classDetails }) => {
   const navigate = useNavigate();
 
   const handleJoinClass = (classUrl) => {
-
     const userString = localStorage.getItem('user');
     const userObject = JSON.parse(userString);
     const StudentId = userObject._id;
@@ -149,9 +146,8 @@ const NotificationModal = ({ show, onClose, classDetails }) => {
     const QuizOutline = classDetails.quizOutline;
     console.log(Topic,QuizOutline)
 
-    navigate(classUrl, { state: { userRole: 'student',name: name,Id: StudentId, picture: Picture, Topic,QuizOutline } });
+    navigate(classUrl, { state: { userRole: 'student', name: name, Id: StudentId, picture: Picture, Topic, QuizOutline } });
   };
-
 
   return (
     <Modal show={show}>
@@ -172,20 +168,18 @@ const NotificationModal = ({ show, onClose, classDetails }) => {
             <div>
               <p>
                 <strong>{classDetails?.teacherName} is calling you
-                  <AnimatedDots count={3} /></ strong>
+                  <AnimatedDots count={3} /></strong>
               </p>
               <p>Time: {formattedTime}</p>
               <p>Duration: {classDetails?.lessonTimeDuration} minutes</p>
               <p>Subject: {classDetails?.subjectsTaught}</p>
               <p>Topic: {classDetails?.meetContent}</p>
-              
               {classDetails?.quizOutline ? 
-              <p><small>Quiz must be taken at the end of class. Take the Class Carefully!</small> </p> : 
+              <p><small>Quiz must be taken at the end of class. Take the Class Carefully!</small></p> : 
               <></>}
-                <JoinButton onClick={() => { handleJoinClass(classDetails.classUrl); onClose(); }}>
-                  Join Class
-                </JoinButton>
-              )
+              <JoinButton onClick={() => { handleJoinClass(classDetails.classUrl); onClose(); }}>
+                Join Class
+              </JoinButton>
             </div>
           </div>
         ) : (
@@ -219,7 +213,7 @@ NotificationModal.defaultProps = {
     lessonTimeDuration: 0,
     subjectsTaught: '',
     classUrl: '',
-    quizOutline: '', 
+    quizOutline: '',
   },
 };
 

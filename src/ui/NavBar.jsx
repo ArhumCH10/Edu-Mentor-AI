@@ -1,14 +1,14 @@
-import AppBar from "@mui/material/AppBar";
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-// import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-// import Button from "@mui/material/Button";
+import styled, { keyframes } from "styled-components";
 import Logo from "./Logo";
 import LoginButton from "./LoginButton";
-import PropTypes from "prop-types";
 import SignUpButton from "./SignUpButton";
+import PropTypes from "prop-types";
 
 const pages = ["Find a mentor", "Become a Mentor"];
 
@@ -18,14 +18,48 @@ const gradients = [
   ["black", "#00ff0a"],
 ];
 
+const buttonAnimation = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
+
+const AnimatedButton = styled.button`
+  margin: 0 15px;
+  padding: 10px;
+  color: white;
+  font-family: Poppins;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  &:hover {
+    animation: ${buttonAnimation} 0.5s ease-in-out infinite;
+    color: #00ff00;
+  }
+`;
+
 function ResponsiveAppBar({ currentImageIndex }) {
-  const [backgroundGradient, setBackgroundGradient] = React.useState(
-    gradients[0]
-  );
+  const navigate = useNavigate();
+  const [backgroundGradient, setBackgroundGradient] = React.useState(gradients[0]);
 
   React.useEffect(() => {
     setBackgroundGradient(gradients[currentImageIndex % gradients.length]);
   }, [currentImageIndex]);
+
+  const handleButtonClick = (page) => {
+    if (page === "Find a mentor") {
+      navigate("/get-started");
+    } else if (page === "Become a Mentor") {
+      navigate("/sign-up");
+    }
+  };
 
   return (
     <AppBar position="sticky">
@@ -57,20 +91,9 @@ function ResponsiveAppBar({ currentImageIndex }) {
 
           <div style={{ flexGrow: 1, marginLeft: "100px" }}>
             {pages.map((page) => (
-              <button
-                key={page}
-                style={{
-                  margin: "0 15px",
-                  padding: "10px",
-                  color: "white",
-                  fontFamily: "Poppins",
-                  backgroundColor: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
+              <AnimatedButton key={page} onClick={() => handleButtonClick(page)}>
                 {page}
-              </button>
+              </AnimatedButton>
             ))}
           </div>
 
