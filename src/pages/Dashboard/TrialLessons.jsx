@@ -102,7 +102,7 @@ export default function TrialLessons() {
   const { data: classes, status, isLoading } = usePaymentTeacher();
   const [showModal, setShowModal] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
 
   const handleJoinClassClick = (lesson) => {
