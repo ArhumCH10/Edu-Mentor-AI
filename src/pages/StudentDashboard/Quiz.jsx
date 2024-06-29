@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { useLocation  } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const API_KEY = 'AIzaSyCRMYtF7su-TU_rcRq0Bt4kcGbB1vAiYww';
 
-const quizData = {
-  questions: [],
-  totalQuestions: 0, // Adjust as needed
-  timePerQuestion: 30
-};
-
 const Quiz = () => {
- 
   const location = useLocation();
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [timer, setTimer] = useState(30);
+  const [userAnswer, setUserAnswer] = useState(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [answers, setAnswers] = useState([]);
+  const [questions, setQuestions] = useState([]);
+
   useEffect(() => {
     if (!location.state || !location.state.topic || !location.state.quizOutline) {
       window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
@@ -20,61 +21,74 @@ const Quiz = () => {
       AiQuizGenerate();
     }
   }, [location?.state]);
-  useEffect(() => {
-    if (location?.state?.quizOutline && location?.state?.quizOutline) {
-      AiQuizGenerate();
-    }
-  }, [location?.state?.quizOutline]);
 
   const genAI = new GoogleGenerativeAI(API_KEY);
   async function AiQuizGenerate() {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
-  
-    const prompt = `Generate a ${quizData.totalQuestions}-question multiple choice quiz on the topic of '${location.state.topic}'.The questions should be related to the following content: 
-    '${location.state.quizOutline}'. Each question should be worth 1 mark and should have 4 options with only one correct answer. Please provide the questions, the four options for each question.`;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  
+    const prompt = `Generate a 10 questions multiple choice quiz on the topic of '${location.state.topic}'. The questions should be related to the following content: 
+    '${location.state.quizOutline}'. Each question should be worth 1 mark and should have 4 options without correct answer. Please provide the questions, the four options for each question.`;
+
     const result = await model.generateContent(prompt);
-    
-    console.log(result);
-    const response =  result.response;
+    const response = result.response;
+    console.log(response);
     const text = response.text();
     console.log(text);
+
+    const parsedQuestions = parseQuizQuestions(text);
+    console.log('parsedQuestions: ', parsedQuestions);
+    setQuestions(parsedQuestions);
   }
-  
-  
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [timer, setTimer] = useState(quizData.timePerQuestion);
-  const [userAnswer, setUserAnswer] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [answers, setAnswers] = useState([]);
 
-  const currentQuestion = quizData.questions[currentQuestionIndex];
-  const [quizStarted, setQuizStarted] = useState(false); 
+  const parseQuizQuestions = (text) => {
+    const questions = [];
+    // const answerKey = {};
+    const questionRegex = /(\d+)\.\s+(.+?)(?=(\d+\.)|$)/gs;
+    // const answerKeyRegex = /Answer Key:\n((?:\d+\.\s+[a-d]\n?)+)/;
+    let match;
 
-  useEffect(() => {
-    if (quizStarted && timer > 0) {
-      const timerInterval = setInterval(() => {
-        setTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 0));
-      }, 1000);
-      return () => clearInterval(timerInterval);
-    } else if (timer === 0) {
-      handleSubmit();
+    while ((match = questionRegex.exec(text)) !== null) {
+      const questionText = match[2].trim();
+      const optionsMatch = questionText.match(/a\)\s+(.+?)\s+b\)\s+(.+?)\s+c\)\s+(.+?)\s+d\)\s+(.+)/);
+      if (optionsMatch) {
+        questions.push({
+          question: questionText.split(/a\)\s+/)[0].trim(),
+          options: [optionsMatch[1].trim(), optionsMatch[2].trim(), optionsMatch[3].trim(), optionsMatch[4].trim()],
+        });
+      }
     }
-  }, [timer, quizStarted]);
+
+    // const answerKeyMatch = text.match(answerKeyRegex);
+    // if (answerKeyMatch) {
+    //   const answers = answerKeyMatch[1].trim().split('\n');
+    //   answers.forEach((line) => {
+    //     const [qNumber, answer] = line.split('. **');
+    //     console.log(qNumber);
+    //     let questionIndex = 0;
+    //     answerKey[questionIndex++] = answer.replace('**', '').trim();
+    //   });
+
+    //   questions.forEach((question, index) => {
+    //     question.correctAnswer = answerKey[index];
+    //   });
+    // }
+
+    return questions;
+  };
 
   const startQuiz = () => {
     setQuizStarted(true);
   };
 
   const handleOptionClick = (option) => {
-    if (!quizStarted) return; 
+    if (!quizStarted) return;
     setUserAnswer(option);
   };
+
   const handleNext = () => {
-    setAnswers([...answers, { questionId: currentQuestion.id, userAnswer }]);
-    if (currentQuestionIndex < quizData.questions.length - 1) {
+    setAnswers([...answers, { questionId: currentQuestionIndex, userAnswer }]);
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       resetTimerAndAnswer();
     } else {
@@ -90,14 +104,16 @@ const Quiz = () => {
   };
 
   const resetTimerAndAnswer = () => {
-    setTimer(quizData.timePerQuestion);
+    setTimer(30);
     setUserAnswer(null);
   };
 
   const handleSubmit = () => {
-    setAnswers([...answers, { questionId: currentQuestion.id, userAnswer }]);
+    setAnswers([...answers, { questionId: currentQuestionIndex, userAnswer }]);
     setIsSubmitted(true);
   };
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   if (isSubmitted) {
     return (
@@ -105,12 +121,12 @@ const Quiz = () => {
         <h2>Quiz Completed!</h2>
         <div style={resultStyle}>
           {answers.map((answer, index) => {
-            const question = quizData.questions.find(q => q.id === answer.questionId);
+            const question = questions[answer.questionId];
             return (
               <div key={index}>
-                <p>{question.question}</p>
-                <p>Your answer: {answer.userAnswer}</p>
-                <p>Correct answer: {question.correctAnswer}</p>
+                <p>{question?.question}</p>
+                <p>Your answer: {answer?.userAnswer}</p>
+                {/* <p>Correct answer: {question?.correctAnswer}</p> */}
               </div>
             );
           })}
@@ -120,80 +136,77 @@ const Quiz = () => {
   }
 
   return (
-
-    <> {!quizStarted && (
-    <div className="modal-wrapper">
-  <div className="modal">
-    <div className="modal-content">
-      <div className="modal-header">
-        <h2>Quiz on <span>{location.state?.topic}</span></h2>
-      </div>
-      <div className="modal-body">
-        <h4>Rules & Regulations</h4>
-        <ul>
-          <li>There are 10 MCQs.</li>
-          <li>Each question has 30 seconds.</li>
-          <li>Quiz will be auto-submitted if any unauthorized actions occur (e.g., opening a new tab).</li>
-          <li>Ensure your Wi-Fi connection is stable.</li>
-        </ul>
-        <div className="warning" style={{backgroundColor: '#ffe0b2', border: '1px solid #ffb74d', 
-          borderRadius:'4px', padding: '10px', marginTop: '20px',
-        }}>
-          <p style={{margin: 0,color: '#f57c00'}}>Warning: Please do not attempt to open new tabs or use unauthorized aids during the quiz. You are Monitoring.</p>
-        </div>
-      </div>
-      <div className="modal-footer">
-        <button className="quiz-toggle" onClick={startQuiz}>Start Quiz</button>
-      </div>
-    </div>
-  </div>
-</div>
-    )}
-<div>
-{quizStarted && (
-      <div style={{
-        backgroundImage: 'url(./logo.png)',
-        backgroundRepeat: 'repeat',
-        backgroundSize: 'cover',
-        width: '100vw',
-        height: '100vh',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: -1,
-      }}>
-        <div style={containerStyle}>
-          <div style={headerStyle}>
-            <div style={topicStyle}>Topic: Networking</div>
-            <div style={timerStyle}>
-              <span>Question-{currentQuestionIndex + 1}/{quizData.totalQuestions}</span>
-              <div style={timerCircleStyle}>{timer}</div>
-              <span style={gearStyle}>&#9881;</span>
+    <>
+      {!quizStarted && (
+        <div className="modal-wrapper">
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h2>Quiz on <span>{location.state?.topic}</span></h2>
+              </div>
+              <div className="modal-body">
+                <h4>Rules & Regulations</h4>
+                <ul>
+                  <li>There are 10 MCQs.</li>
+                  <li>Each question has 30 seconds.</li>
+                  <li>Quiz will be auto-submitted if any unauthorized actions occur (e.g., opening a new tab).</li>
+                  <li>Ensure your Wi-Fi connection is stable.</li>
+                </ul>
+                <div className="warning" style={{ backgroundColor: '#ffe0b2', border: '1px solid #ffb74d', borderRadius: '4px', padding: '10px', marginTop: '20px' }}>
+                  <p style={{ margin: 0, color: '#f57c00' }}>Warning: Please do not attempt to open new tabs or use unauthorized aids during the quiz. You are Monitoring.</p>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="quiz-toggle" onClick={startQuiz}>Start Quiz</button>
+              </div>
             </div>
           </div>
-          <div style={progressBarStyle}>
-            <div style={{ ...progressStyle, width: `${((currentQuestionIndex + 1) / quizData.totalQuestions) * 100}%` }}></div>
-          </div>
-          <div style={questionStyle}>{currentQuestion.question}</div>
-          <div style={optionsContainerStyle}>
-            {currentQuestion.options.map((option, index) => (
-              <div
-                key={index}
-                style={{ ...optionStyle, backgroundColor: userAnswer === option ? '#c8e6c9' : '#ffffff' }}
-                onClick={() => handleOptionClick(option)}
-              >
-                {option}
+        </div>
+      )}
+      {quizStarted && currentQuestion && (
+        <div style={{
+          backgroundImage: 'url(./logo.png)',
+          backgroundRepeat: 'repeat',
+          backgroundSize: 'cover',
+          width: '100vw',
+          height: '100vh',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: -1,
+        }}>
+          <div style={containerStyle}>
+            <div style={headerStyle}>
+              <div style={topicStyle}>Topic: {location.state?.topic}</div>
+              <div style={timerStyle}>
+                <span>Question-{currentQuestionIndex + 1}/{questions.length}</span>
+                <div style={timerCircleStyle}>{timer}</div>
+                <span style={gearStyle}>&#9881;</span>
               </div>
-            ))}
-          </div>
-          <div style={buttonContainerStyle}>
-            <button style={buttonStyle} onClick={handlePrevious} disabled={currentQuestionIndex === 0}>Previous</button>
-            <button style={buttonStyle} onClick={handleNext}>Next</button>
+            </div>
+            <div style={progressBarStyle}>
+              <div style={{ ...progressStyle, width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}></div>
+            </div>
+            <div style={questionStyle}>{currentQuestion.question}</div>
+            <div style={optionsContainerStyle}>
+              {currentQuestion.options.map((option, index) => (
+                <div
+                  key={index}
+                  style={{ ...optionStyle, backgroundColor: userAnswer === option ? '#c8e6c9' : '#ffffff' }}
+                  onClick={() => handleOptionClick(option)}
+                >
+                  {option}
+                </div>
+              ))}
+            </div>
+            <div style={buttonContainerStyle}>
+              <button style={buttonStyle} onClick={handlePrevious} disabled={currentQuestionIndex === 0}>Previous</button>
+              <button style={buttonStyle} onClick={handleNext}>Next</button>
+              <button style={buttonStyle} onClick={handleSubmit}>Submit</button>
+            </div>
           </div>
         </div>
-      </div>
-)}
-</div>
+      )}
     </>
   );
 };
@@ -209,7 +222,6 @@ const containerStyle = {
   justifyContent: "center",
   boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
   alignItems: 'center', marginTop: '150px',
-
 };
 
 const headerStyle = {

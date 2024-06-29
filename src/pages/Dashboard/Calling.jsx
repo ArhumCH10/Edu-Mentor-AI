@@ -1,5 +1,5 @@
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
-import { useEffect, useRef,useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation ,useNavigate } from 'react-router-dom';
 
 function randomID(len) {
@@ -26,25 +26,17 @@ export default function Calling() {
   const Name = location?.state?.name;
   const Id = location?.state?.Id;
   const ProfilePhoto = location?.state?.picture;
-  const [takeQuiz, setTakeQuiz] = useState(false);
-const [topic, setTopic] = useState('');
-const [quizOutline, setQuizOutline] = useState('');
-  useEffect(() => {
-    if (role === 'student') {
-      const topicFromLocation = location?.state?.Topic;
-      const quizOutlineFromLocation = location?.state?.QuizOutline;
-  
-      setTopic(topicFromLocation);
-      setQuizOutline(quizOutlineFromLocation);
-  
-      if (quizOutlineFromLocation) {
-        setTakeQuiz(true);
-      }
-    }
-  }, [role, location]);
+  const topic = location?.state?.Topic;
+  const quizOutline = location?.state?.QuizOutline;
+ 
   const nav = useNavigate();
   useEffect(() => {
-    
+    if (role === 'student') {
+      console.log(location?.state)
+      if ( quizOutline) {
+        console.log('Take Quiz must');
+      }
+    }
     const urlParams = getUrlParams();
     const roomID = urlParams.get('roomID') || randomID(5);
     const meetContent = urlParams.get('meetContent') || "No Topic";
@@ -92,6 +84,13 @@ const [quizOutline, setQuizOutline] = useState('');
         if (users.length === 1) {
 
           zp.destroy();
+          if ( quizOutline) {
+            nav('/quiz', { state: { topic, quizOutline } });
+            
+          } else {
+            setTimeout(() => {
+              window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
+            }, 3000);}
           if (role === 'student') {
             window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
             
@@ -112,18 +111,19 @@ const [quizOutline, setQuizOutline] = useState('');
       onLeaveRoom: () => {
         console.log('user left id:', Id);
         if (role === 'student') {
-          if (takeQuiz) {
-            setTimeout(() => {
-              nav('/quiz', { state: { topic, quizOutline } });
-            }, 3000);
+          console.log('in condition of student role: status of topic and quizOutline', topic, quizOutline)
+          if (quizOutline) {
+            console.log('studend must go for a quiz');
+            nav('/quiz', { state: { topic, quizOutline } });
+            
           } else {
             setTimeout(() => {
-              window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
+             // window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
             }, 3000);}
         } else {
           // console.log('move to teacher');
           setTimeout(() => {
-            window.location.href = 'http://localhost:5173/dashboardlinks/Dashboard';
+           // window.location.href = 'http://localhost:5173/dashboardlinks/Dashboard';
            
           }, 3000);
         }

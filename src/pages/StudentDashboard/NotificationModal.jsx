@@ -145,8 +145,9 @@ const NotificationModal = ({ show, onClose, classDetails }) => {
     const StudentId = userObject._id;
     const name = userObject.name;
     const Picture = 'http://localhost:8080/' + userObject.profilePhoto || './default-user.jpg';
-    const Topic = classDetails?.meetContent;
-    const QuizOutline = classDetails?.quizOutline;
+    const Topic = classDetails.meetContent;
+    const QuizOutline = classDetails.quizOutline;
+    console.log(Topic,QuizOutline)
 
     navigate(classUrl, { state: { userRole: 'student',name: name,Id: StudentId, picture: Picture, Topic,QuizOutline } });
   };

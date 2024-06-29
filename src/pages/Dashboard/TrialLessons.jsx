@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import './TrialLessons.css';
@@ -102,7 +102,7 @@ export default function TrialLessons() {
   const { data: classes, status, isLoading } = usePaymentTeacher();
   const [showModal, setShowModal] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  // const navigate = useNavigate();
+   const navigate = useNavigate();
 
 
   const handleJoinClassClick = (lesson) => {
@@ -147,7 +147,7 @@ export default function TrialLessons() {
         const teacherName = userDataObject.userData.firstName + userDataObject.userData.lastName;
         const stateToNavigate = { userRole: 'teacher', name: teacherName, Id: teacherId, picture: profilePhoto };
         console.log(stateToNavigate)
-        // navigate(url, { state: stateToNavigate })
+        navigate(url, { state: stateToNavigate })
         toast.success("Trial Class Started");
       } else {
         toast.error("Failed to start trial class. Please try again.");
