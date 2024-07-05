@@ -20,8 +20,8 @@ import { IoSearch } from "react-icons/io5";
 import ReactPlayer from 'react-player';
 import TutorSearchFooter from "./TutorSearchFooter";
 import ReactPaginate from 'react-paginate';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import {  toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
 import { useSearchTutors } from './useSearchTutors';
 import SkeletonLoader from './SkeletonLoader';
 import { Backend_URI } from '../../../Config/Constant'
@@ -589,7 +589,7 @@ function TutorsSearch() {
 
     return (
         <>
-            <ToastContainer />
+            {/* <ToastContainer /> */}
             <div className="CovertNavStatic">
             {verified &&  verified != 'null' ? <AlternativeNavbar currentImageIndex={0} /> :
                     <NavBar currentImageIndex={0} />
@@ -645,8 +645,8 @@ function TutorsSearch() {
                                 <RiArrowDropDownLine style={{ fontSize: '28px' }} />
                             </div>
                             {isRangeModal && (
-                                <div className="custom-modal-overlay" >
-                                    <div className="custom-modal" ref={modalRef}>
+                                <div className="custom-modal-overlay" style={{zIndex:44}} >
+                                    <div className="custom-modal" ref={modalRef} >
                                         <div className="values" style={{ margin: '33px', marginBottom: '10px', marginLeft: '50px', fontWeight: 'bold', fontSize: '18px' }}>
                                             {`$ ${minPrice} - $ ${maxPrice}`}
                                         </div>
@@ -916,7 +916,7 @@ function TutorsSearch() {
                                                             </div>
                                                         </Modal.Body>
                                                     </Modal>
-                                                    <Modal show={showLoginModal} onHide={handleCloseLoginModal} centered className="modal-login">
+                                                    <Modal show={showLoginModal} onHide={handleCloseLoginModal} centered className="modal-login" style ={{}}>
                                                         <Modal.Body>
                                                             <div className="modal-auth-content">
 

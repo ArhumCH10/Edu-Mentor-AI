@@ -8,6 +8,28 @@ import { Spinner } from "react-bootstrap";
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import CustomOffer from './CustomOffer';
+import styled from 'styled-components';
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  float: inline-end;
+`;
+const SaveButton = styled.button`
+  padding: 10px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: -20px;
+
+  &:hover {
+    background: #45a049;
+  }
+`;
 
 
 export default function Message() {
@@ -17,6 +39,7 @@ export default function Message() {
     setSocket(io('http://localhost:8000'));
   }, []);
 
+  
   useEffect(() => {
     if (socket) {
       socket.emit('addUser', JSON.parse(localStorage.getItem("userData")).userData._id);
@@ -150,10 +173,10 @@ export default function Message() {
       setMessageListLoading(false);
     }
   };
-
+  const [senderId,setSenderId] = useState('');
   useEffect(() => {
     const teacherId = JSON.parse(localStorage.getItem("userData")).userData._id;
-
+    setSenderId(teacherId);
     const fetchConversations = async () => {
       try {
         const response = await fetch(`http://localhost:8080/teacher/${teacherId}`);
@@ -374,7 +397,10 @@ export default function Message() {
         .catch(error => console.error('Error downloading file:', error));
     }
   };
+  const [isCustomOfferModalOpen, setIsCustomOfferModalOpen] = useState(false);
 
+  const openCustomOfferModal = () => setIsCustomOfferModalOpen(true);
+  const closeCustomOfferModal = () => setIsCustomOfferModalOpen(false);
   return (
     <>
 
@@ -409,6 +435,7 @@ export default function Message() {
 
         </div>
         <div style={{ flex: 1 }}>
+        
           {selectedChat ?
             <>
               <div className="row" style={{ borderBottom: "2px solid #ccc" }}>
@@ -432,9 +459,16 @@ export default function Message() {
                 >
                   <strong >{selectedChat.title}</strong>
                 </div>
+                <div className='col-6'>
+                  <ButtonContainer>
+                <SaveButton onClick={openCustomOfferModal}>Create Custom Offer</SaveButton>
+            </ButtonContainer>
+        {isCustomOfferModalOpen && <CustomOffer onClose={closeCustomOfferModal} recieverId={recieverId} senderId={senderId} />}
+
+                </div>
               </div>
 
-              <div className="message-body" ref={latestMsgRef} style={{ scrollBehavior: 'smooth', height: 'calc(60vh - 20px)', maxHeight: '500px' }} >
+              <div className="message-body" ref={latestMsgRef} style={{ scrollBehavior: 'smooth', height: 'calc(60vh - 20px)', maxHeight: '400px' }} >
                 {messageListLoading ? (<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                   <Spinner />
                 </div>) : (<MessageList className="message-list" style={{ maxWidth: '80%', overflow: 'hidden' }} dataSource={message} onDownload={(e) => handleDownload(e)} />)}
