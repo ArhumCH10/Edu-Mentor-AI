@@ -31,7 +31,10 @@ import TutorProfile from "./pages/mainPage/Tutor-Search/Tutor-Profile/TutorProfi
 import VerificationPage from "./pages/EmailVerificationStudent/VerificationPage";
 import CheckoutPageStudent from "./pages/CheckoutPage/CheckoutPageStudent";
 import Quiz from "./pages/StudentDashboard/Quiz";
-import Calling from "./pages/Dashboard/Calling"
+import Calling from "./pages/Dashboard/Calling";
+import Review from "./pages/StudentDashboard/Review";
+import "./styles/index.css";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -56,12 +59,12 @@ export default function App() {
               <Route path="/sign-up" element={<SignUpMain />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/verify" element={<VerificationPage />} />
-              <Route path="/checkout-page/*" element={<CheckoutPageStudent />} /> 
-              <Route path="/quiz/*" element={<Quiz />} /> 
-              <Route path="/meet/*" element={<Calling />} /> 
-
-             
-
+              <Route
+                path="/checkout-page/*"
+                element={<CheckoutPageStudent />}
+              />
+              <Route path="/quiz/*" element={<Quiz />} />
+              <Route path="/meet/*" element={<Calling />} />
 
               <Route
                 path="/dashboardlinks/*"
@@ -72,6 +75,9 @@ export default function App() {
                   />
                 }
               />
+
+              {/* <Route path="/dashboardlinks/*" element={<DashboardLinks />} /> */}
+              {/* <Route path="/dashboardlinks/*" element={<DashboardLinks />} /> */}
 
               <Route
                 path="/studentdashboard"
@@ -87,6 +93,7 @@ export default function App() {
                 <Route path="statistics" element={<Statistics />} />
                 <Route path="payment" element={<Payment />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="review" element={<Review />} />
               </Route>
 
               <Route path="/admin" element={<AdminLogin />} />

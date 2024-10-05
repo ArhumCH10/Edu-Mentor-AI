@@ -37,11 +37,9 @@ export async function login({ email, password }) {
         email,
         password,
       });
-  
-      // Assuming your server returns a token in the response
+
       const token = response.data.token;
   
-      // Store the token in local storage or in your preferred state management
       localStorage.setItem('token', token);
       document.cookie = `token=${token}; path=/; samesite=strict; secure`;
 
@@ -50,6 +48,11 @@ export async function login({ email, password }) {
         console.log(response.data);
         return response.data;
       }
+      if(response.status === 201)
+        {
+          console.log(response.data);
+          return response.data;
+        }
       
     } catch (error) {
       // Handle different error scenarios
@@ -64,7 +67,7 @@ export async function login({ email, password }) {
       }
       localStorage.clear();
   
-      throw error; // Re-throw the error for React Query to handle
+      throw error;
     }
 }
 

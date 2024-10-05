@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const API_KEY = 'AIzaSyCRMYtF7su-TU_rcRq0Bt4kcGbB1vAiYww';
 
@@ -13,6 +14,7 @@ const Quiz = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [answers, setAnswers] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!location.state || !location.state.topic || !location.state.quizOutline) {
@@ -111,6 +113,7 @@ const Quiz = () => {
   const handleSubmit = () => {
     setAnswers([...answers, { questionId: currentQuestionIndex, userAnswer }]);
     setIsSubmitted(true);
+    navigate('/studentdashboard/review'); 
   };
 
   const currentQuestion = questions[currentQuestionIndex];

@@ -1,10 +1,14 @@
-import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
-import { useEffect, useRef } from 'react';
-import { useLocation ,useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from "react";
+import { io } from "socket.io-client";
+import { useLocation } from "react-router-dom";
+
+const ICE_SERVERS = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+};
 
 function randomID(len) {
-  let result = '';
-  var chars = '12345qwertyuiopasdfgh67890jklmnbvcxzMNBVCZXASDQWERTYHGFUIOLKJP',
+  let result = "";
+  var chars = "12345qwertyuiopasdfgh67890jklmnbvcxzMNBVCZXASDQWERTYHGFUIOLKJP",
     maxPos = chars.length;
   len = len || 5;
   for (let i = 0; i < len; i++) {
@@ -14,133 +18,137 @@ function randomID(len) {
 }
 
 export function getUrlParams(url = window.location.href) {
-  let urlStr = url.split('?')[1];
+  let urlStr = url.split("?")[1];
   return new URLSearchParams(urlStr);
 }
 
 export default function Calling() {
-  const containerRef = useRef(null);
   const location = useLocation();
-  // Generate a unique ID for the presenter
+  const urlParams = getUrlParams();
+  const userId = location?.state?.Id;
   const role = location?.state?.userRole;
-  const Name = location?.state?.name;
-  const Id = location?.state?.Id;
-  const ProfilePhoto = location?.state?.picture;
-  const topic = location?.state?.Topic;
-  const quizOutline = location?.state?.QuizOutline;
- 
-  const nav = useNavigate();
+  const roomId = urlParams.get("roomID") || randomID(5);
+  const [remoteStream, setRemoteStream] = useState(null);
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const peerConnection = useRef(null);
+  const socket = useRef(null);
+
   useEffect(() => {
-    if (role === 'student') {
-      console.log(location?.state)
-      if ( quizOutline) {
-        console.log('Take Quiz must');
+    socket.current = io("http://localhost:5000");
+
+    socket.current.emit("joinRoom", { roomId, userId });
+
+    socket.current.on("offer", handleOffer);
+    socket.current.on("answer", handleAnswer);
+    socket.current.on("ice-candidate", handleNewICECandidateMsg);
+
+    return () => {
+      if (peerConnection.current) {
+        peerConnection.current.close();
       }
-    }
-    const urlParams = getUrlParams();
-    const roomID = urlParams.get('roomID') || randomID(5);
-    const meetContent = urlParams.get('meetContent') || "No Topic";
-    const appID = 1727737219;
-    const serverSecret = "58e68dd856752570b67e3073fb3051ff";
-    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, Id, Name,60);
-    const zp = ZegoUIKitPrebuilt.create(kitToken);
-    
-
-    zp.joinRoom({
-      container: containerRef.current,
-      showPreJoinView: false,
-      showInviteToCohostButton: true,
-      showRemoveCohostButton: true,
-      showRemoveUserButton: true,
-      showLeaveRoomConfirmDialog: true,
-      showTextChat: false,
-      showMyCameraToggleButton: true, 
-        showMyMicrophoneToggleButton: true,
-      showAudioVideoSettingsButton: true,
-      autoHideFooter: true,
-      showRoomTimer: true,
-      enableUserSearch: true,
-      showLeavingView: true,
-      maxUsers: 2,
-      showTurnOffRemoteCameraButton: true,
-      branding: {
-        logoURL: './logo.png'
-      },
-      sharedLinks: [
-        {
-          name: 'Personal link',
-          url: `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}&meetContent=${encodeURIComponent(meetContent)}`,
-        },
-      ],
-      scenario: {
-        mode: ZegoUIKitPrebuilt.GroupCall,
-      },
-      onUserJoin: (users) => {
-        console.log('User(s) joined:', users.map(user => user.userID));
-      },
-      
-      onUserLeave: (users) => {
-        console.log('User(s) left:', users.map(user => user.userID));
-        if (users.length === 1) {
-
-          zp.destroy();
-          if ( quizOutline) {
-            nav('/quiz', { state: { topic, quizOutline } });
-            
-          } else {
-            setTimeout(() => {
-              window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
-            }, 3000);}
-          if (role === 'student') {
-            window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
-            
-          } else {
-            window.location.href = 'http://localhost:5173/dashboardlinks/Dashboard';
-
-            
-          }
-        }
-      },
-      onUserAvatarSetter: (users) => {
-        users.forEach(user => {
-          if (user.userID === Id) {
-            user.setUserAvatar(ProfilePhoto);
-          }
-        });
-      },
-      onLeaveRoom: () => {
-        console.log('user left id:', Id);
-        if (role === 'student') {
-          console.log('in condition of student role: status of topic and quizOutline', topic, quizOutline)
-          if (quizOutline) {
-            console.log('studend must go for a quiz');
-            nav('/quiz', { state: { topic, quizOutline } });
-            
-          } else {
-            setTimeout(() => {
-             // window.location.href = 'http://localhost:5173/studentdashboard/dashboard';
-            }, 3000);}
-        } else {
-          // console.log('move to teacher');
-          setTimeout(() => {
-           // window.location.href = 'http://localhost:5173/dashboardlinks/Dashboard';
-           
-          }, 3000);
-        }
-      },
-     
-      
-     
-    });
-    
-   
+      socket.current.disconnect();
+    };
   }, []);
 
+  const handleOffer = async (offer) => {
+    if (!peerConnection.current) createPeerConnection();
+
+    await peerConnection.current.setRemoteDescription(offer);
+
+    const answer = await peerConnection.current.createAnswer();
+    await peerConnection.current.setLocalDescription(answer);
+
+    socket.current.emit("answer", { answer, roomId });
+  };
+
+  const handleAnswer = async (answer) => {
+    await peerConnection.current.setRemoteDescription(answer);
+  };
+
+  const handleNewICECandidateMsg = async (candidate) => {
+    try {
+      await peerConnection.current.addIceCandidate(candidate);
+    } catch (error) {
+      console.error("Error adding received ice candidate", error);
+    }
+  };
+
+  const createPeerConnection = () => {
+    peerConnection.current = new RTCPeerConnection(ICE_SERVERS);
+
+    const localStream = localVideoRef.current.srcObject;
+    localStream.getTracks().forEach((track) => {
+      peerConnection.current.addTrack(track, localStream);
+    });
+
+    peerConnection.current.ontrack = (event) => {
+      setRemoteStream(event.streams[0]);
+    };
+
+    peerConnection.current.onicecandidate = (event) => {
+      if (event.candidate) {
+        socket.current.emit("ice-candidate", {
+          candidate: event.candidate,
+          roomId,
+        });
+      }
+    };
+  };
+
+  const startCall = async () => {
+    const localStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+    localVideoRef.current.srcObject = localStream;
+
+    createPeerConnection();
+
+    const offer = await peerConnection.current.createOffer();
+    await peerConnection.current.setLocalDescription(offer);
+
+    socket.current.emit("offer", { offer, roomId });
+  };
+
   return (
-    <div
-      className="myCallContainer"
-      ref={containerRef}
-      style={{ width: '100vw', height: '100vh' }}
-    ></div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-[#3661a0] to-[#57cbf5]">
+      <h3 className="text-3xl font-sans text-white mb-6">
+        {role === "teacher" ? "Teacher" : "Student"} Room
+      </h3>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+        <div className="relative bg-white rounded-lg shadow-lg overflow-hidden">
+          <video
+            ref={localVideoRef}
+            autoPlay
+            muted
+            className="w-72 h-72 object-cover rounded-lg"
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <span className="text-white text-lg font-sans">
+              Your Video Preview
+            </span>
+          </div>
+        </div>
+        {remoteStream && (
+          <div className="relative bg-white rounded-lg shadow-lg overflow-hidden">
+            <video
+              ref={remoteVideoRef}
+              autoPlay
+              className="w-72 h-72 object-cover rounded-lg"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <span className="text-white text-lg font-sans">Remote Video</span>
+            </div>
+          </div>
+        )}
+      </div>
+      <button
+        onClick={startCall}
+        className="mt-6 px-6 py-3 bg-[rgb(25,228,52)] text-white rounded-lg shadow-lg hover:bg-green-600 transition font-sans"
+      >
+        Start Call
+      </button>
+    </div>
   );
 }

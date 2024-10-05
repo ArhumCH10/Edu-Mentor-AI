@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
     // Perform logout logic (e.g., clear authentication token)
     // Set isAuthenticated to false
     setIsAuthenticated(false);
+    
   };
 
   return (

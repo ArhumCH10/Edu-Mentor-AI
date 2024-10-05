@@ -1,192 +1,248 @@
-import { Modal } from 'react-bootstrap';
 import { useState, useEffect } from "react";
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { Backend_URI } from '../../../Config/Constant'
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import PropTypes from "prop-types";
+import moment from "moment";
+import { Backend_URI } from "../../../Config/Constant";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const localizer = momentLocalizer(moment);
 
+const ScheduleModal = ({
+  availability,
+  showScheduleModal,
+  handleCloseScheduleModal,
+  profilePhoto,
+  tutorProfileData,
+}) => {
+  const navigate = useNavigate();
+  const [events, setEvents] = useState([]);
 
-const ScheduleModal = ({ availability, showScheduleModal, handleCloseScheduleModal, profilePhoto, tutorProfileData }) => {
+  const fetchConfirmLessons = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/confirmed-trial-lessons`
+      );
+      const confirmedLessons = response.data;
 
-    const navigate = useNavigate();
-    const [events, setEvents] = useState([]);
+      const updatedEvents = events
+        .map((event) => {
+          const foundLesson = confirmedLessons.find((lesson) =>
+            moment(lesson.trialLessonDate).isSame(event.start, "day")
+          );
+          if (foundLesson) {
+            const { studentId, lessonType } = foundLesson;
+            return {
+              ...event,
+              title: "Booked Lesson",
+              status: "booked",
+              className: "booked-lesson",
+              studentId: studentId,
+              lessonType: lessonType,
+            };
+          }
+          return event;
+        })
+        .filter(
+          (event) =>
+            !confirmedLessons.find((lesson) =>
+              moment(lesson.trialLessonDate).isSame(event.start, "day")
+            )
+        );
 
-    const fetchConfirmLessons = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/confirmed-trial-lessons`);
-            const confirmedLessons = response.data;
+      console.log("confirmedLessons", confirmedLessons);
+      console.log("updatedEvents", updatedEvents);
 
-            const updatedEvents = events.map(event => {
-                const foundLesson = confirmedLessons.find(lesson =>
-                    moment(lesson.trialLessonDate).isSame(event.start, 'day')
-                );
-                if (foundLesson) {
-                    const { studentId, lessonType } = foundLesson;
-                    return {
-                        ...event,
-                        title: 'Booked Lesson',
-                        status: 'booked',
-                        className: 'booked-lesson',
-                        studentId: studentId,
-                        lessonType: lessonType,
-                    };
-                }
-                return event;
-            }).filter(event => !confirmedLessons.find(lesson =>
-                moment(lesson.trialLessonDate).isSame(event.start, 'day')
-            ));
+      setEvents(updatedEvents);
+    } catch (error) {
+      console.error("Error fetching confirmed trial lessons:", error);
+    } finally {
+      setFlag(false);
+    }
+  };
 
-            console.log('confirmedLessons', confirmedLessons);
-            console.log('updatedEvents', updatedEvents);
+  const [flag, setFlag] = useState(false);
+  useEffect(() => {
+    if (flag) {
+      fetchConfirmLessons();
+    }
+  }, [flag]);
 
-            setEvents(updatedEvents);
-        } catch (error) {
-            console.error('Error fetching confirmed trial lessons:', error);
-        } finally {
-            setFlag(false);
-        }
-    };
+  useEffect(() => {
+    const generateEvents = () => {
+      const newEvents = [];
+      const today = moment();
+      const twoMonthsLater = moment().add(2, "months");
 
+      const datesUntilTwoMonthsLater = [];
+      while (today.isBefore(twoMonthsLater)) {
+        datesUntilTwoMonthsLater.push(today.clone());
+        today.add(1, "week");
+      }
 
-    const [flag, setFlag] = useState(false);
-    useEffect(() => {
-        if (flag) {
-            fetchConfirmLessons();
-        }
-    }, [flag]);
-
-    useEffect(() => {
-        const generateEvents = () => {
-            const newEvents = [];
-            const today = moment();
-            const twoMonthsLater = moment().add(2, 'months');
-
-            const datesUntilTwoMonthsLater = [];
-            while (today.isBefore(twoMonthsLater)) {
-                datesUntilTwoMonthsLater.push(today.clone());
-                today.add(1, 'week');
-            }
-
-            datesUntilTwoMonthsLater.forEach(date => {
-                availability.forEach(day => {
-                    const dayOfWeek = date.clone().day(day.day);
-                    day.slots.forEach(slot => {
-                        const startDateTime = dayOfWeek.clone().set({
-                            hour: parseInt(slot.from.split(':')[0]),
-                            minute: parseInt(slot.from.split(':')[1]),
-                        });
-                        const endDateTime = dayOfWeek.clone().set({
-                            hour: parseInt(slot.to.split(':')[0]),
-                            minute: parseInt(slot.to.split(':')[1]),
-                        });
-
-                        if (startDateTime.isSameOrAfter(moment(), 'day')) {
-                            newEvents.push({
-                                start: startDateTime.toDate(),
-                                end: endDateTime.toDate(),
-                                // title: `${startDateTime.format('LT')} – ${endDateTime.format('LT')}`,
-                            });
-                        }
-                    });
-                });
+      datesUntilTwoMonthsLater.forEach((date) => {
+        availability.forEach((day) => {
+          const dayOfWeek = date.clone().day(day.day);
+          day.slots.forEach((slot) => {
+            const startDateTime = dayOfWeek.clone().set({
+              hour: parseInt(slot.from.split(":")[0]),
+              minute: parseInt(slot.from.split(":")[1]),
+            });
+            const endDateTime = dayOfWeek.clone().set({
+              hour: parseInt(slot.to.split(":")[0]),
+              minute: parseInt(slot.to.split(":")[1]),
             });
 
-            setEvents(newEvents);
-            if(newEvents){
-                setFlag(true)
+            if (startDateTime.isSameOrAfter(moment(), "day")) {
+              newEvents.push({
+                start: startDateTime.toDate(),
+                end: endDateTime.toDate(),
+                // title: `${startDateTime.format('LT')} – ${endDateTime.format('LT')}`,
+              });
             }
-        };
-        generateEvents();
+          });
+        });
+      });
 
-
-    }, [showScheduleModal]);
-
-    useEffect(() => {
-        const removeUnnecessary = () => {
-            const allDayCell = document.querySelector('.rbc-allday-cell');
-            const alltimegutter = document.querySelector('.rbc-time-gutter');
-            const allrbcEventContent = document.querySelectorAll('.rbc-event-content');
-            if (allDayCell) {
-                allDayCell.remove();
-            }
-            if (alltimegutter) {
-                alltimegutter.remove();
-            }
-
-            if (allrbcEventContent) {
-                allrbcEventContent.forEach((element) => {
-                    element.remove();
-                });
-            }
-
-        };
-        const adjustHeight = () => {
-            const rbcEvent = document.querySelector('.rbc-event');
-            if (rbcEvent && events) {
-                rbcEvent.style.height = 'auto';
-                const modalContent = document.querySelector('.modal-content');
-                if (modalContent) {
-                    modalContent.style.width = '100%';
-                }
-            }
-        };
-        if (events) {
-            removeUnnecessary();
-            adjustHeight();
-         }
-    }, [showScheduleModal, events]);
-
-    const [date, setDate] = useState(new Date());
-
-    const onNavigate = (newDate) => {
-        setDate(newDate);
+      setEvents(newEvents);
+      if (newEvents) {
+        setFlag(true);
+      }
     };
+    generateEvents();
+  }, [showScheduleModal]);
 
-    const handleEventClick = (event) => {
-        const teacherId = tutorProfileData._id;
-        if (teacherId) {
-            const eventDataToSend = {
-                event: event,
-                tutorData: tutorProfileData,
-            };
-            navigate(`/checkout-page/${teacherId}`, { state: { eventData: eventDataToSend } });
-        } else {
-            console.error("Teacher ID is missing or undefined in the URL.");
+  useEffect(() => {
+    const removeUnnecessary = () => {
+      const allDayCell = document.querySelector(".rbc-allday-cell");
+      const alltimegutter = document.querySelector(".rbc-time-gutter");
+      const allrbcEventContent =
+        document.querySelectorAll(".rbc-event-content");
+      if (allDayCell) {
+        allDayCell.remove();
+      }
+      if (alltimegutter) {
+        alltimegutter.remove();
+      }
+
+      if (allrbcEventContent) {
+        allrbcEventContent.forEach((element) => {
+          element.remove();
+        });
+      }
+    };
+    const adjustHeight = () => {
+      const rbcEvent = document.querySelector(".rbc-event");
+      if (rbcEvent && events) {
+        rbcEvent.style.height = "auto";
+        const modalContent = document.querySelector(".modal-content");
+        if (modalContent) {
+          modalContent.style.width = "100%";
         }
+      }
     };
+    if (events) {
+      removeUnnecessary();
+      adjustHeight();
+    }
+  }, [showScheduleModal, events]);
 
-    return (
-        <Modal show={showScheduleModal} onHide={handleCloseScheduleModal} centered className="modal-schedule">
-            <Modal.Header closeButton>
-                <img src={profilePhoto ? `${Backend_URI}/${profilePhoto}` : 'UserDpNotFound.jpg'} alt="userProfile" style={{ marginLeft: '5px', marginRight: '5px', borderRadius: '10% 1%' }} height={40} width={40} onError={(e) => {
-                    e.target.src = `./UserDpNotFound.jpg`;
-                    e.target.style.border = '1px solid #ccc';
+  const [date, setDate] = useState(new Date());
 
-                }} />
-                <Modal.Title>Book a trial lesson</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div className="row" style={{ height: '600px' }}  >
+  const onNavigate = (newDate) => {
+    setDate(newDate);
+  };
 
-                    <div>
-                        <Calendar
-                            localizer={localizer}
-                            events={events}
-                            startAccessor="start"
-                            endAccessor="end"
-                            defaultView="week"
-                            views={['week']}
-                            date={date}
-                            onNavigate={onNavigate}
-                            style={{ height: 450 }}
-                            onSelectEvent={handleEventClick}
-                        />
-                        <style>
-                            {`
+  const handleEventClick = (event) => {
+    const teacherId = tutorProfileData._id;
+    if (teacherId) {
+      const eventDataToSend = {
+        event: event,
+        tutorData: tutorProfileData,
+      };
+      navigate(`/checkout-page/${teacherId}`, {
+        state: { eventData: eventDataToSend },
+      });
+    } else {
+      console.error("Teacher ID is missing or undefined in the URL.");
+    }
+  };
+
+  return (
+    <div
+      className="modal"
+      style={{
+        display: showScheduleModal ? "block" : "none",
+        position: "fixed",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        zIndex: 1000,
+      }}
+      onClick={handleCloseScheduleModal}
+    >
+      <div
+        className="modal-content"
+        style={{
+          backgroundColor: "#fefefe",
+          margin: "15% auto",
+          padding: "20px",
+          border: "1px solid #888",
+          width: "80%",
+          overflowY: "auto",
+          maxHeight: "90vh",
+          zIndex: 1001,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <img
+            src={
+              profilePhoto
+                ? `${Backend_URI}/${profilePhoto}`
+                : "User DpNotFound.jpg"
+            }
+            alt="userProfile"
+            style={{
+              marginLeft: "5px",
+              marginRight: "5px",
+              borderRadius: "10% 1%",
+            }}
+            height={40}
+            width={40}
+            onError={(e) => {
+              e.target.src = `./User DpNotFound.jpg`;
+              e.target.style.border = "1px solid #ccc";
+            }}
+          />
+          <h2>Book a trial lesson</h2>
+          <button
+            type="button"
+            className="close"
+            onClick={handleCloseScheduleModal}
+          >
+            &times;
+          </button>
+        </div>
+        <div className="modal-body">
+          <div className="row" style={{ height: "600px" }}>
+            <div>
+              <Calendar
+                localizer={localizer}
+                events={events}
+                startAccessor="start"
+                endAccessor="end"
+                defaultView="week"
+                views={["week"]}
+                date={date}
+                onNavigate={onNavigate}
+                style={{ height: 450 }}
+                onSelectEvent={handleEventClick}
+              />
+              <style>
+                {`
 .rbc-time-gutter {
 display: none;
 }
@@ -237,20 +293,22 @@ border-right: none  ;
 border-left: none !important;
 }
 `}
-                        </style>
-                        <hr />
-                    </div>
-                </div>
-            </Modal.Body>
-        </Modal>
-    );
+              </style>
+              <hr />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ScheduleModal;
 
 ScheduleModal.propTypes = {
-    availability: PropTypes.array.isRequired,
-    showScheduleModal: PropTypes.bool.isRequired,
-    profilePhoto: PropTypes.string, handleCloseScheduleModal: PropTypes.func.isRequired,
-    tutorProfileData: PropTypes.object.isRequired
+  availability: PropTypes.array.isRequired,
+  showScheduleModal: PropTypes.bool.isRequired,
+  profilePhoto: PropTypes.string,
+  handleCloseScheduleModal: PropTypes.func.isRequired,
+  tutorProfileData: PropTypes.object.isRequired,
 };

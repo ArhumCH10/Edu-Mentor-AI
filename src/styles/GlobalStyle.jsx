@@ -191,6 +191,6 @@ const GlobalStyle = createGlobalStyle`
     /* For dark mode */
     filter: grayscale(var(--image-grayscale)) opacity(var(--image-opacity));
   }
-`
+`;
 
 export default GlobalStyle;

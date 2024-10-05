@@ -13,6 +13,7 @@ export function useSignin() {
     mutationFn: login,
     onSuccess: async (data) => {
       toast.success("Login Successfully");
+      console.log(data);
       loginFrontend();
       if (data.isRegistered) {
         localStorage.setItem("user", JSON.stringify(data));

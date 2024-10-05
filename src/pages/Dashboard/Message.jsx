@@ -377,16 +377,14 @@ export default function Message() {
 
   return (
     <>
-
       <Header />
-      <div className="row msg-page-container">
-        <div className="chatList">
+      <div className="row msg-page-container" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div className="chatList" style={{ flex: '1 0 0', display: 'flex', flexDirection: 'column' }}>
           <input
             className="searchUser"
             type="text"
             placeholder="Search..."
             onChange={(e) => setSearchKeyword(e.target.value)}
-
           />
           {chatListLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -406,9 +404,8 @@ export default function Message() {
               </div>
             )
           )}
-
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           {selectedChat ?
             <>
               <div className="row" style={{ borderBottom: "2px solid #ccc" }}>
@@ -419,7 +416,7 @@ export default function Message() {
                     selectedChat.title
                   )}
                 </div>
-                <div className=" col-5"
+                <div className="col-5"
                   style={{
                     paddingTop: '7px',
                     display: "flex",
@@ -434,68 +431,81 @@ export default function Message() {
                 </div>
               </div>
 
-              <div className="message-body" ref={latestMsgRef} style={{ scrollBehavior: 'smooth', height: 'calc(60vh - 20px)', maxHeight: '500px' }} >
-                {messageListLoading ? (<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                  <Spinner />
-                </div>) : (<MessageList className="message-list" style={{ maxWidth: '80%', overflow: 'hidden' }} dataSource={message} onDownload={(e) => handleDownload(e)} />)}
-              </div>
-              <div className="row row-message-input" >
-                <div className="col " style={{ position: "relative" }} ref={emojiPickerRef} >
-                  <Button
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    color="white"
-                    backgroundColor="white"
-                    text="😀"
+              <div className="message-body" ref={latestMsgRef} style={{ flex: 1, overflowY: 'auto', scrollBehavior: 'smooth', paddingBottom: '60px' }} >
+                {messageListLoading ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <Spinner />
+                  </div>
+                ) : (
+                  <MessageList
+                    className="message-list"
+                    style={{ maxWidth: '80%', overflow: 'hidden' }}
+                    dataSource={message}
+                    onDownload={(e) => handleDownload(e)}
                   />
-                  {showEmojiPicker && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "-305px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        zIndex: 1000,
-                      }}
-                      onClick={handleEmojiPickerClick}
-                    >
-                      <EmojiPicker
-                        onEmojiClick={handleEmojiClick}
-                        disableSearchBar
-                        disableSkinTonePicker
-                        disableAutoFocus
-                        theme="auto"
-                        suggestedEmojisMode="recent"
-                        width={250}
-                        height={300}
-                        searchDisabled="true"
-                      />
-                    </div>
-                  )}
-                </div>
-                <button type="button" className="attachment-button">
-                  <input type="file" onChange={handleFileChange} style={{ display: 'none' }} />
-                  <AttachFileIcon onClick={() => document.querySelector('.attachment-button input').click()} />
-                  </button>
-                <div className="col-11">
-                  <Input
-                    className="custom-input"
-                    placeholder="Type here..."
-                    multiline={false}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-
-                    rightButtons={[
-                      <Button
-                        key="sendButton"
-                        color="white"
-                        backgroundColor="#007BFF"
-                        text="Send"
-                        onClick={handleSend}
-                      />,
-                    ]}
-                  />
-                </div>
+                )}
               </div>
+              <div className="row row-message-input" style={{ position: 'fixed', bottom: '0', width: '100%', display: 'flex', alignItems: 'center', padding: '10px', backgroundColor: 'white', zIndex: 1000 }}>
+  <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', flexGrow: 1 }}>
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ position: 'relative', padding: '0 10px' }} ref={emojiPickerRef}>
+        <Button
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          color="white"
+          backgroundColor="white"
+          text="😀"
+        />
+        {showEmojiPicker && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "40px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1000,
+            }}
+            onClick={handleEmojiPickerClick}
+          >
+            <EmojiPicker
+              onEmojiClick={handleEmojiClick}
+              disableSearchBar
+              disableSkinTonePicker
+              disableAutoFocus
+              theme="auto"
+              suggestedEmojisMode="recent"
+              width={250}
+              height={300}
+              searchDisabled="true"
+            />
+          </div>
+        )}
+      </div>
+      <div style={{ padding: '0 10px' }}>
+        <button type="button" className="attachment-button" style={{ background: 'none', border: 'none' }}>
+          <input type="file" onChange={handleFileChange} style={{ display: 'none' }} />
+          <AttachFileIcon onClick={() => document.querySelector('.attachment-button input').click()} />
+        </button>
+      </div>
+    </div>
+    <div style={{ flex: 1 }}>
+      <Input
+        className="custom-input"
+        placeholder="Type here..."
+        multiline={false}
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+    </div>
+  </div>
+  <div style={{ padding: '0 10px' }}>
+    <Button
+      color="white"
+      backgroundColor="#007BFF"
+      text="Send"
+      onClick={handleSend}
+    />
+  </div>
+</div>
             </>
             :
             <div className="nochat-container" style={{ marginTop: '30px' }}>
@@ -505,10 +515,7 @@ export default function Message() {
             </div>
           }
         </div>
-
-
       </div>
-
     </>
   )
 }
