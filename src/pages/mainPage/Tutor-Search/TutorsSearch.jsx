@@ -19,12 +19,13 @@ import { IoSearch } from "react-icons/io5";
 //import { Backend_URI } from '../../Config/Constant';
 import ReactPlayer from "react-player";
 import TutorSearchFooter from "./TutorSearchFooter";
-import ReactPaginate from "react-paginate";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useSearchTutors } from "./useSearchTutors";
-import SkeletonLoader from "./SkeletonLoader";
-import { Backend_URI } from "../../../Config/Constant";
+import ReactPaginate from 'react-paginate';
+import {  toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+import { useSearchTutors } from './useSearchTutors';
+import SkeletonLoader from './SkeletonLoader';
+import { Backend_URI } from '../../../Config/Constant'
+import { Modal, Form } from "react-bootstrap";
 import ScheduleModal from "./ScheduleModal";
 import { useSignin } from "./useSignin";
 import EnterCode from "./EnterCode";
@@ -564,488 +565,346 @@ function TutorsSearch() {
     }
   };
 
-  return (
-    <>
-      <ToastContainer />
-      <div className="CovertNavStatic">
-        {verified && verified != "null" ? (
-          <AlternativeNavbar currentImageIndex={0} />
-        ) : (
-          <NavBar currentImageIndex={0} />
-        )}
-      </div>
+    return (
+        <>
+            <ToastContainer />
+            <div className="CovertNavStatic">
+            {verified &&  verified != 'null' ? <AlternativeNavbar currentImageIndex={0} /> :
+                    <NavBar currentImageIndex={0} />
+                }
+            </div>
 
-      <div>
-        <h1 style={{ margin: "10px 10px", marginLeft: "20px" }}>
-          Online {mySubject.subject} tutors & teachers for private lessons
-        </h1>
-      </div>
-      <div
-        className={`tutor-searchNav-container container-fluid ${
-          isSticky ? "sticky" : ""
-        }`}
-        style={{
-          top: "0",
-          zIndex: "100",
-          background: isSticky
-            ? "linear-gradient(to bottom, #ffffff, #f8f8f8)"
-            : "white",
-          padding: "1rem",
-          position: "sticky",
-          boxShadow: isSticky
-            ? "0 2px 10px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15)"
-            : "none",
-          borderRadius: "0px 0px 10px 10px",
-          transition: "background 0.3s ease, box-shadow 0.3s ease",
-        }}
-      >
-        <div className="row gap-2 searchNav" style={{ marginLeft: "5px" }}>
-          <div className="col-3 myCustomStyle">
-            <small style={{ marginLeft: "10px" }}>I want to learn</small>
             <div>
-              <Select
-                id="subject"
-                value={selectedSubject}
-                onChange={handleSelectChange}
-                options={subjects}
-                placeholder="Subject"
-                styles={customStyles}
-                onClearValue={handleClear}
-                isClearable
-              />
+                <h1 style={{ margin: "10px 10px", marginLeft: "20px" }}>
+                    Online {mySubject.subject} tutors & teachers for private lessons
+
+                </h1>
             </div>
-          </div>
-          <div className="col-2 myCustomStyle" onClick={OpenRangeModal}>
-            <small style={{ marginLeft: "10px" }}>Price per lesson</small>
             <div
-              className="row"
-              style={{ marginLeft: "0px", marginTop: "5px" }}
-            >
-              <div className="col-9" style={{ fontWeight: "bold" }}>
-                {`$ ${minPrice} - $ ${maxPrice}`}
-              </div>
-              <div className="col-3">
-                <RiArrowDropDownLine style={{ fontSize: "28px" }} />
-              </div>
-              {isRangeModal && (
-                <div className="custom-modal-overlay">
-                  <div className="custom-modal" ref={modalRef}>
-                    <div
-                      className="values"
-                      style={{
-                        margin: "33px",
-                        marginBottom: "10px",
-                        marginLeft: "50px",
-                        fontWeight: "bold",
-                        fontSize: "18px",
-                      }}
-                    >
-                      {`$ ${minPrice} - $ ${maxPrice}`}
-                    </div>
-                    <StyledSlider
-                      defaultValue={[minPrice, maxPrice]}
-                      renderTrack={Track}
-                      renderThumb={Thumb}
-                      pearling
-                      minDistance={1}
-                      onChange={handleSliderChange}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="col-3 myCustomStyle" onClick={openCountryModal}>
-            <small style={{ marginLeft: "10px" }}>Country of birth</small>
-            <div
-              className="row"
-              style={{ marginLeft: "0px", marginTop: "5px" }}
-            >
-              <div className="col-10" style={{ fontWeight: "bold" }}>
-                {selectedCountries.length > 0
-                  ? selectedCountries
-                  : "Any Country"}
-              </div>
-              <div className="col-2">
-                <RiArrowDropDownLine style={{ fontSize: "28px" }} />
-              </div>
-              {isCountryModal && (
-                <div
-                  className="custom-modal-overlay"
-                  style={{
-                    height: "300px",
-                    overflowY: "auto",
-                    paddingTop: "15px",
-                    paddingBottom: "15px",
-                  }}
-                  ref={modalRef}
-                >
-                  <Component3
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    searchResults={searchResults}
-                    setSearchResults={setSearchResults}
-                    selectedCountries={selectedCountries}
-                    setSelectedCountries={setSelectedCountries}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="col-3 myCustomStyle" onClick={openAvailableModal}>
-            <small style={{ marginLeft: "10px" }}>I m available</small>
-            <div
-              className="row"
-              style={{ marginLeft: "0px", marginTop: "5px" }}
-            >
-              <div className="col-10" style={{ fontWeight: "bold" }}>
-                {selectedTimes.length > 0
-                  ? selectedDays.length > 0
-                    ? selectedDays + " " + selectedTimes
-                    : selectedTimes
-                  : selectedDays.length > 0
-                  ? selectedDays
-                  : "Any time"}
-              </div>
-              <div className="col-2">
-                <RiArrowDropDownLine style={{ fontSize: "28px" }} />
-              </div>
-              {isAvailableModal && (
-                <div
-                  className="custom-modal-overlay"
-                  ref={modalRef}
-                  style={{
-                    height: "300px",
-                    overflowY: "auto",
-                    paddingTop: "15px",
-                    paddingBottom: "15px",
-                  }}
-                >
-                  <Component4
-                    selectedTimes={selectedTimes}
-                    setSelectedTimes={setSelectedTimes}
-                    selectedDays={selectedDays}
-                    setSelectedDays={setSelectedDays}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-        <div
-          className="row gap-2 searchNav"
-          style={{ marginLeft: "5px", marginTop: "10px" }}
-        >
-          <div
-            className="col-4 myCustomStyle"
-            style={{ height: "50px", display: "flex", alignItems: "center" }}
-            onClick={handleClick}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                width: "100%",
-                background: isSticky
-                  ? "linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))"
-                  : "white",
-              }}
-            >
-              <span style={{ margin: "10px" }}>
-                <IoSearch />
-              </span>
-              <span style={{ width: "100%", height: "100%" }}>
-                <input
-                  id="search-by-email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  ref={inputRef}
-                  type="text"
-                  name="search"
-                  placeholder="Search by email"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    border: "none",
-                    outline: "none",
+                className={`tutor-searchNav-container container-fluid ${isSticky ? 'sticky' : ''}`}
+                style={{
+                    top: '0',
+                    zIndex: '100',
                     background: isSticky
-                      ? "linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))"
-                      : "white",
-                    padding: "2px 0",
-                  }}
-                />
-              </span>
-            </div>
-          </div>
-          <div className="col-2" style={{ marginTop: "2px" }}>
-            <button className="Tutor-Search-Button" onClick={handleSearch}>
-              Search
-            </button>
-          </div>
-        </div>
-      </div>
-      <main>
-        {skeltonloading ? (
-          <SkeletonLoader />
-        ) : (
-          <>
-            <div
-              className="row"
-              style={{
-                padding: "5px",
-                marginLeft: "20px",
-                fontWeight: "bold",
-                fontSize: "20px",
-              }}
+                        ? 'linear-gradient(to bottom, #ffffff, #f8f8f8)'
+                        : 'white',
+                    padding: '1rem',
+                    position: 'sticky',
+                    boxShadow: isSticky
+                        ? '0 2px 10px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15)'
+                        : 'none',
+                    borderRadius: '0px 0px 10px 10px',
+                    transition: 'background 0.3s ease, box-shadow 0.3s ease',
+                }}
             >
-              {TutorsArray.length} {mySubject.subject} tutors available
-            </div>
-            {TutorsArray.length > 0 ? (
-              TutorsArray.map((index) => (
-                <div
-                  key={index._id}
-                  className="row"
-                  style={{ marginLeft: "5px" }}
-                >
-                  <div className="col-8 prof">
-                    <div
-                      className={`row ${hovered === index ? "hov" : ""}`}
-                      onMouseEnter={() => setHovered(index)}
-                      style={{
-                        marginLeft: "10px",
-                        border:
-                          hovered === index
-                            ? "2px solid black"
-                            : "2px solid #ccc",
-                        padding: "20px",
-                        borderRadius: "5px",
-                        marginBottom: "10px",
-                      }}
-                    >
-                      <div className={` col-2`}>
-                        <a
-                          href={`/tutor?id=${index._id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <img
-                            src={
-                              index.profilePhoto
-                                ? `${Backend_URI}/${index.profilePhoto}`
-                                : "UserDpNotFound.jpg"
-                            }
-                            alt="userProfile"
-                            style={{ margin: "auto", borderRadius: "10% 1%" }}
-                            height={150}
-                            width={120}
-                            onError={(e) => {
-                              e.target.src = `./UserDpNotFound.jpg`;
-                              e.target.style.border = "1px solid #ccc";
-                            }}
-                          />
-                        </a>
-                      </div>
-                      <div className="col-6 mx-4">
-                        <div
-                          className="row"
-                          style={{
-                            fontWeight: "bold",
-                            paddingLeft: "10px",
-                            marginBottom: "10px",
-                          }}
-                        >
-                          <a
-                            className="col-3"
-                            href={`/tutor?id=${index._id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              textDecoration: "none",
-                              color: "black",
-                              display: "inline",
-                            }}
-                          >
-                            {index.firstName} {index.lastName}
-                          </a>
-                          <div className="col-1">
-                            <MdVerified
-                              style={{ display: "inline", color: "green" }}
+                <div className="row gap-2 searchNav" style={{ marginLeft: '5px' }}>
+                    <div className="col-3 myCustomStyle" >
+                        <small style={{ marginLeft: '10px' }}>I want to learn</small>
+                        <div >
+                            <Select
+                                id="subject"
+                                value={selectedSubject}
+                                onChange={handleSelectChange}
+                                options={subjects}
+                                placeholder="Subject"
+                                styles={customStyles}
+                                onClearValue={handleClear}
+                                isClearable
                             />
-                          </div>
                         </div>
-
-                        <div className="row" style={{ marginBottom: "10px" }}>
-                          <span
-                            className="col-4"
-                            style={{
-                              marginLeft: "10px",
-                              padding: "5px",
-                              paddingLeft: "10px",
-                              background: "#f5f5f5",
-                              borderRadius: "5px",
-                            }}
-                          >
-                            Super Tutor
-                          </span>
-                        </div>
-                        <div className="row" style={{ marginBottom: "10px" }}>
-                          <div className="col-1">
-                            <SlGraduation />
-                          </div>
-                          Your Tutor
-                        </div>
-                        <div className="row" style={{ marginBottom: "10px" }}>
-                          <div className="col-1">
-                            <PiStudentDuotone />
-                          </div>
-                          1 lessons
-                        </div>
-                        <div className="row" style={{ whiteSpace: "pre-line" }}>
-                          <p>
-                            {(() => {
-                              let newContent = "";
-                              if (index.profileDescription) {
-                                newContent +=
-                                  index.profileDescription.introduceYourself +
-                                  "\n\n";
-                                newContent +=
-                                  index.profileDescription.motivateStudents +
-                                  "\n\n";
-                                newContent +=
-                                  index.profileDescription.teachingExperience;
-                                content = newContent;
-                              }
-                              return (
-                                <>
-                                  {content.length > 100 ? (
-                                    <>
-                                      {showMoreIndex === index
-                                        ? newContent
-                                        : `${newContent.slice(0, 100)}...`}
-                                      <div
-                                        onClick={() => toggleShowMore(index)}
-                                        style={{
-                                          fontWeight: "bold",
-                                          cursor: "pointer",
-                                          textDecoration: "underline",
-                                        }}
-                                      >
-                                        {showMoreIndex === index
-                                          ? " Hide Details"
-                                          : " Read more"}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    newContent
-                                  )}
-                                </>
-                              );
-                            })()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="col-3">
-                        <div className="row">
-                          <div className="col-4">
-                            <div style={{ fontWeight: "bold" }}>New</div>
-                            <div> tutor</div>
-                          </div>
-                          <div className="col-8">
-                            <div style={{ fontWeight: "bold" }}>
-                              $ {index.hourlyPriceUSD}
+                    </div>
+                    <div className="col-2 myCustomStyle" onClick={OpenRangeModal}>
+                        <small style={{ marginLeft: '10px' }}>Price per lesson</small>
+                        <div className="row" style={{ marginLeft: '0px', marginTop: '5px' }}>
+                            <div className="col-9" style={{ fontWeight: 'bold' }}>
+                                {`$ ${minPrice} - $ ${maxPrice}`}
                             </div>
-                            <div> 50-min lesson</div>
-                          </div>
-                        </div>
-                        <div className="row">
-                          {verified && verified != "null" ? (
-                            <button
-                              className="btn"
-                              onClick={() => {
-                                setShowScheduleModal((prev) => ({
-                                  ...prev,
-                                  [index._id]: true,
-                                }));
-                                setSelectedTutor(index);
-                              }}
-                              style={{
-                                fontWeight: "bold",
-                                background:
-                                  "linear-gradient(to top, #3661a0, #57cbf5)",
-                                border: "2px solid black",
-                                marginTop: "6.5rem",
-                                padding: "8px",
-                                borderRadius: "10px",
-                                width: "110%",
-                              }}
-                            >
-                              Book a trial
-                            </button>
-                          ) : (
-                            <button
-                              className="btn"
-                              onClick={handleShowSignUpModal}
-                              style={{
-                                fontWeight: "bold",
-                                background:
-                                  "linear-gradient(to top, #3661a0, #57cbf5)",
-                                border: "2px solid black",
-                                marginTop: "6.5rem",
-                                padding: "8px",
-                                borderRadius: "10px",
-                                width: "110%",
-                              }}
-                            >
-                              Book a trial
-                            </button>
-                          )}
-
-                          <div
-                            className="modal"
-                            style={{
-                              display: verifyshowModal ? "block" : "none",
-                              position: "fixed",
-                              top: 0,
-                              right: 0,
-                              bottom: 0,
-                              left: 0,
-                              backgroundColor: "rgba(0,0,0,0.5)",
-                              zIndex: 1000,
-                            }}
-                            onClick={handleCloseVerifyModal}
-                          >
-                            <div
-                              className="modal-content"
-                              style={{
-                                backgroundColor: "#fefefe",
-                                margin: "15% auto",
-                                padding: "20px",
-                                border: "1px solid #888",
-                                width: "80%",
-                                overflowY: "auto",
-                                maxHeight: "90vh",
-                                zIndex: 1001,
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <div className="modal-header">
-                                <h2>Enter Verification Code</h2>
-                                <button
-                                  type="button"
-                                  className="close"
-                                  onClick={handleCloseVerifyModal}
-                                >
-                                  &times;
-                                </button>
-                              </div>
-                              <div className="modal-body">
-                                <EnterCode
-                                  handleShowScheduleModal={
-                                    handleShowScheduleModal
-                                  }
-                                />
-                              </div>
+                            <div className="col-3">
+                                <RiArrowDropDownLine style={{ fontSize: '28px' }} />
                             </div>
-                          </div>
+                            {isRangeModal && (
+                                <div className="custom-modal-overlay" >
+                                    <div className="custom-modal" ref={modalRef}>
+                                        <div className="values" style={{ margin: '33px', marginBottom: '10px', marginLeft: '50px', fontWeight: 'bold', fontSize: '18px' }}>
+                                            {`$ ${minPrice} - $ ${maxPrice}`}
+                                        </div>
+                                        <StyledSlider
+                                            defaultValue={[minPrice, maxPrice]}
+                                            renderTrack={Track}
+                                            renderThumb={Thumb}
+                                            pearling
+                                            minDistance={1}
+                                            onChange={handleSliderChange}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div className="col-3 myCustomStyle" onClick={openCountryModal} >
+                        <small style={{ marginLeft: '10px' }}>Country of birth</small>
+                        <div className="row" style={{ marginLeft: '0px', marginTop: '5px' }}>
+                            <div className="col-10" style={{ fontWeight: 'bold' }}>
+                                {selectedCountries.length > 0 ? selectedCountries : "Any Country"}
+                            </div>
+                            <div className="col-2">
+                                <RiArrowDropDownLine style={{ fontSize: '28px' }} />
+                            </div>
+                            {isCountryModal && (
+                                <div className="custom-modal-overlay" style={{ height: '300px', overflowY: 'auto', paddingTop: "15px", paddingBottom: "15px" }} ref={modalRef}>
+                                    <Component3 searchTerm={searchTerm} setSearchTerm={setSearchTerm} searchResults={searchResults} setSearchResults={setSearchResults} selectedCountries={selectedCountries} setSelectedCountries={setSelectedCountries} />
+
+                                </div>
+
+                            )}
+                        </div>
+                    </div>
+                    <div className="col-3 myCustomStyle" onClick={openAvailableModal}>
+                        <small style={{ marginLeft: '10px' }}>I m available</small>
+                        <div className="row" style={{ marginLeft: '0px', marginTop: '5px' }}>
+                            <div className="col-10" style={{ fontWeight: 'bold' }}>
+                                {selectedTimes.length > 0 ? selectedDays.length > 0 ? selectedDays + " " + selectedTimes : selectedTimes : selectedDays.length > 0 ? selectedDays : "Any time"}
+                            </div>
+                            <div className="col-2">
+                                <RiArrowDropDownLine style={{ fontSize: '28px' }} />
+                            </div>
+                            {isAvailableModal && (
+                                <div className="custom-modal-overlay" ref={modalRef} style={{ height: '300px', overflowY: 'auto', paddingTop: "15px", paddingBottom: "15px" }}>
+                                    <Component4 selectedTimes={selectedTimes} setSelectedTimes={setSelectedTimes} selectedDays={selectedDays} setSelectedDays={setSelectedDays} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className="row gap-2 searchNav" style={{ marginLeft: '5px', marginTop: '10px' }}>
+                    <div className="col-4 myCustomStyle" style={{ height: '50px', display: 'flex', alignItems: 'center' }} onClick={handleClick}>
+                        <div style={{ display: 'flex', alignItems: 'center', width: '100%', background: isSticky ? 'linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))' : 'white' }}>
+                            <span style={{ margin: '10px' }}>
+                                <IoSearch />
+                            </span>
+                            <span style={{ width: '100%', height: '100%' }}>
+                                <input id="search-by-email" onChange={(e) => setEmail(e.target.value)} ref={inputRef} type="text" name="search" placeholder="Search by email" style={{ width: '100%', height: '100%', border: 'none', outline: 'none', background: isSticky ? 'linear-gradient(rgb(255, 255, 255), rgb(248, 248, 248))' : 'white', padding: '2px 0' }} />
+                            </span>
+                        </div>
+                    </div>
+                    <div className="col-2" style={{ marginTop: '2px' }}>
+
+                        <button className="Tutor-Search-Button" onClick={handleSearch} >Search</button>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+            <main>
+                {skeltonloading ? (<SkeletonLoader />) : (
+                    <>
+                        <div className="row" style={{ padding: '5px', marginLeft: '20px', fontWeight: 'bold', fontSize: '20px' }}>
+                            {TutorsArray.length} {mySubject.subject} tutors available
+                        </div>
+                        {TutorsArray.length > 0 ? (
+
+                            TutorsArray.map((index) => (
+                                <div key={index} className="row" style={{ marginLeft: '5px' }}>
+                                    <div className="col-8 prof">
+                                        <div
+                                            className={`row ${hovered === index ? 'hov' : ''}`}
+                                            onMouseEnter={() => setHovered(index)}
+                                            style={{
+                                                marginLeft: '10px',
+                                                border: hovered === index ? '2px solid black' : '2px solid #ccc',
+                                                padding: '20px',
+                                                borderRadius: '5px',
+                                                marginBottom: '10px',
+                                            }}
+                                        >
+                                            <div className={` col-2`}>
+                                                <a href={`/tutor?id=${index._id}`} target="_blank" rel="noopener noreferrer">
+                                                    <img src={index.profilePhoto ? `${Backend_URI}/${index.profilePhoto}` : 'UserDpNotFound.jpg'} alt="userProfile" style={{ margin: 'auto', borderRadius: '10% 1%' }} height={150} width={120} onError={(e) => {
+                                                        e.target.src = `./UserDpNotFound.jpg`;
+                                                        e.target.style.border = '1px solid #ccc';
+                                                    }} />
+                                                </a>
+                                            </div>
+                                            <div className="col-6 mx-4">
+                                                <div className="row" style={{ fontWeight: 'bold', paddingLeft: '10px', marginBottom: '10px' }}>
+
+                                                    <a className="col-3" href={`/tutor?id=${index._id}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'black', display: 'inline' }}>
+                                                        {index.firstName} {index.lastName}
+                                                    </a>
+                                                    <div className="col-1">
+                                                        <MdVerified style={{ display: 'inline', color: 'green' }} />
+                                                    </div>
+                                                </div>
+
+                                                <div className="row" style={{ marginBottom: '10px' }}>
+                                                    <span className="col-4" style={{ marginLeft: '10px', padding: '5px', paddingLeft: '10px', background: '#f5f5f5', borderRadius: '5px' }}>
+                                                        Super Tutor
+                                                    </span>
+                                                </div>
+                                                <div className="row" style={{ marginBottom: '10px' }}>
+                                                    <div className="col-1">
+                                                        <SlGraduation />
+                                                    </div>
+                                                    Your Tutor
+                                                </div>
+                                                <div className="row" style={{ marginBottom: '10px' }}>
+                                                    <div className="col-1">
+                                                        <PiStudentDuotone />
+                                                    </div>
+                                                    1 lessons
+                                                </div>
+                                                <div className="row" style={{ whiteSpace: 'pre-line' }}>
+                                                    <p>
+                                                        {(() => {
+                                                            let newContent = '';
+                                                            if (index.profileDescription) {
+                                                                newContent += index.profileDescription.introduceYourself + '\n\n';
+                                                                newContent += index.profileDescription.motivateStudents + '\n\n';
+                                                                newContent += index.profileDescription.teachingExperience;
+                                                                content = newContent;
+                                                            }
+                                                            return (
+                                                                <>
+                                                                    {content.length > 100 ? (
+                                                                        <>
+                                                                            {showMoreIndex === index ? newContent : `${newContent.slice(0, 100)}...`}
+                                                                            <div onClick={() => toggleShowMore(index)} style={{ fontWeight: 'bold', cursor: 'pointer', textDecoration: 'underline' }}>
+                                                                                {showMoreIndex === index ? ' Hide Details' : ' Read more'}
+                                                                            </div>
+                                                                        </>
+                                                                    ) : (
+                                                                        newContent
+                                                                    )}
+                                                                </>
+                                                            );
+                                                        })()}
+                                                    </p>
+                                                </div>
+
+                                            </div>
+                                            <div className="col-3">
+                                                <div className="row">
+                                                    <div className="col-4">
+                                                        <div style={{ fontWeight: 'bold' }}>New</div>
+                                                        <div> tutor</div>
+                                                    </div>
+                                                    <div className="col-8">
+                                                        <div style={{ fontWeight: 'bold' }}>$ {index.hourlyPriceUSD}</div>
+                                                        <div> 50-min lesson</div>
+                                                    </div>
+                                                </div>
+                                                <div className="row">
+                                                {verified &&  verified != 'null' ?
+                                                        <button className="btn" onClick={handleShowScheduleModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                            Book a trial
+                                                        </button> :
+                                                        <button className="btn" onClick={handleShowSignUpModal} style={{ fontWeight: 'bold', background: 'linear-gradient(to top, #3661a0, #57cbf5)', border: '2px solid black', marginTop: '6.5rem', padding: '8px', borderRadius: '10px', width: '110%' }}>
+                                                            Book a trial
+                                                        </button>
+                                                    }
+
+
+                                                    <Modal size="lg" style={{
+                                                        maxHeight: '70vh', // Adjust as needed
+                                                        width: '70%', // Adjust as needed
+                                                        overflow: 'hidden',
+                                                        position: 'fixed',
+                                                        left: '50%',
+                                                        top: '50%',
+                                                        transform: 'translate(-50%, -50%)',
+                                                    }} show={verifyshowModal} onHide={handleCloseVerifyModal} >
+                                                        <Modal.Body>
+                                                            <EnterCode handleShowScheduleModal={handleShowScheduleModal} />
+                                                        </Modal.Body>
+                                                    </Modal>
+                                                    <Modal show={SignUpshowModal} onHide={handleCloseSignUpModal} centered className="modal-signup">
+
+                                                        <Modal.Body>
+                                                            <div className="modal-auth-content">
+                                                                <img src={index.profilePhoto ? `${Backend_URI}/${index.profilePhoto}` : 'UserDpNotFound.jpg'} alt="userProfile" style={{ margin: 'auto', borderRadius: '10% 1%' }} height={100} width={90} onError={(e) => {
+                                                                    e.target.src = `./UserDpNotFound.jpg`;
+                                                                    e.target.style.border = '1px solid #ccc';
+
+                                                                }} />
+                                                                <h4>
+                                                                    Sign up to start learning
+                                                                </h4>
+                                                                <span>
+                                                                    <small>
+                                                                        Only one step left to book your lesson with
+                                                                        &nbsp;{index.firstName} {index.lastName}
+                                                                    </small>
+                                                                </span>
+                                                            </div>
+
+                                                            <button className="google-signup-btn" >
+                                                                <img src="/google-icon.png" alt="Google Icon" className="google-icon" />
+                                                                Continue with Google
+                                                            </button>
+
+                                                            <Form onSubmit={handleSubmit}>
+                                                                <Form.Group controlId="name">
+                                                                    <Form.Label>Name</Form.Label>
+                                                                    <Form.Control
+                                                                        type="text"
+                                                                        className="w-100"
+                                                                        placeholder="Enter name"
+                                                                        value={signUpStudentName}
+                                                                        onChange={(e) => setSignUpStudentName(e.target.value)}
+                                                                        required
+                                                                    />
+                                                                </Form.Group>
+                                                                <Form.Group controlId="studentemail">
+                                                                    <Form.Label>Email</Form.Label>
+                                                                    <Form.Control
+                                                                        type="email"
+                                                                        className="w-100"
+                                                                        placeholder="Enter email"
+                                                                        value={signUpStudentEmail}
+                                                                        onChange={(e) => setSignUpStudentEmail(e.target.value)}
+                                                                        required
+                                                                    />
+                                                                </Form.Group>
+                                                                <Form.Group controlId="studentpassword">
+                                                                    <Form.Label>Password</Form.Label>
+                                                                    <Form.Control
+                                                                        type="password"
+                                                                        className="w-100"
+                                                                        placeholder="Enter password"
+                                                                        value={signUpStudentPassword}
+                                                                        onChange={(e) => setSignUpStudentPassword(e.target.value)}
+                                                                        required
+                                                                    />
+                                                                </Form.Group>
+                                                                <button type="submit" className="google-signup-btn" style={{ background: 'linear-gradient(to top, #3661a0, #57cbf5)', marginTop: '10px' }}>
+                                                                    Submit
+                                                                </button>
+                                                            </Form>
+                                                            <div className="modal-auth-content">
+                                                                <small>
+
+                                                                    By clicking Continue or Sign up, you agree to <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Terms of Use</span>, including <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Subscription Terms</span> and <span style={{ fontWeight: "bold", textDecoration: "underline" }}>Privacy Policy</span>.
+                                                                </small>
+                                                            </div>
+                                                            <div className="modal-auth-footer">
+                                                                <span>Already have an account?</span>
+                                                                <button onClick={handleShowLoginModal} className="modal-auth-footer-login-btn">Login</button>
+                                                            </div>
+                                                        </Modal.Body>
+                                                    </Modal>
+                                                    <Modal show={showLoginModal} onHide={handleCloseLoginModal} centered className="modal-login">
+                                                        <Modal.Body>
+                                                            <div className="modal-auth-content">
+
+                                                                <h4>
+                                                                    Log in to start learning
+                                                                </h4>
+                                                                <div className="modal-auth-footer" style={{ border: 'none' }}>
+                                                                    <span>Don&quot;t have a account?</span>
+                                                                    <button className="modal-auth-footer-login-btn" onClick={handleShowSignUpModal}>Sign up</button>
+                                                                </div>
 
                           <SignupModel
                             setSignUpShowModal={setSignUpShowModal}
