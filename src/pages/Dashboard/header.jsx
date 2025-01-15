@@ -1,11 +1,10 @@
-import { IoIosNotifications } from 'react-icons/io';
-import { VscSignOut } from 'react-icons/vsc';
-import { useState, useEffect } from 'react';
+import { IoIosNotifications } from "react-icons/io";
+import { VscSignOut } from "react-icons/vsc";
+import { useState, useEffect } from "react";
 import { useLogout } from "../TeacherSignUpProcess/useLogout";
-import { useAuth } from '../../AuthContext';
+import { useAuth } from "../../AuthContext";
 import toast from "react-hot-toast";
-import {useUser} from '../../UserContext';
-
+import { useUser } from "../../UserContext";
 
 const Header = () => {
   const userData = useUser();
@@ -18,25 +17,22 @@ const Header = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  
-  const [fullUsername, setFullUsername] = useState('');
 
-  
-  
-  useEffect(()=>{
+  const [fullUsername, setFullUsername] = useState("");
+
+  useEffect(() => {
     if (userData?.userData?.userData) {
       const { firstName, lastName } = userData.userData.userData;
       const username = `${firstName} ${lastName}`;
       setFullUsername(username);
     }
+  }, [userData?.userData?.userData]);
 
-  },[userData?.userData?.userData]);
-  
   const level = 0;
   const money = 0;
 
@@ -48,22 +44,35 @@ const Header = () => {
       toast.error("Logout failed. Please try again.");
     }
   };
-  return (
-    <div className={`header ${isScrolled ? 'scrolled' : ''}`}
-      style={{
-        background: isScrolled ? 'white' : 'transparent',
-        boxShadow: isScrolled ? '0 4px 6px rgba(0, 0, 0, 0.1), 0 6px 15px rgba(0, 0, 0, 0.1)' : 'none',
-        transition: 'background 0.3s, box-shadow 0.3s'
 
-      }}>
-      <div className="left">
-        <h4 className="mx-3 my-3">Welcome, {fullUsername} </h4>
-        <div className="mx-4 btn level-btn">LEVEL {level}</div>
+  return (
+    <div
+      className={`header ${
+        isScrolled ? "scrolled" : ""
+      } flex justify-between items-center p-4 shadow-md`}
+      style={{
+        background: isScrolled ? "white" : "transparent",
+        transition: "background 0.3s, box-shadow 0.3s",
+      }}
+    >
+      {/* Left Section: Welcome and Level */}
+      <div className="flex items-center">
+        <h4 className="mr-4">Welcome, {fullUsername}</h4>
+        <div className="btn font-bold bg-green-400 hover:bg-green-600 text-white px-6 py-2 rounded-md w-28 text-center transition duration-300 ease-in-out">
+          LEVEL {level}
+        </div>
       </div>
-      <div className="right" style={{ display: 'flex', alignItems: 'center',width:'20%', marginRight: 5}}>
-        <IoIosNotifications style={{ fontSize: '2.5rem' }} />
-        <div className="mx-1 btn earn-btn">US $ {money}</div>
-        <VscSignOut className='logout' style={{ fontSize: '2.5rem' }} onClick={handleLogout} />
+
+      {/* Right Section: Icons and Money */}
+      <div className="flex items-center space-x-4">
+        <IoIosNotifications className="text-3xl" />
+        <div className="btn font-bold bg-green-400 hover:bg-green-600 text-white px-4 py-2 w-28 rounded-md">
+          US $ {money}
+        </div>
+        <VscSignOut
+          className="text-3xl cursor-pointer logout"
+          onClick={handleLogout}
+        />
       </div>
     </div>
   );
