@@ -7,7 +7,7 @@ const ActivityCard = styled.div`
   border-radius: 20px;
   padding: 20px;
   color: #ffffff;
-  max-width: 350px;
+  max-width: 100%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-top: 10px;
 `;

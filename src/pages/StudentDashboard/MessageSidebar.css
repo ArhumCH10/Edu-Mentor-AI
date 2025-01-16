@@ -119,9 +119,10 @@
   .message-window {
     display: flex;
     flex-direction: column;
-    height: 100%; 
-    background-color: var(--color-grey-100); 
-    border-radius: 150px;
+    height: 100%;
+    background-color: var(--color-grey-100);
+    border-radius: 15px;
+    position: relative;
   }
   
   
@@ -148,9 +149,10 @@
   }
   
   .message-body {
-    flex-grow: 1;
+    flex: 1;
     overflow-y: auto;
     padding: 10px;
+    margin-bottom: 80px;
   }
   
   .message-item {
@@ -178,20 +180,24 @@
   }
   
   .message-input {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 15px;
     background-color: var(--color-blue-500);
-    border-radius: 10px;
-    
+    border-radius: 0 0 15px 15px;
+    gap: 10px;
   }
   
   .message-input input {
-    flex-grow: 1;
+    flex: 1;
     border-radius: 15px;
     border: none;
-    padding: 10px;
-    margin-left: 10px;
+    padding: 12px 15px;
+    margin: 0 10px;
     color: black;
   }
   
@@ -205,14 +211,10 @@
   }
   
   .emoji-picker-container {
-    position: absolute; /* Adjust if necessary to position relative to the toggle element */
-    bottom: 50px; /* Adjust this value to position the picker right below the input area */
-    right: 300px; /* Adjust based on your layout */
-    display: none; /* Initially hidden */
-    z-index: 1000; 
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    z-index: 1000;
   }
   
   .emoji-picker-container.show {

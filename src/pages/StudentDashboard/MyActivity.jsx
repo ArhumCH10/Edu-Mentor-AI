@@ -9,7 +9,8 @@ const ActivityCard = styled.div`
   border-radius: 20px;
   padding: 20px;
   color: #ffffff;
-  max-width: 560px;
+  width: 100%;
+  max-width: 100%; /* This ensures it doesn't exceed the grid cell width */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-top: 10px;
 `;
