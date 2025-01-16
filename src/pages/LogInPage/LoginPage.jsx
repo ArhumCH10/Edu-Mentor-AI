@@ -38,11 +38,13 @@ const styles = {
     position: "relative",
   },
   greenBox: {
-    position: "absolute",
-    marginLeft: "8rem",
+    position: "fixed", // Changed from absolute to fixed
+    left: "100px",          // Start from left edge
+    top: "80px",      // Start right under navbar (adjust if navbar height differs)
+    bottom: 0,        // Extend to bottom of viewport
+    width: "30%",     // Adjusted width to match your design
     background: "linear-gradient(to bottom, #00ff0a, #009e66)",
-    height: "100%",
-    width: "60%",
+    zIndex: 1,        // Ensure proper layering
   },
   leftImage: {
     width: "25em",
@@ -58,6 +60,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
     width: "60%",
     margin: "auto",
   },

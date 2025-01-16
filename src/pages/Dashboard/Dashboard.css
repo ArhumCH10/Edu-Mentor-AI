@@ -179,15 +179,19 @@
   color: red !important;
   cursor: pointer;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
   position: sticky;
   z-index: 1000;
-  top:0; 
+  top: 0;
   background-color: white;
-  width: 67rem;
   height: 7rem;
+  /* Remove fixed width and add responsive width */
+  width: 120%;
+  max-width: 100%;
+  padding: 0 2rem;
 }
 
 /* profile page css */
