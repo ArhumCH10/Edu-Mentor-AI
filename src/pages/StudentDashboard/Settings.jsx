@@ -14,11 +14,10 @@
 // export default Settings;
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -53,20 +52,7 @@ function a11yProps(index) {
   };
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
-    display: "flex",
-    height: 224,
-  },
-  tabs: {
-    borderRight: `1px solid ${theme.palette.divider}`,
-  },
-}));
-
 export default function Settings() {
-  const classes = useStyles();
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -77,8 +63,11 @@ export default function Settings() {
     <>
       <div>
         <div
-          className={classes.root}
           style={{
+            flexGrow: 1,
+            backgroundColor: "#f5f5f5",
+            display: "flex",
+            height: 224,
             marginTop: "1.5em",
             padding: "5px 0",
             borderRadius: "1em",
@@ -90,7 +79,9 @@ export default function Settings() {
             value={value}
             onChange={handleChange}
             aria-label="Vertical tabs example"
-            className={classes.tabs}
+            sx={{
+              borderRight: "1px solid rgba(0, 0, 0, 0.12)",
+            }}
           >
             <Tab
               style={{ fontWeight: "bold", fontSize: "15px" }}
