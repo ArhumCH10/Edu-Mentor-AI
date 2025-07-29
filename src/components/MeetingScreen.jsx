@@ -14,7 +14,10 @@ export default function MeetingScreen({
   onToggleCamera, 
   onToggleAudio,
   userRole,
-  isTeacherPresent 
+  isTeacherPresent,
+  participants = [],
+  otherParticipants = [],
+  currentUserId
 }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userData, setUserData] = useState(null);
@@ -51,6 +54,22 @@ export default function MeetingScreen({
     }
   };
 
+  // Get other participant for display
+  const getOtherParticipant = () => {
+    return otherParticipants.find(p => p.userId !== currentUserId);
+  };
+
+  const hasOtherParticipants = otherParticipants.length > 0;
+  const otherParticipant = getOtherParticipant();
+
+  console.log("🎬 [MeetingScreen] Render state:", {
+    hasOtherParticipants,
+    otherParticipantsCount: otherParticipants.length,
+    remoteStreamExists: !!remoteStream,
+    participants: participants.length,
+    otherParticipant
+  });
+
   return (
     <div className="flex flex-col h-screen bg-gray-900 overflow-hidden">
       {/* Header */}
@@ -66,6 +85,10 @@ export default function MeetingScreen({
           <div className="h-4 w-px bg-gray-700" />
           <span className={`text-sm ${userRole === 'teacher' ? 'text-blue-400' : 'text-green-400'}`}>
             {userRole === 'teacher' ? 'Teacher' : 'Student'}
+          </span>
+          <div className="h-4 w-px bg-gray-700" />
+          <span className="text-gray-400 text-sm">
+            Participants: {participants.length}
           </span>
           {!isTeacherPresent && userRole === 'student' && (
             <span className="text-yellow-400 text-sm ml-4">
@@ -93,35 +116,87 @@ export default function MeetingScreen({
                 <div className="w-full h-full flex items-center justify-center bg-gray-700">
                   <div className="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center">
                     <span className="text-white text-2xl font-medium">
-                      {userData ? getInitials(userData.firstName, userData.lastName) : ''}
+                      {userData ? getInitials(userData.firstName, userData.lastName) : 'ME'}
                     </span>
                   </div>
                 </div>
               )}
             </div>
+            <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 px-3 py-1 rounded-lg">
+              <span className="text-white text-sm">You ({userRole})</span>
+            </div>
           </div>
 
           {/* Remote video */}
-          {remoteStream ? (
+          {hasOtherParticipants ? (
             <div className="relative rounded-xl overflow-hidden bg-gray-800">
-              <video
-                ref={remoteVideoRef}
-                autoPlay
-                playsInline
-                className="w-full h-full object-cover"
-              />
+              {remoteStream ? (
+                <video
+                  ref={remoteVideoRef}
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-700">
+                  <div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center">
+                    <span className="text-white text-2xl font-medium">
+                      {otherParticipant?.userName?.substring(0, 2).toUpperCase() || 
+                       (otherParticipant?.userRole === 'teacher' ? 'T' : 'S')}
+                    </span>
+                  </div>
+                </div>
+              )}
               <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 px-3 py-1 rounded-lg">
                 <span className="text-white text-sm">
-                  {userRole === 'teacher' ? 'Student' : 'Teacher'}
+                  {otherParticipant?.userName || 
+                   (otherParticipant?.userRole === 'teacher' ? 'Teacher' : 'Student')}
+                  {otherParticipant?.userRole && ` (${otherParticipant.userRole})`}
                 </span>
               </div>
+              {!remoteStream && (
+                <div className="absolute top-4 right-4 bg-yellow-500 bg-opacity-90 px-3 py-1 rounded-lg">
+                  <span className="text-white text-xs">Camera off</span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center bg-gray-700 rounded-xl">
-              <p className="text-gray-400">Waiting for other participant...</p>
+              <div className="text-center">
+                <p className="text-gray-400 mb-2">Waiting for other participant...</p>
+                <p className="text-gray-500 text-sm">
+                  {userRole === 'teacher' 
+                    ? 'Students will appear here when they join' 
+                    : 'Teacher will appear here when they join'}
+                </p>
+              </div>
             </div>
           )}
         </div>
+
+        {/* Participants list - only show if more than 2 participants */}
+        {participants.length > 2 && (
+          <div className="absolute top-4 right-4 bg-gray-800 bg-opacity-90 rounded-lg p-3 max-w-xs">
+            <h4 className="text-white text-sm font-medium mb-2">
+              Participants ({participants.length})
+            </h4>
+            <div className="space-y-1">
+              {participants.map((participant) => (
+                <div 
+                  key={participant.socketId} 
+                  className={`text-xs px-2 py-1 rounded ${
+                    participant.userId === currentUserId 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-700 text-gray-300'
+                  }`}
+                >
+                  {participant.userName} ({participant.userRole})
+                  {participant.userId === currentUserId && ' (You)'}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Controls - Fixed at bottom */}
@@ -186,11 +261,14 @@ MeetingScreen.propTypes = {
   localVideoRef: PropTypes.object.isRequired,
   remoteVideoRef: PropTypes.object.isRequired,
   userRole: PropTypes.string.isRequired,
-  roomId: PropTypes.string.isRequired,
+  roomId: PropTypes.string,
   onEndCall: PropTypes.func.isRequired,
   isCameraOn: PropTypes.bool.isRequired,
   isAudioOn: PropTypes.bool.isRequired,
   onToggleCamera: PropTypes.func.isRequired,
   onToggleAudio: PropTypes.func.isRequired,
-  isTeacherPresent: PropTypes.bool.isRequired
+  isTeacherPresent: PropTypes.bool.isRequired,
+  participants: PropTypes.array,
+  otherParticipants: PropTypes.array,
+  currentUserId: PropTypes.string
 }; 

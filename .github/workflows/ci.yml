@@ -1,0 +1,77 @@
+name: Edu Mentor AI - Continuous Integration
+
+# Trigger the workflow on pull requests to the updated-FYP branch
+on:
+  pull_request:
+    branches: 
+      - updated-FYP
+      - main
+  # Also allow manual triggering
+  workflow_dispatch:
+
+# Set permissions for the workflow
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lint-and-test:
+    name: Lint, Test, and Build Check
+    runs-on: ubuntu-latest
+
+    # Use Node.js LTS version
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    # Checkout the repository code
+    - name: Checkout Repository 🛎️
+      uses: actions/checkout@v4
+      with:
+        # Fetch all history for all branches and tags
+        fetch-depth: 0
+
+    # Setup Node.js with caching for npm dependencies
+    - name: Use Node.js ${{ matrix.node-version }} 🔧
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    # Install dependencies with legacy peer deps to resolve conflicts
+    - name: Install Dependencies 📦
+      run: |
+        npm install --legacy-peer-deps --force
+
+    # Run ESLint with more lenient configuration
+    - name: Run ESLint 🔍
+      run: npm run lint
+
+    # Run test cases
+    - name: Run Test Cases 🧪
+      run: npm run test:run
+
+    # Build the project
+    - name: Build Project 🏗️
+      run: npm run build
+
+    # Upload build artifacts for review
+    - name: Upload Build Artifacts 📤
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-output
+        path: dist/
+        retention-days: 5
+
+# Conditional status checks for PR
+  pr-validation:
+    name: PR Validation
+    needs: [lint-and-test]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Check job results
+      if: >-
+        needs.lint-and-test.result != 'success'
+      run: exit 1
