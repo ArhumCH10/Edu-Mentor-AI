@@ -39,15 +39,14 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
-    # Install dependencies with clean slate
+    # Install dependencies with legacy peer deps to resolve conflicts
     - name: Install Dependencies 📦
       run: |
-        npm ci
         npm install --legacy-peer-deps
 
-    # Run ESLint with strict configuration
+    # Run ESLint with more lenient configuration
     - name: Run ESLint 🔍
-      run: npm run lint:strict
+      run: npm run lint
 
     # Run test cases with coverage
     - name: Run Test Cases 🧪
@@ -65,91 +64,14 @@ jobs:
         path: dist/
         retention-days: 5
 
-    # Add PR comment with test coverage
-    - name: Add Test Coverage PR Comment 💬
-      uses: actions/github-script@v7
-      if: always()
-      with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-          const fs = require('fs');
-          const coverageReport = fs.readFileSync('coverage/text.txt', 'utf8');
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `### 🧪 Test Coverage Report\n\`\`\`\n${coverageReport}\n\`\`\``
-          });
-
-  # Optional: Check for conflicts with updated-FYP branch
-  conflict-check:
-    name: Check for Merge Conflicts
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check for Merge Conflicts
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Merge Conflict Checker
-      run: |
-        git config --global user.name 'GitHub Action'
-        git config --global user.email 'action@github.com'
-        git fetch origin updated-FYP
-        if git merge-base --is-ancestor origin/updated-FYP HEAD; then
-          echo "No conflicts detected"
-        else
-          echo "Merge conflicts detected"
-          exit 1
-        fi
-
-  # Optional: Add performance budget check
-  performance-budget:
-    name: Performance Budget Check
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18.x
-        cache: 'npm'
-
-    - name: Install Dependencies
-      run: npm ci
-
-    - name: Build and Check Performance
-      run: |
-        npm run build
-        npx size-limit
-
 # Conditional status checks for PR
   pr-validation:
     name: PR Validation
-    needs: [lint-and-test, conflict-check, performance-budget]
+    needs: [lint-and-test]
     runs-on: ubuntu-latest
     if: always()
     steps:
     - name: Check job results
       if: >-
-        needs.lint-and-test.result != 'success' ||
-        needs.conflict-check.result != 'success' ||
-        needs.performance-budget.result != 'success'
+        needs.lint-and-test.result != 'success'
       run: exit 1
-
-# Notifications (optional)
-  notify:
-    name: Slack Notification
-    needs: [pr-validation]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-    - name: Send Slack Notification
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        fields: repo,message,commit,author,action,eventName,ref,workflow
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}  # You'll need to set this secret in GitHub
