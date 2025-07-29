@@ -12,7 +12,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage --reporter=text --reporter=json --reporter=html",
+    "test:coverage": "vitest run --coverage",
     "size-limit": "size-limit"
   },
   "size-limit": [
@@ -113,6 +113,7 @@
     "tailwindcss": "^3.4.13",
     "vite": "^5.0.12",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^3.2.4"
+    "vitest": "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.0"
   }
 }
